@@ -1,0 +1,300 @@
+import express, { Request, Response } from "express";
+import { MgnregaScraperService } from "../services/service";
+import { MgnregaUrlParams } from "../types/nrega";
+import {
+  deleteWork,
+  getAllWorks,
+  getWorkByCode,
+  saveWorkData
+} from "../services/databaseService";
+import { findPanchayatByCode } from "@lib/constant";
+
+const scrapRouter = express.Router();
+const scraperService = new MgnregaScraperService();
+
+/**
+ * POST /api/mgnrega/scrape
+ * Scrapes MGNREGA work data from the provided URL and saves it to database
+ */
+// router.post("/scrape", async (req: Request, res: Response) => {
+//   try {
+//     const { url } = req.body;
+
+//     // Validate URL
+//     if (!url || typeof url !== "string") {
+//       return res.status(400).json({
+//         success: false,
+//         error: "URL is required"
+//       });
+//     }
+
+//     // Validate that it's an MGNREGA URL
+//     if (!url.includes("mnregaweb4.nic.in")) {
+//       return res.status(400).json({
+//         success: false,
+//         error: "Invalid URL. Please provide a valid MGNREGA work details URL"
+//       });
+//     }
+
+//     console.log(`Scraping data from: ${url}`);
+
+//     // Scrape the data
+//     const scrapedData = await scraperService.scrapeWorkData(url);
+
+//     // Validate scraped data
+//     if (!scrapedData.workDetail.workCode) {
+//       return res.status(400).json({
+//         success: false,
+//         error: "Unable to extract work code from the page"
+//       });
+//     }
+
+//     console.log(
+//       `Successfully scraped work code: ${scrapedData.workDetail.workCode}`
+//     );
+
+//     // Save to database using the function approach
+//     const savedData = await saveWorkData(scrapedData);
+
+//     console.log(
+//       `Data saved successfully for work code: ${savedData.workDetail.workCode}`
+//     );
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Data scraped and saved successfully",
+//       data: savedData
+//     });
+//   } catch (error: any) {
+//     console.error("Error in scrape endpoint:", error);
+//     return res.status(500).json({
+//       success: false,
+//       error: error.message || "Internal server error"
+//     });
+//   }
+// });
+
+/**
+ * POST /api/mgnrega/scrape-by-params
+ * Builds URL from parameters and scrapes MGNREGA work data
+ */
+scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
+  try {
+    const { workCode, finYear } = req.body;
+
+    // Validate inputs
+    if (!workCode || typeof workCode !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: "Work code is required"
+      });
+    }
+
+    if (!finYear || typeof finYear !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: "Financial year (finYear) is required"
+      });
+    }
+
+    console.log(`Processing work code: ${workCode}`);
+
+    // Extract panchayat code from work code
+    // Work code format: 1515004003/WC/93393042892651835
+    // Panchayat code is the first part before /WC/
+    const workCodeParts = workCode.split("/");
+
+    if (workCodeParts.length < 3) {
+      return res.status(400).json({
+        success: false,
+        error:
+          "Invalid work code format. Expected format: PANCHAYAT_CODE/WC/WORK_ID"
+      });
+    }
+
+    const panchayatCode = workCodeParts[0];
+    console.log(`Extracted panchayat code: ${panchayatCode}`);
+
+    // Find panchayat data from constants
+    const panchayatData = findPanchayatByCode(panchayatCode);
+
+    if (!panchayatData) {
+      res.status(404).json({
+        success: false,
+        error: `Panchayat data not found for code: ${panchayatCode}. Please add this panchayat to your constants file.`
+      });
+      return;
+    }
+
+    console.log(`Found panchayat data:`, {
+      district: panchayatData.district_name_en,
+      block: panchayatData.block_name_en,
+      panchayat: panchayatData.panchayat_name_en
+    });
+
+    // Determine state code and short name based on district
+    // For Karnataka, state_code is 15 and short_name is KN
+    // You may need to expand this logic for other states
+    const stateCode = "15";
+    const shortName = "KN";
+    const stateName = "KARNATAKA";
+
+    // Build the complete URL
+    const url =
+      `https://mnregaweb4.nic.in/netnrega/specific_work_rpt_dtl.aspx?` +
+      `state_name=${encodeURIComponent(stateName)}` +
+      `&state_code=${stateCode}` +
+      `&short_name=${shortName}` +
+      `&district_name=${encodeURIComponent(panchayatData.district_name_en)}` +
+      `&district_code=${panchayatData.district_code}` +
+      `&block_name=${encodeURIComponent(panchayatData.block_name_en)}` +
+      `&block_code=${panchayatData.block_code}` +
+      `&panchayat_name=${encodeURIComponent(panchayatData.panchayat_name_en)}` +
+      `&panchayat_code=${panchayatData.panchayat_code}` +
+      `&work_code=${encodeURIComponent(workCode)}` +
+      `&fin_year=${finYear}`;
+
+    console.log(`Built URL: ${url}`);
+
+    // Scrape the data
+    const scrapedData = await scraperService.scrapeWorkData(url);
+
+    // Validate scraped data
+    if (!scrapedData.workDetail.workCode) {
+      return res.status(400).json({
+        success: false,
+        error:
+          "Unable to extract work data from the page. The work might not exist or the page structure might have changed."
+      });
+    }
+
+    // Save to database
+    const savedData = await saveWorkData(scrapedData);
+
+    console.log(
+      `Data saved successfully for work code: ${savedData.workDetail.workCode}`
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Data scraped and saved successfully",
+      data: {
+        // ...savedData,
+        metadata: {
+          panchayatCode,
+          district: panchayatData.district_name_en,
+          block: panchayatData.block_name_en,
+          panchayat: panchayatData.panchayat_name_en,
+          urlUsed: url,
+          data: scrapedData
+        }
+      }
+    });
+  } catch (error: any) {
+    console.error("Error in scrape-by-workcode endpoint:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Internal server error"
+    });
+  }
+});
+
+/**
+ * GET /api/mgnrega/work/:workCode
+ * Retrieves work data by work code
+ */
+scrapRouter.get("/work/:workCode", async (req: Request, res: Response) => {
+  try {
+    const { workCode } = req.params;
+
+    if (!workCode) {
+      return res.status(400).json({
+        success: false,
+        error: "Work code is required"
+      });
+    }
+
+    const workData = await getWorkByCode(workCode);
+
+    if (!workData) {
+      return res.status(404).json({
+        success: false,
+        error: "Work not found"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: workData
+    });
+  } catch (error: any) {
+    console.error("Error in get work endpoint:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Internal server error"
+    });
+  }
+});
+
+/**
+ * GET /api/mgnrega/works
+ * Retrieves all works with optional filtering
+ */
+scrapRouter.get("/works", async (req: Request, res: Response) => {
+  try {
+    const { workStatus, financialYear, limit, offset } = req.query;
+
+    const filter = {
+      workStatus: workStatus as string,
+      financialYear: financialYear as string,
+      limit: limit ? parseInt(limit as string) : undefined,
+      offset: offset ? parseInt(offset as string) : undefined
+    };
+
+    const works = await getAllWorks(filter);
+
+    return res.status(200).json({
+      success: true,
+      count: works.length,
+      data: works
+    });
+  } catch (error: any) {
+    console.error("Error in get works endpoint:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Internal server error"
+    });
+  }
+});
+
+/**
+ * DELETE /api/mgnrega/work/:workCode
+ * Deletes a work and its documents
+ */
+scrapRouter.delete("/work/:workCode", async (req: Request, res: Response) => {
+  try {
+    const { workCode } = req.params;
+
+    if (!workCode) {
+      return res.status(400).json({
+        success: false,
+        error: "Work code is required"
+      });
+    }
+
+    await deleteWork(workCode);
+
+    return res.status(200).json({
+      success: true,
+      message: `Work ${workCode} deleted successfully`
+    });
+  } catch (error: any) {
+    console.error("Error in delete work endpoint:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Internal server error"
+    });
+  }
+});
+
+export default scrapRouter;

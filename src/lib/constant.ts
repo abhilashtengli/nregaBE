@@ -1,4 +1,11 @@
-export const data = [
+import { PanchayatData } from "../types/nrega";
+
+export function findPanchayatByCode(
+  panchayatCode: string
+): PanchayatData | undefined {
+  return allData.find((data) => data.panchayat_code === panchayatCode);
+}
+export const allData: PanchayatData[] = [
   {
     district_name_kn: "ಕಲಬುರಗಿ",
     district_name_en: "KALABURAGI",
