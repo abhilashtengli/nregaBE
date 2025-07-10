@@ -1,8 +1,8 @@
 import React from "react";
 
 const WorkOrderPDF = ({
-  taluka = "ಕಾಳಗಿ",
-  gramPanchayat = "ಮುದ್ದೇಬಿಹಾಳ",
+  gramPanchayat = "ಕಾಳಗಿ",
+  taluka = "ಮುದ್ದೇಬಿಹಾಳ",
   date = "20/04/2022",
   grama = "ಕಾಳಗಿ",
   workCode = "1507004008/AV/93393042892262348",
@@ -41,7 +41,7 @@ const WorkOrderPDF = ({
         <div className="flex-1 text-center px-4">
           <div className="mb-2">
             <span className="font-bold text-base">
-              ಗ್ರಾಮ ಪಂಚಾಯತಿ ಕಾಯಾರಲಯ, {taluka}, ತಾ । {gramPanchayat}
+              ಗ್ರಾಮ ಪಂಚಾಯತಿ ಕಾಯಾರಲಯ, {gramPanchayat}, ತಾ । {taluka}
             </span>
           </div>
           <div className="mb-4">
@@ -201,19 +201,19 @@ const WorkOrderPDF = ({
           <div>
             <div>ಗೆ,</div>
             <div>ಕಾರ್ಯಕ್ರತ ಸಕಾಯತರು/ಬಿ.ಎಸ್.ಟಿ</div>
-            <div>ಗ್ರಾಮ ಪಂಚಾಯತಿ, {taluka}</div>
+            <div>ಗ್ರಾಮ ಪಂಚಾಯತಿ, {gramPanchayat}</div>
           </div>
         </div>
 
         <div className="text-right">
           <div className="mb-16">
             <div>ಪಂಚಾಯತಿ ಅಧ್ಯಕ್ಷರ ಅಭಿಪ್ರಾಯಗಳು / ಅಧ್ಯಕ್ಷರು</div>
-            <div className="font-bold">ಗ್ರಾಮ ಪಂಚಾಯತಿ {taluka}</div>
+            <div className="font-bold">ಗ್ರಾಮ ಪಂಚಾಯತಿ {gramPanchayat}</div>
           </div>
           <div>
             <div className="font-bold">ಪ್ರತಿ ಮಾಹಿತಿಗಾಗಿ:</div>
             <div>
-              ಮಾನ್ಯ ಕಾರ್ಯನಿರ್ವಾಹಕ ಅಧಿಕಾರಿಗಳು ತಾಲೂಕ ಪಂಚಾಯತಿ, {gramPanchayat}{" "}
+              ಮಾನ್ಯ ಕಾರ್ಯನಿರ್ವಾಹಕ ಅಧಿಕಾರಿಗಳು ತಾಲೂಕ ಪಂಚಾಯತಿ, {taluka}{" "}
               ರವರಿಗೆ ಗೌರವಗಳೊಂದಿಗೆ ಮಾಹಿತಿಗಾಗಿ ಸಲ್ಲಿಸಿದೆ.
             </div>
           </div>
