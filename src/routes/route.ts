@@ -141,7 +141,7 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
 
     // Build the complete URL
     const url =
-      `https://mnregaweb4.nic.in/netnrega/specific_work_rpt_dtl.aspx?` +
+      `https://mnregaweb4.nic.in/netnrega/specific_work_rpt_dtl.aspx?lflag=eng` +
       `state_name=${encodeURIComponent(stateName)}` +
       `&state_code=${stateCode}` +
       `&short_name=${shortName}` +
@@ -153,6 +153,20 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
       `&panchayat_code=${panchayatData.panchayat_code}` +
       `&work_code=${encodeURIComponent(workCode)}` +
       `&fin_year=${finYear}`;
+
+    // const materialReportURl =
+    //   `https://nregastrep.nic.in/netnrega/IndexFrame.aspx?` +
+    //   `lflag=eng` +
+    //   `&District_Code=${panchayatData.district_code}` +
+    //   `&district_name=${encodeURIComponent(panchayatData.district_name_en)}` +
+    //   `&state_name=${encodeURIComponent(stateName)}` +
+    //   `&state_Code=${stateCode}` +
+    //   `&block_name=${encodeURIComponent(panchayatData.block_name_en)}` +
+    //   `&block_code=${panchayatData.block_code}` +
+    //   `&fin_year=${finYear}` +
+    //   `&check=1` +
+    //   `&Panchayat_name=${encodeURIComponent(panchayatData.panchayat_name_en)}` +
+    //   `&Panchayat_Code=${panchayatData.panchayat_code}`;
 
     console.log(`Built URL: ${url}`);
 
@@ -187,6 +201,7 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
           panchayat: panchayatData.panchayat_name_en,
           urlUsed: url,
           data: scrapedData
+          //   materialReportURl: materialReportURl
         }
       }
     });
