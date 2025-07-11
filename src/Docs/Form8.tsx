@@ -3,7 +3,7 @@ import React from "react";
 const WorkAllocationPDF = ({
   gramPanchayat = "ಕಾಳಗ",
   taluka = "ಮುದೆ್ೕಬಹಾಳ",
-  district = "ವಜಯಪುರ",
+  district = " ವಿಜಯಪುರ",
   date = "06/08/2021",
   workDate = "09/08/2021",
   workCode = "1507004008/AV/93393042892262348",
@@ -43,7 +43,7 @@ const WorkAllocationPDF = ({
     return (
       <div
         key={pageNumber}
-        className="w-full max-w-4xl mx-auto bg-white border-2 border-black mb-8"
+        className="w-full text-base max-w-4xl mx-auto bg-white border-2 border-black mb-8"
         style={{
           minHeight: "297mm",
           width: "210mm",
@@ -110,28 +110,29 @@ const WorkAllocationPDF = ({
               </div>
             </div>
 
-            <div className="flex justify-end mb-4">
-              <div className="border-2 border-black p-3 text-center">
-                <div className="font-semibold text-sm">ಕಾಮಗಾರಿಕೆ ಕಡತಕ್ಕಾಗಿ</div>
+            <div className="flex justify-between items-center mb-4 ">
+              <div className="font-semibold text-base">
+                <div className="mb-2">ಗೆ,</div>
+                <div className="mb-1">
+                  ಶ್ರೀ / ಶ್ರೀಮತಿ ಈ ಕೆಳಗಿನ ಪಟ್ಟಿಯಲ್ಲಿರುವಂತೆ
+                </div>
+                <div className="mb-1">{gramPanchayat}</div>
+                <div className="mb-1">{gramPanchayat} ಗ್ರಾಮ ಪಂಚಾಯತ</div>
+                <div className="mb-1">{taluka} ತಾಲೂಕು</div>
+                <div className="mb-4">{district} ಜಿಲ್ಲೆ</div>
+              </div>
+              <div className="border-2 h-fit border-black p-3 text-start">
+                <div className="font-semibold text-sm mb-2">
+                  ಕಾಮಗಾರಿಕೆ ಕಡತಕ್ಕಾಗಿ
+                </div>
                 <div className="font-semibold text-sm">
                   ನಮೂನೆ 8 ನೕಡದ - ಸ್ವೕಕೃತಿ ಪತ್ರ
                 </div>
               </div>
             </div>
 
-            <div className="mb-6">
-              <div className="mb-2">ಗೆ,</div>
-              <div className="mb-1">
-                ಶ್ರೀ / ಶ್ರೀಮತಿ ಈ ಕೆಳಗಿನ ಪಟ್ಟಿಯಲ್ಲಿರುವಂತೆ
-              </div>
-              <div className="mb-1">{gramPanchayat}</div>
-              <div className="mb-1">{gramPanchayat} ಗ್ರಾಮ ಪಂಚಾಯತ</div>
-              <div className="mb-1">{taluka} ತಾಲೂಕು</div>
-              <div className="mb-4">{district} ಜಿಲ್ಲೆ</div>
-            </div>
-
-            <div className="mb-4">
-              <div className="mb-2">
+            <div className="mb-2 text-center">
+              <div className="mb-1 font-bold text-base">
                 ಉದ್ಯೋಗ ಚೀಟಿಯ ಸಂಖ್ಯೆ: ಈ ಕೆಳಗಿನ ಪಟ್ಟಿಯಲ್ಲಿರುವಂತೆ
               </div>
             </div>
