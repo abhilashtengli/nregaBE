@@ -121,7 +121,7 @@ const Form6PDF = ({
                   ಕೆಲಸಕ್ಕಾಗಿ ಅರ್ಜಿ ನಮೂನೆ (ವೈಯಕ್ತಿಕ / ಗುಂಪು)
                 </div>
                 <div className="text-sm mb-4">
-                  ಮಹಾತ್ಮಾ ಗಾಂಧ ನರೇಗಾ ಯೕಜನೆ ಅನುಸೂಚ II ಕಂಡಕೆ 9 ಕಾಯ್ 3(1) ರಂತೆ
+                  ಮಹಾತ್ಮಾ ಗಾಂಧಿ ನರೇಗಾ ಯೕಜನೆ ಅನುಸೂಚ II ಕಂಡಕೆ 9 ಕಾಯ್ದೆ 3(1) ರಂತೆ
                 </div>
               </div>
 
@@ -139,9 +139,9 @@ const Form6PDF = ({
             <div className="border-t-2 border-b-2 border-black py-2 mb-4">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">
-                  ಅಜರ ಸಂಖೆ್ {applicationNumber}
+                  ಅರ್ಜಿ ಸಂಖ್ಯೆ {applicationNumber}
                 </span>
-                <span className="text-sm font-medium">ದನಾಂಕ {date}</span>
+                <span className="text-sm font-medium">ದಿನಾಂಕ {date}</span>
               </div>
             </div>
 
