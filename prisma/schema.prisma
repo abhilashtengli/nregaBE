@@ -34,22 +34,24 @@ model User {
 
 // Main work details table (Table 1 data)
 model WorkDetail {
-  id                 String    @id @default(uuid())
-  state              String
-  district           String
-  panchayat          String
-  block              String
-  workCode           String    @unique // This will be our reference key
-  workName           String?
-  workCategory       String?
-  workType           String? // Work Type/Proposed Status
-  workStatus         String?
-  implementingAgency String?
-  estimatedCost      Decimal?  @db.Decimal(12, 2)
-  actualExpenditure  Decimal?  @db.Decimal(12, 2)
-  sanctionYear       String?
-  workStartDate      DateTime?
-  financialYear      String? // Financial Year (Work Created)
+  id                  String    @id @default(uuid())
+  state               String
+  district            String
+  panchayat           String
+  block               String
+  workCode            String    @unique // This will be our reference key
+  workName            String?
+  workCategory        String?
+  workType            String? // Work Type/Proposed Status
+  workStatus          String?
+  implementingAgency  String?
+  estimatedCost       Decimal?  @db.Decimal(12, 2)
+  actualExpenditure   Decimal?  @db.Decimal(12, 2)
+  sanctionYear        String?
+  workStartDate       DateTime?
+  financialYear       String? // Financial Year (Work Created)
+  estimatedPersonDays String?
+  actualPersonDays    String?
 
   // Timestamps
   createdAt DateTime @default(now())

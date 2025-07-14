@@ -6,6 +6,7 @@ import scrapRouter from "./routes/route";
 import getVendorsRouter from "./routes/getVendors";
 import checklistRouter from "./routes/checklistRoute";
 import frontPageRouter from "./routes/frontPageRoute";
+import tsCopyRouter from "./routes/tsCopyRoute";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use("/", scrapRouter);
 app.use("/", getVendorsRouter);
 app.use("/", checklistRouter);
 app.use("/", frontPageRouter);
+app.use("/", tsCopyRouter);
 
 const PORT = process.env.PORT || 3000;
 app

@@ -25,7 +25,9 @@ export async function saveWorkData(data: ScrapedWorkData) {
         workStatus: data.workDetail.workStatus,
         implementingAgency: data.workDetail.implementingAgency,
         estimatedCost: data.workDetail.estimatedCost,
+        estimatedPersonDays: data.workDetail.estimatedPersonDays?.toString(),
         actualExpenditure: data.workDetail.actualExpenditure,
+        actualPersonDays: data.workDetail.actualPersonDays?.toString(),
         sanctionYear: data.workDetail.sanctionYear,
         workStartDate: data.workDetail.workStartDate,
         financialYear: data.workDetail.financialYear,
@@ -44,7 +46,9 @@ export async function saveWorkData(data: ScrapedWorkData) {
         workStatus: data.workDetail.workStatus,
         implementingAgency: data.workDetail.implementingAgency,
         estimatedCost: data.workDetail.estimatedCost,
+        estimatedPersonDays: data.workDetail.estimatedPersonDays?.toString(),
         actualExpenditure: data.workDetail.actualExpenditure,
+        actualPersonDays: data.workDetail.actualPersonDays?.toString(),
         sanctionYear: data.workDetail.sanctionYear,
         workStartDate: data.workDetail.workStartDate,
         financialYear: data.workDetail.financialYear
@@ -114,7 +118,6 @@ export async function saveWorkData(data: ScrapedWorkData) {
     throw new Error(`Failed to save work data: ${error.message}`);
   }
 }
-
 /**
  * Get work by code with all documents
  */

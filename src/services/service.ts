@@ -134,7 +134,7 @@ export class MgnregaScraperService {
     const mainTable = $("table.mytable").first();
 
     // Debug: Log the table structure
-    // console.log("Extracting work details from table...");
+    console.log("Extracting work details from table...");
 
     // Extract data from table cells
     mainTable.find("tr").each((index, row) => {
@@ -146,41 +146,10 @@ export class MgnregaScraperService {
         const value1 = $(cells[1]).text().trim();
 
         // Debug log
-        // console.log(`Row ${index} - Label1: "${label1}", Value1: "${value1}"`);
+        console.log(`Row ${index} - Label1: "${label1}", Value1: "${value1}"`);
 
         // Map the labels to our data structure
-        switch (label1) {
-          case "Work Code:":
-            workDetails.workCode = value1;
-            break;
-          case "Work Name:":
-            workDetails.workName = value1;
-            break;
-          case "Work Category:":
-            workDetails.workCategory = value1;
-            break;
-          case "Work Status:":
-            workDetails.workStatus = value1;
-            break;
-          case "Implementing Agency:":
-            workDetails.implementingAgency = value1;
-            break;
-          case "Estimated Cost(In Rs.):":
-            workDetails.estimatedCost = this.parseNumber(value1);
-            break;
-          case "Actual Expenditure(In Rs.):":
-            workDetails.actualExpenditure = this.parseNumber(value1);
-            break;
-          case "Sanction Year:":
-            workDetails.sanctionYear = value1;
-            break;
-          case "Work Start Date(DD/MM/YYYY):":
-            workDetails.workStartDate = this.parseDate(value1);
-            break;
-          case "Finacial Year(Work Created):":
-            workDetails.financialYear = value1;
-            break;
-        }
+        this.mapWorkDetailField(label1, value1, workDetails);
       }
 
       // Process second pair of columns (2 and 3)
@@ -189,35 +158,10 @@ export class MgnregaScraperService {
         const value2 = $(cells[3]).text().trim();
 
         // Debug log
-        // console.log(`Row ${index} - Label2: "${label2}", Value2: "${value2}"`);
+        console.log(`Row ${index} - Label2: "${label2}", Value2: "${value2}"`);
 
         // Map the second set of labels
-        switch (label2) {
-          case "Work Name:":
-            workDetails.workName = value2;
-            break;
-          case "Work Type/Proposed Status:":
-            workDetails.workType = value2;
-            break;
-          case "Implementing Agency:":
-            workDetails.implementingAgency = value2;
-            break;
-          case "Actual Expenditure(In Rs.):":
-            workDetails.actualExpenditure = this.parseNumber(value2);
-            break;
-          case "Finacial Year(Work Created):":
-            workDetails.financialYear = value2;
-            break;
-          case "Work Start Date(DD/MM/YYYY):":
-            workDetails.workStartDate = this.parseDate(value2);
-            break;
-          case "Estimated Time of Completion(DD/MM/YYYY):":
-            // You can add this field if needed
-            break;
-          case "Work Completion Date(DD/MM/YYYY):":
-            // You can add this field if needed
-            break;
-        }
+        this.mapWorkDetailField(label2, value2, workDetails);
       }
     });
 
@@ -225,6 +169,74 @@ export class MgnregaScraperService {
     console.log("Extracted work details:", workDetails);
 
     return workDetails;
+  }
+
+  /**
+   * Maps a label-value pair to the appropriate field in workDetails
+   * @param label - The field label from the table
+   * @param value - The field value from the table
+   * @param workDetails - The work details object to update
+   */
+  private mapWorkDetailField(
+    label: string,
+    value: string,
+    workDetails: WorkDetailData
+  ): void {
+    // Normalize label by removing extra spaces and converting to lowercase for comparison
+    const normalizedLabel = label.toLowerCase().replace(/\s+/g, " ").trim();
+
+    switch (normalizedLabel) {
+      case "work code:":
+        workDetails.workCode = value;
+        break;
+      case "work name:":
+        workDetails.workName = value;
+        break;
+      case "work category:":
+        workDetails.workCategory = value;
+        break;
+      case "work status:":
+        workDetails.workStatus = value;
+        break;
+      case "work type/proposed status:":
+        workDetails.workType = value;
+        break;
+      case "implementing agency:":
+        workDetails.implementingAgency = value;
+        break;
+      case "estimated cost(in rs.):":
+        workDetails.estimatedCost = this.parseNumber(value);
+        break;
+      case "estimated persondays:":
+        workDetails.estimatedPersonDays = this.parseNumber(value);
+        break;
+      case "actual expenditure(in rs.):":
+        workDetails.actualExpenditure = this.parseNumber(value);
+        break;
+      case "actual persondays:":
+        workDetails.actualPersonDays = this.parseNumber(value);
+        break;
+      case "sanction year:":
+        workDetails.sanctionYear = value;
+        break;
+      case "work start date(dd/mm/yyyy):":
+        workDetails.workStartDate = this.parseDate(value);
+        break;
+      case "finacial year(work created):":
+      case "financial year(work created):": // Handle both spellings
+        workDetails.financialYear = value;
+        break;
+      case "estimated time of completion(dd/mm/yyyy):":
+        // You can add this field if needed
+        break;
+      case "work completion date(dd/mm/yyyy):":
+        // You can add this field if needed
+        break;
+      default:
+        // Log unhandled labels for debugging
+        console.log(`Unhandled label: "${label}" with value: "${value}"`);
+        break;
+    }
   }
 
   /**
@@ -307,7 +319,12 @@ export class MgnregaScraperService {
    * @returns Parsed number or undefined
    */
   private parseNumber(value: string): number | undefined {
-    const num = parseFloat(value.replace(/,/g, ""));
+    if (!value || value.trim() === "") return undefined;
+
+    // Remove commas and any other non-numeric characters except decimal point
+    const cleanValue = value.replace(/[^0-9.-]/g, "");
+    const num = parseFloat(cleanValue);
+
     return isNaN(num) ? undefined : num;
   }
 

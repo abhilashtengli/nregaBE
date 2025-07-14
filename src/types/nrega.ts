@@ -19,6 +19,8 @@ export interface WorkDetailData {
   sanctionYear?: string;
   workStartDate?: Date;
   financialYear?: string;
+  estimatedPersonDays?: number;
+  actualPersonDays?: number;
 }
 
 export interface PanchayatData {

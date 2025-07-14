@@ -1,20 +1,39 @@
 import React from "react";
-
-const TechnicalSanctionPDF = ({
-  sanctionDate = "1/5/2024",
-  workCode = "1515001014/RC/93393042892467706",
-  financialYear = "2024-25",
-  workName = "ಆಲೂರ ಾÎಮದĹÐ ಬುದು Īೕರು Ī®ಾಹೆಯĹÐ ±ೆ¾İ¬ೆಶನ ¤ೌಂಡ Ļತ ±ೆಟಲŝ",
-  gramPanchayat = "ANOOR",
-  blockPanchayat = "AFZALPUR",
-  sanctionedAmount = "549000",
-  sanctionedAmountInWords = "Five Lakh Forty Nine Thousand Rupees Only",
-  technicalSanctionNo = "???? ?? ? 2024/25/15",
-  sanctionDateFormatted = "01/05/2024",
-  unskilledLabourCharges = "320000",
-  estimateMaterialCost = "549000",
-  estimatePersonDays = "1012.6582278481"
-}) => {
+// COMPLETED
+type TechnicalSanctionPDFProps = {
+  sanctionDate?: string; //3 - from external API
+  workCode?: string; //1 - from database
+  financialYear?: string; //1 - from database
+  workName?: string; //1 - from database
+  gramPanchayat?: string; //1 - from database
+  blockPanchayat?: string; //1 - from database
+  sanctionedAmount?: string; //4 - from external API
+  sanctionedAmountInWords?: string; //1 - generated from sanctionedAmount
+  technicalSanctionNo?: string; //3 - from external API
+  sanctionDateFormatted?: string; //3 - from external API
+  unskilledLabourCharges?: string; //3 - from external API
+  estimateMaterialCost?: string; //3 - from external API
+  estimatePersonDays?: string; //1 - from database
+};
+type TsData = {
+  tsData: TechnicalSanctionPDFProps;
+};
+const TechnicalSanctionPDF = ({ tsData }: TsData) => {
+  const {
+    sanctionDate,
+    workCode,
+    financialYear,
+    workName,
+    gramPanchayat,
+    blockPanchayat,
+    sanctionedAmount,
+    sanctionedAmountInWords,
+    technicalSanctionNo,
+    sanctionDateFormatted,
+    unskilledLabourCharges,
+    estimateMaterialCost,
+    estimatePersonDays
+  } = tsData;
   return (
     <div
       className="max-w-4xl mx-auto p-6 bg-white border-2 border-black"
