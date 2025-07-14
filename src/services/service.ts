@@ -3,7 +3,7 @@ import axios from "axios";
 import {
   ScrapedWorkData,
   WorkDetailData,
-  WorkDocumentsData,
+  WorkDocumentsData
 } from "../types/nrega";
 
 export class MgnregaScraperService {
@@ -20,8 +20,8 @@ export class MgnregaScraperService {
       const response = await axios.get(url, {
         headers: {
           "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        },
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        }
       });
 
       const $ = cheerio.load(response.data);
@@ -37,7 +37,7 @@ export class MgnregaScraperService {
 
       return {
         workDetail,
-        workDocuments,
+        workDocuments
       };
     } catch (error) {
       console.error("Error scraping MGNREGA data:", error);
@@ -60,7 +60,7 @@ export class MgnregaScraperService {
       state: "",
       district: "",
       block: "",
-      panchayat: "",
+      panchayat: ""
     };
 
     try {
@@ -70,11 +70,20 @@ export class MgnregaScraperService {
 
       console.log("Location text:", locationText);
 
-      // Parse the location text using regex patterns
-      const stateMatch = locationText.match(/State\s*:\s*([^<]*?)(?=\s*District|$)/i);
-      const districtMatch = locationText.match(/District\s*:\s*([^<]*?)(?=\s*Block|$)/i);
-      const blockMatch = locationText.match(/Block\s*:\s*([^<]*?)(?=\s*Panchayat|$)/i);
-      const panchayatMatch = locationText.match(/Panchayat\s*:\s*([^<]*?)(?=\s*$)/i);
+      // Parse the location text using improved regex patterns
+      // These patterns account for multiple spaces and are more flexible
+      const stateMatch = locationText.match(
+        /State\s*:\s*([A-Z\s]+?)(?=\s+District\s*:|$)/i
+      );
+      const districtMatch = locationText.match(
+        /District\s*:\s*([A-Z\s]+?)(?=\s+Block\s*:|$)/i
+      );
+      const blockMatch = locationText.match(
+        /Block\s*:\s*([A-Z\s]+?)(?=\s*Panchayat\s*:|$)/i
+      );
+      const panchayatMatch = locationText.match(
+        /Panchayat\s*:\s*([A-Z\s]+?)(?=\s*$)/i
+      );
 
       if (stateMatch) {
         locationData.state = stateMatch[1].trim();
@@ -105,7 +114,12 @@ export class MgnregaScraperService {
    */
   private extractWorkDetails(
     $: cheerio.CheerioAPI,
-    locationData: { state: string; district: string; block: string; panchayat: string }
+    locationData: {
+      state: string;
+      district: string;
+      block: string;
+      panchayat: string;
+    }
   ): WorkDetailData {
     const workDetails: WorkDetailData = {
       workCode: "",
@@ -113,7 +127,7 @@ export class MgnregaScraperService {
       state: locationData.state,
       district: locationData.district,
       block: locationData.block,
-      panchayat: locationData.panchayat,
+      panchayat: locationData.panchayat
     };
 
     // Find the main table with work details (identified by class="mytable")
@@ -224,7 +238,7 @@ export class MgnregaScraperService {
     workCode: string
   ): WorkDocumentsData {
     const documents: WorkDocumentsData = {
-      workCode,
+      workCode
     };
 
     // Document name to property mapping
@@ -248,7 +262,7 @@ export class MgnregaScraperService {
       "Work Completion Certificate": "workCompletionCertificate",
       "Muster Roll Movement Slip": "musterRollMovementSlip",
       "Copy of Social Audit Report of the work": "socialAuditReport",
-      "Other State Specific Documents": "otherStateDocuments",
+      "Other State Specific Documents": "otherStateDocuments"
     };
 
     // Find the documents table
