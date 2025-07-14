@@ -1,25 +1,26 @@
 import React from "react";
 
-const MGNREGAWorkReport = ({
-  workName = "(1515006040/RS/GIS/896488) ದೇಸಣ ಗ್ರಾಮದಲ್ಲಿ ಚರಂ ಕಾಮಗಾ (2023-24)",
+//PENDING
+const GPAbstract = ({
+  workName = "(1515006040/RS/GIS/896488) ದೇಸಣ ಗ್ರಾಮದಲ್ಲಿ ಚರಂ ಕಾಮಗಾ (2023-24)", //1
   natureOfWork = "",
-  workStatus = "On Going",
-  workPurposeStatus = "Constr of Open/Covered Grey Water Drain for Comm",
+  workStatus = "On Going", //1
+  workPurposeStatus = "Constr of Open/Covered Grey Water Drain for Comm", //1
   startStatus = "",
   endStatus = "",
   startLocation = "KAMARWADI",
-  sanctionNoAndDate = "1515006040/2023-2024/480388/AS , 24/01/2024",
-  includedInPerspectivePlan = "No",
-  approvedInAnnualPlan = "No",
-  estimatedCost = "1.89363",
+  sanctionNoAndDate = "1515006040/2023-2024/480388/AS , 24/01/2024", //4
+  includedInPerspectivePlan = "No", //2
+  approvedInAnnualPlan = "No", //2
+  estimatedCost = "1.89363", //1
   estimatedCompletionTime = "6",
   expenditureIncurred = {
-    unskilled: "21172",
-    semiSkilled: "0",
-    skilled: "0",
-    material: "0",
-    contingency: "0",
-    total: "21172"
+    unskilled: "21172", //3
+    semiSkilled: "0", //3
+    skilled: "0", //3
+    material: "0", //3
+    contingency: "0", //3
+    total: "21172" //sum of all above
   },
   employmentGenerated = {
     unskilled: { persondays: "67", totalPersons: "12" },
@@ -27,7 +28,7 @@ const MGNREGAWorkReport = ({
     skilled: { persondays: "0", totalPersons: "0" }
   },
   musterRollsUsed = "42544(3160),44017(18012)",
-  workStartDate = "25/09/2023",
+  workStartDate = "25/09/2023", //1
   beforeWorkPhoto = null,
   duringWorkPhoto = null
 }) => {
@@ -335,4 +336,4 @@ const MGNREGAWorkReport = ({
   );
 };
 
-export default MGNREGAWorkReport;
+export default GPAbstract;
