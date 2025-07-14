@@ -1,11 +1,22 @@
 import React from "react";
 
-const GramPanchayatChecklist = ({
-  gramPanchayat = "ಕಾಳಗಿ",
-  workName = "ಕಾಳಗಿ ಗ್ರಾಮ ಪಂಚಾಯಿತಿಯ ಘನತ್ಯಾಜ್ಯ ವಿಲೇವಾರಿ ಘಟಕ ನಿರ್ಮಾಣ",
-  workCode = "1507004008/AV/93393042892262348",
-  sanctionedYear = "2021-2022"
-}) => {
+type WorkData = {
+  id: string;
+  workCode: string;
+  workName: string;
+  sanctionYear: string;
+  panchayat: string;
+  block: string;
+};
+type GramPanchayatChecklistProps = {
+  workData: WorkData;
+};
+const GramPanchayatChecklist = ({ workData }: GramPanchayatChecklistProps) => {
+  const gramPanchayat = workData?.panchayat || "";
+  const workName = workData?.workName || "";
+  const workCode = workData?.workCode || "";
+  const sanctionedYear = workData?.sanctionYear || "";
+  const block = workData?.block || "";
   const checklistItems = [
     {
       sl: 1,

@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import scrapRouter from "./routes/route";
 import getVendorsRouter from "./routes/getVendors";
+import checklistRouter from "./routes/checklistRoute";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use("/", scrapRouter);
 app.use("/", getVendorsRouter);
+app.use("/", checklistRouter);
 
 const PORT = process.env.PORT || 3000;
 app
