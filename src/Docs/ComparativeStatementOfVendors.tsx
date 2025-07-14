@@ -105,7 +105,7 @@ const ComparativeStatementPDF = ({
         {isFirstPage && (
           <>
             {/* Header with logos */}
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center border-b-2 border-black justify-between pb-2 mb-1">
               <div className="w-16 h-16 flex-shrink-0">
                 <img
                   src="/placeholder.svg?height=64&width=64"
@@ -142,51 +142,53 @@ const ComparativeStatementPDF = ({
                 />
               </div>
             </div>
-
-            <div className="text-center text-xs mb-1">
-              ಕ್ರ.ಸಂ/ಗ್ರಾ.ಪಂ./ಮ.ರಾ.ಗ್ರಾ.ಉ.ಖಾ.ಯೋ/ದ.ಪ.ಅ.ತು.ಪ/{year}
+            <div className="flex justify-between">
+              <div className="text-center  text-xs mb-1">
+                ಕ್ರ.ಸಂ/ಗ್ರಾ.ಪಂ./ಮ.ರಾ.ಗ್ರಾ.ಉ.ಖಾ.ಯೋ/ದ.ಪ.ಅ.ತು.ಪ/{year}
+              </div>
+              <div className="text-right text-xs mb-2">ದಿನಾಂಕ: {date}</div>
             </div>
-            <div className="text-right text-xs mb-2">ದಿನಾಂಕ: {date}</div>
-
             <div className="text-center text-base font-bold mb-2 underline">
               ದರಪಟ್ಟಿಗಳ ತುಲನಾತ್ಮಕ ಪಟ್ಟಿ
             </div>
 
-            <div className="text-[9px] mb-3 text-justify leading-tight">
+            <div className="text-[12px] mb-3 text-justify leading-relaxed">
               ಗ್ರಾಮ ಪಂಚಾಯತಿ ವ್ಯಾಪ್ತಿಯಲ್ಲಿ ಸನ್ {year} ನೇ ಸಾಲಿನ ಮಹಾತ್ಮ ಗಾಂಧಿ
               ರಾಷ್ಟ್ರೀಯ ಗ್ರಾಮೀಣ ಉದ್ಯೋಗ ಖಾತ್ರಿ ಯೋಜನೆಡಿ ಅನುಷ್ಠಾನಗೊಳಿಸುತ್ತಿರುವ
-              {workName}({workCode}) ಕಾಮಗಾರಿ ಅನುಷ್ಠಾನ ಮಾಡಲು ಆಹ್ವಾನಿಸಿರುವ
-              ದರಪಟ್ಟಿಗೆ ಅನುಗುಣವಾಗಿ ಸಾಮಗ್ರಿ ಸರಬರಾಜು ಮಾಡಲು ಬಂದಿರುವ ಸರಬರಾಜುದಾರರ
-              ದರಪಟ್ಟಿಗಳ ತುಲನಾತ್ಮಕ ಪಟ್ಟಿ.
+              <span className="font-semibold">
+                {workName}({workCode})
+              </span>{" "}
+              ಕಾಮಗಾರಿ ಅನುಷ್ಠಾನ ಮಾಡಲು ಆಹ್ವಾನಿಸಿರುವ ದರಪಟ್ಟಿಗೆ ಅನುಗುಣವಾಗಿ ಸಾಮಗ್ರಿ
+              ಸರಬರಾಜು ಮಾಡಲು ಬಂದಿರುವ ಸರಬರಾಜುದಾರರ ದರಪಟ್ಟಿಗಳ ತುಲನಾತ್ಮಕ ಪಟ್ಟಿ.
             </div>
           </>
         )}
 
         {/* Comparative Table */}
         <div className="w-full mb-3">
-          <table className="w-full border-collapse border border-black text-[9px]">
+          <table className="w-full border-collapse border border-black text-[10px]">
             <thead>
               <tr className="bg-gray-100">
                 <th
-                  className="border border-black px-1 py-1 text-center font-bold"
+                  className="border border-black px-1 py-2 text-center font-bold"
                   style={{ width: "30px" }}
                 >
                   ಕ್ರ. ಸಂ.
                 </th>
                 <th
-                  className="border border-black px-1 py-1 text-center font-bold"
+                  className="border border-black px-1 py-2 text-center font-bold"
                   style={{ width: "120px" }}
                 >
                   ಸಾಮಗ್ರಿ ಹೆಸರು
                 </th>
                 <th
-                  className="border border-black px-1 py-1 text-center font-bold"
+                  className="border border-black px-1 py-2 text-center font-bold"
                   style={{ width: "40px" }}
                 >
                   ಪ್ರಮಾಣ
                 </th>
                 <th
-                  className="border border-black px-1 py-1 text-center font-bold"
+                  className="border border-black px-1 py-2 text-center font-bold"
                   style={{ width: "50px" }}
                 >
                   ದರ
@@ -194,7 +196,7 @@ const ComparativeStatementPDF = ({
                   (as per SR)
                 </th>
                 <th
-                  className="border border-black px-1 py-1 text-center font-bold"
+                  className="border border-black px-1 py-2 text-center font-bold"
                   style={{ width: "60px" }}
                 >
                   ಸರಬರಾಜುದಾರ - 1<br />
@@ -203,7 +205,7 @@ const ComparativeStatementPDF = ({
                   GST:{contractor1.gst}
                 </th>
                 <th
-                  className="border border-black px-1 py-1 text-center font-bold"
+                  className="border border-black px-1 py-2 text-center font-bold"
                   style={{ width: "60px" }}
                 >
                   ಸರಬರಾಜುದಾರ - 2<br />
@@ -212,7 +214,7 @@ const ComparativeStatementPDF = ({
                   GST:{contractor2.gst}
                 </th>
                 <th
-                  className="border border-black px-1 py-1 text-center font-bold"
+                  className="border border-black px-1 py-2 text-center font-bold"
                   style={{ width: "60px" }}
                 >
                   ಸರಬರಾಜುದಾರ - 3<br />
@@ -225,25 +227,25 @@ const ComparativeStatementPDF = ({
             <tbody>
               {pageData.map((item, index) => (
                 <tr key={startIndex + index}>
-                  <td className="border border-black px-1 py-1 text-center">
+                  <td className="border border-black px-1 py-2 text-center">
                     {item.slNo}
                   </td>
-                  <td className="border border-black px-1 py-1 text-left break-all">
+                  <td className="border border-black px-1 py-2 text-left break-all">
                     {item.materialName}
                   </td>
-                  <td className="border border-black px-1 py-1 text-center">
+                  <td className="border border-black px-1 py-2 text-center">
                     {item.quantity}
                   </td>
-                  <td className="border border-black px-1 py-1 text-center">
+                  <td className="border border-black px-1 py-2 text-center">
                     {item.rate}
                   </td>
-                  <td className="border border-black px-1 py-1 text-center">
+                  <td className="border border-black px-1 py-2 text-center">
                     {item.contractor1Rate}
                   </td>
-                  <td className="border border-black px-1 py-1 text-center">
+                  <td className="border border-black px-1 py-2 text-center">
                     {item.contractor2Rate}
                   </td>
-                  <td className="border border-black px-1 py-1 text-center">
+                  <td className="border border-black px-1 py-2 text-center">
                     {item.contractor3Rate}
                   </td>
                 </tr>
@@ -255,8 +257,11 @@ const ComparativeStatementPDF = ({
         {/* Footer - Only on last page */}
         {isLastPage && (
           <div className="mt-4">
-            <div className="text-xs mb-3 text-justify">
-              ಈ ಮೇಲ್ಕಂಡ ಸರಬರಾಜುದಾರಿಂದ ಬಂದಿರುವ ದರಪಟ್ಟಿಗಳಲ್ಲಿ {contractor1.name}{" "}
+            <div className="text-xs mb-3 text-justify ">
+              ಈ ಮೇಲ್ಕಂಡ ಸರಬರಾಜುದಾರಿಂದ ಬಂದಿರುವ ದರಪಟ್ಟಿಗಳಲ್ಲಿ{" "}
+              <span className="underline font-semibold tracking-wide">
+                {contractor1.name}
+              </span>{" "}
               ರವರ ದರಗಳು ಕಡಿಮೆ ಇರುವುದರಿಂದ ಅವರ ದರಪಟ್ಟಿಯನ್ನು ಅಂಗೀಕರಿಸಿ, ಸಾಮಗ್ರಿ
               ಸರಬರಾಜು ಆದೇಶ ನೀಡಲು ಅನುಮೋದಿಸಲಾಯಿತು
             </div>
@@ -322,28 +327,34 @@ const ComparativeStatementPDF = ({
               <div className="text-left text-sm mb-1">
                 ತಾಲೂಕು: {taluka} / ಜಿಲ್ಲೆ: {district}
               </div>
-              <div className="text-left text-sm mb-4">ಮಾನ್ಯರೆ,</div>
+              <div className="text-left text-sm  mt-4">ಮಾನ್ಯರೆ,</div>
             </div>
 
-            <div className="mb-6">
-              <div className="text-sm font-bold mb-2">
-                ವಿಷಯ:ಸಾಮಗ್ರಿಗಳಿಗೆ ಐಟಂವಾರು ದರಪಟ್ಟಿ ಸಲ್ಲಿಸುವ ಕುರಿತು
+            <div className="mb-6 pl-24">
+              <div className="text-sm font-semibold mb-2">
+                ವಿಷಯ:
+                <span className="ml-3">
+                  ಸಾಮಗ್ರಿಗಳಿಗೆ ಐಟಂವಾರು ದರಪಟ್ಟಿ ಸಲ್ಲಿಸುವ ಕುರಿತು
+                </span>{" "}
               </div>
-              <div className="text-sm mb-2">
-                ಉಲ್ಲೇಖ:ತಮ್ಮ ದರಪಟ್ಟಿ ಆಹ್ವಾನ ಪ್ರಕಟಣೆ ದಿನಾಂಕ : ದಿನಾಂಕ :{" "}
-                {tenderPublishDate}
+              <div className="text-sm mb-2 font-semibold">
+                ಉಲ್ಲೇಖ:
+                <span className="ml-3">
+                  ತಮ್ಮ ದರಪಟ್ಟಿ ಆಹ್ವಾನ ಪ್ರಕಟಣೆ ದಿನಾಂಕ : ದಿನಾಂಕ :{" "}
+                  {tenderPublishDate}
+                </span>
               </div>
               <div className="text-center text-sm mb-4">********</div>
             </div>
 
-            <div className="text-sm mb-6 text-justify leading-relaxed">
-              ಈ ಮೇಲ್ಕಂಡಿಸಿದ ವಿಷಯ ಹಾಗೂ ಉಲ್ಲೇಖಕ್ಕೆ ಸಂಬಂಧಿಸಿದಂತೆ ನಾನು GST ಅಡಿ
-              ನೋಂದಾಯಿತ ಸಾಮಗ್ರಿ ಸರಬರಾಜುದಾರನಾಗಿದ್ದು, {year} ನೇ ಸಾಲಿನ ಮಹಾತ್ಮ ಗಾಂಧಿ
-              ರಾಷ್ಟ್ರೀಯ ಗ್ರಾಮೀಣ ಉದ್ಯೋಗ ಖಾತ್ರಿ ಯೋಜನೆಡಿ ಕೈಗೊಳ್ಳಲಾಗುವ {workName}(
-              {workCode}) ಕಾಮಗಾರಿಗೆ ಅವಶ್ಯವಿರುವ ಸಾಮಗ್ರಿಗಳಿಗೆ ತಾವು ವಿಧಿಸಿರುವ
-              ಷರತ್ತುಗಳಿಗೆ ಬದ್ಧನಾಗಿ ಈ ಕೆಳಗಿನಂತೆ ದರಪಟ್ಟಿಯನ್ನು ಸಲ್ಲಿಸುತ್ತಿದ್ದು,
-              ನನ್ನ ದರಪಟ್ಟಿಯನ್ನು ಅಂಗೀಕರಿಸಿಸಾಮಗ್ರಿ ಸರಬರಾಜು ಆದೇಶ ನೀಡಬೇಕಾಗಿ ತಮ್ಮಲ್ಲಿ
-              ಕೋರುತ್ತೇನೆ.
+            <div className="text-sm mb-6 text-justify leading-relaxed tracking-wide">
+              <span className="pl-6"></span> ಈ ಮೇಲ್ಕಂಡಿಸಿದ ವಿಷಯ ಹಾಗೂ ಉಲ್ಲೇಖಕ್ಕೆ
+              ಸಂಬಂಧಿಸಿದಂತೆ ನಾನು GST ಅಡಿ ನೋಂದಾಯಿತ ಸಾಮಗ್ರಿ ಸರಬರಾಜುದಾರನಾಗಿದ್ದು,{" "}
+              {year} ನೇ ಸಾಲಿನ ಮಹಾತ್ಮ ಗಾಂಧಿ ರಾಷ್ಟ್ರೀಯ ಗ್ರಾಮೀಣ ಉದ್ಯೋಗ ಖಾತ್ರಿ
+              ಯೋಜನೆಡಿ ಕೈಗೊಳ್ಳಲಾಗುವ {workName}({workCode}) ಕಾಮಗಾರಿಗೆ ಅವಶ್ಯವಿರುವ
+              ಸಾಮಗ್ರಿಗಳಿಗೆ ತಾವು ವಿಧಿಸಿರುವ ಷರತ್ತುಗಳಿಗೆ ಬದ್ಧನಾಗಿ ಈ ಕೆಳಗಿನಂತೆ
+              ದರಪಟ್ಟಿಯನ್ನು ಸಲ್ಲಿಸುತ್ತಿದ್ದು, ನನ್ನ ದರಪಟ್ಟಿಯನ್ನು ಅಂಗೀಕರಿಸಿಸಾಮಗ್ರಿ
+              ಸರಬರಾಜು ಆದೇಶ ನೀಡಬೇಕಾಗಿ ತಮ್ಮಲ್ಲಿ ಕೋರುತ್ತೇನೆ.
             </div>
           </>
         )}
@@ -408,13 +419,21 @@ const ComparativeStatementPDF = ({
 
         {/* Footer - Only on last page */}
         {isLastPage && (
-          <div className="mt-12">
-            <div className="text-right">
-              <div className="text-sm mb-2">ತಮ್ಮ ವಿಶ್ವಾಸಿ</div>
-              <div className="text-sm mb-2">ಸರಬರಾಜುದಾರರ ಸಹಿ</div>
-              <div className="text-sm mb-1">ಹೆಸರು: {contractorName}</div>
-              <div className="text-sm mb-1">ಸ್ಥಳ:</div>
-              <div className="text-sm">ದಿನಾಂ:</div>
+          <div className="mt-7">
+            <div className="">
+              <div className="text-sm mb-2 pr-8 text-right mb-12">
+                ತಮ್ಮ ವಿಶ್ವಾಸಿ
+              </div>
+              <div className="flex justify-between">
+                <div>
+                  <div className="text-sm mb-1 text-start">ಸ್ಥಳ:</div>
+                  <div className="text-sm">ದಿನಾಂಕ:</div>
+                </div>
+                <div>
+                  <div className="text-sm mb-1">ಸರಬರಾಜುದಾರರ ಸಹಿ</div>
+                  <div className="text-sm mb-1">ಹೆಸರು: {contractorName}</div>
+                </div>
+              </div>
             </div>
           </div>
         )}
