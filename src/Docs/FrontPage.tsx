@@ -1,32 +1,72 @@
 import React from "react";
 
-const MGNREGAFrontPage = ({
-  state = "ಕರ್ನಾಟಕ",
-  district = "ವಿಜಯಪುರ",
-  taluka = "ಮುದ್ದೇಬಿಹಾಳ",
-  gramPanchayat = "ಕಾಳಗಿ",
-  workCode = "1507004008/AV/93393042892262348",
-  sanctionedYear = "2021-2022",
-  technicalSanctionNo = "1507004008/2021-2022/567750/TS",
-  projectLocation = "ಕಾಳಗಿ",
-  grama = "ಕಾಳಗಿ",
-  gramaPanchayat = "ಕಾಳಗಿ",
-  talukaDetails = "ಮುದ್ದೇಬಿಹಾಳ",
-  districtDetails = "ವಿಜಯಪುರ",
-  legislativeAssemblyConstituency = "ಮುದ್ದೇಬಿಹಾಳ",
-  lokSabhaConstituency = "ವಿಜಯಪುರ",
-  stateDetails = "ಕರ್ನಾಟಕ",
-  workStartDate = "8/7/2021",
-  estimateLabourCharge = "167606.13",
-  estimatedMaterialCharge = "1033000",
-  estimatedTotal = "1199999.87",
-  throughMGNREGAfunding = "1200000",
-  spentLabourCharges = "",
-  spentMaterialCharges = "",
-  spentTotalCharges = "",
-  leftLogoUrl = "",
-  rightLogoUrl = ""
-}) => {
+interface MGNREGAData {
+  // Database fields (comment //1)
+  state: string;
+  district: string;
+  taluka: string; // mapped from block
+  gramPanchayat: string; // mapped from panchayat
+  workCategory: string;
+  workCode: string;
+  sanctionedYear: string; // mapped from sanctionYear
+  projectLocation: string; // mapped from panchayat
+  grama: string; // mapped from panchayat
+  gramaPanchayat: string; // mapped from panchayat
+  talukaDetails: string; // mapped from block
+  districtDetails: string; // mapped from district
+  legislativeAssemblyConstituency: string; // mapped from block
+  lokSabhaConstituency: string; // mapped from district
+  stateDetails: string; // mapped from state
+  workStartDate: string;
+
+  // Technical Sanction scraped data (comment //3)
+  technicalSanctionNo: string;
+  estimateLabourCharge: string;
+  estimatedMaterialCharge: string;
+  estimatedSkilledCost: string;
+  estimatedSemiSkilledCost: string;
+  contingencyCost: string;
+
+  // Administrative Sanction scraped data (comment //4)
+  estimatedTotal: string;
+  throughMGNREGAfunding: string;
+
+  // Optional spent amounts (can be empty initially)
+  spentLabourCharges?: string;
+  spentMaterialCharges?: string;
+  spentTotalCharges?: string;
+}
+
+interface MGNREGAFrontPageProps {
+  mgnregaData: MGNREGAData;
+}
+const MGNREGAFrontPage: React.FC<MGNREGAFrontPageProps> = ({ mgnregaData }) => {
+  const {
+    state,
+    district,
+    taluka,
+    gramPanchayat,
+    workCategory,
+    workCode,
+    sanctionedYear,
+    technicalSanctionNo,
+    projectLocation,
+    grama,
+    gramaPanchayat,
+    talukaDetails,
+    districtDetails,
+    legislativeAssemblyConstituency,
+    lokSabhaConstituency,
+    stateDetails,
+    workStartDate,
+    estimateLabourCharge,
+    estimatedMaterialCharge,
+    estimatedTotal,
+    throughMGNREGAfunding,
+    spentLabourCharges = "",
+    spentMaterialCharges = "",
+    spentTotalCharges = ""
+  } = mgnregaData;
   return (
     <div
       className="max-w-4xl mx-auto p-6 bg-white"
@@ -41,17 +81,11 @@ const MGNREGAFrontPage = ({
         <div className="flex justify-between items-start mb-6">
           {/* Left Logo */}
           <div className="w-24 h-24 flex-shrink-0">
-            {leftLogoUrl ? (
-              <img
-                src={leftLogoUrl}
-                alt="Government Logo"
-                className="w-full h-full object-contain"
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-200 border border-gray-400 flex items-center justify-center">
-                <span className="text-xs text-gray-600">Logo</span>
-              </div>
-            )}
+            <img
+              src="/"
+              alt="Government Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
 
           {/* Center Title */}
@@ -70,17 +104,11 @@ const MGNREGAFrontPage = ({
 
           {/* Right Logo */}
           <div className="w-24 h-24 flex-shrink-0">
-            {rightLogoUrl ? (
-              <img
-                src={rightLogoUrl}
-                alt="MGNREGA Logo"
-                className="w-full h-full object-contain"
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-200 border border-gray-400 flex items-center justify-center">
-                <span className="text-xs text-gray-600">Logo</span>
-              </div>
-            )}
+            <img
+              src="/"
+              alt="MGNREGA Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
         </div>
 
@@ -149,7 +177,7 @@ const MGNREGAFrontPage = ({
           <div className="flex">
             <span className="font-bold mr-2">6.</span>
             <span className="font-bold">
-              ಕಾಮಗಾರಿ ವಿಭಾಗ (ಗುತ್ತಿ): <u>Anganvany</u>
+              ಕಾಮಗಾರಿ ವರ್ಗ (ಗುಚ್ಚ): <u>{workCategory}</u>
             </span>
           </div>
 

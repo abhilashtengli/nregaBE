@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import scrapRouter from "./routes/route";
 import getVendorsRouter from "./routes/getVendors";
 import checklistRouter from "./routes/checklistRoute";
+import frontPageRouter from "./routes/frontPageRoute";
 
 dotenv.config();
 
@@ -15,7 +16,7 @@ app.use(
     origin: "http://localhost:5173",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
   })
 );
 
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use("/", scrapRouter);
 app.use("/", getVendorsRouter);
 app.use("/", checklistRouter);
+app.use("/", frontPageRouter);
 
 const PORT = process.env.PORT || 3000;
 app
