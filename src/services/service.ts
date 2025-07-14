@@ -3,7 +3,7 @@ import axios from "axios";
 import {
   ScrapedWorkData,
   WorkDetailData,
-  WorkDocumentsData
+  WorkDocumentsData,
 } from "../types/nrega";
 
 export class MgnregaScraperService {
@@ -20,8 +20,8 @@ export class MgnregaScraperService {
       const response = await axios.get(url, {
         headers: {
           "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-        }
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        },
       });
 
       const $ = cheerio.load(response.data);
@@ -34,7 +34,7 @@ export class MgnregaScraperService {
 
       return {
         workDetail,
-        workDocuments
+        workDocuments,
       };
     } catch (error) {
       console.error("Error scraping MGNREGA data:", error);
@@ -49,7 +49,7 @@ export class MgnregaScraperService {
    */
   private extractWorkDetails($: cheerio.CheerioAPI): WorkDetailData {
     const workDetails: WorkDetailData = {
-      workCode: ""
+      workCode: "",
     };
 
     // Find the main table with work details (identified by class="mytable")
@@ -160,7 +160,7 @@ export class MgnregaScraperService {
     workCode: string
   ): WorkDocumentsData {
     const documents: WorkDocumentsData = {
-      workCode
+      workCode,
     };
 
     // Document name to property mapping
@@ -184,7 +184,7 @@ export class MgnregaScraperService {
       "Work Completion Certificate": "workCompletionCertificate",
       "Muster Roll Movement Slip": "musterRollMovementSlip",
       "Copy of Social Audit Report of the work": "socialAuditReport",
-      "Other State Specific Documents": "otherStateDocuments"
+      "Other State Specific Documents": "otherStateDocuments",
     };
 
     // Find the documents table

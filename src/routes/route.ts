@@ -5,7 +5,7 @@ import {
   deleteWork,
   getAllWorks,
   getWorkByCode,
-  saveWorkData
+  saveWorkData,
 } from "../services/databaseService";
 import { findPanchayatByCode } from "@lib/constant";
 
@@ -86,14 +86,14 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
     if (!workCode || typeof workCode !== "string") {
       return res.status(400).json({
         success: false,
-        error: "Work code is required"
+        error: "Work code is required",
       });
     }
 
     if (!finYear || typeof finYear !== "string") {
       return res.status(400).json({
         success: false,
-        error: "Financial year (finYear) is required"
+        error: "Financial year (finYear) is required",
       });
     }
 
@@ -108,7 +108,7 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error:
-          "Invalid work code format. Expected format: PANCHAYAT_CODE/WC/WORK_ID"
+          "Invalid work code format. Expected format: PANCHAYAT_CODE/WC/WORK_ID",
       });
     }
 
@@ -121,7 +121,7 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
     if (!panchayatData) {
       res.status(404).json({
         success: false,
-        error: `Panchayat data not found for code: ${panchayatCode}. Please add this panchayat to your constants file.`
+        error: `Panchayat data not found for code: ${panchayatCode}. Please add this panchayat to your constants file.`,
       });
       return;
     }
@@ -129,7 +129,7 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
     console.log(`Found panchayat data:`, {
       district: panchayatData.district_name_en,
       block: panchayatData.block_name_en,
-      panchayat: panchayatData.panchayat_name_en
+      panchayat: panchayatData.panchayat_name_en,
     });
 
     // Determine state code and short name based on district
@@ -178,7 +178,7 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error:
-          "Unable to extract work data from the page. The work might not exist or the page structure might have changed."
+          "Unable to extract work data from the page. The work might not exist or the page structure might have changed.",
       });
     }
 
@@ -200,16 +200,16 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
           block: panchayatData.block_name_en,
           panchayat: panchayatData.panchayat_name_en,
           urlUsed: url,
-          data: scrapedData
+          data: scrapedData,
           //   materialReportURl: materialReportURl
-        }
-      }
+        },
+      },
     });
   } catch (error: any) {
     console.error("Error in scrape-by-workcode endpoint:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "Internal server error"
+      error: error.message || "Internal server error",
     });
   }
 });
@@ -225,7 +225,7 @@ scrapRouter.get("/work/:workCode", async (req: Request, res: Response) => {
     if (!workCode) {
       return res.status(400).json({
         success: false,
-        error: "Work code is required"
+        error: "Work code is required",
       });
     }
 
@@ -234,19 +234,19 @@ scrapRouter.get("/work/:workCode", async (req: Request, res: Response) => {
     if (!workData) {
       return res.status(404).json({
         success: false,
-        error: "Work not found"
+        error: "Work not found",
       });
     }
 
     return res.status(200).json({
       success: true,
-      data: workData
+      data: workData,
     });
   } catch (error: any) {
     console.error("Error in get work endpoint:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "Internal server error"
+      error: error.message || "Internal server error",
     });
   }
 });
@@ -263,7 +263,7 @@ scrapRouter.get("/works", async (req: Request, res: Response) => {
       workStatus: workStatus as string,
       financialYear: financialYear as string,
       limit: limit ? parseInt(limit as string) : undefined,
-      offset: offset ? parseInt(offset as string) : undefined
+      offset: offset ? parseInt(offset as string) : undefined,
     };
 
     const works = await getAllWorks(filter);
@@ -271,13 +271,13 @@ scrapRouter.get("/works", async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       count: works.length,
-      data: works
+      data: works,
     });
   } catch (error: any) {
     console.error("Error in get works endpoint:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "Internal server error"
+      error: error.message || "Internal server error",
     });
   }
 });
@@ -293,7 +293,7 @@ scrapRouter.delete("/work/:workCode", async (req: Request, res: Response) => {
     if (!workCode) {
       return res.status(400).json({
         success: false,
-        error: "Work code is required"
+        error: "Work code is required",
       });
     }
 
@@ -301,13 +301,13 @@ scrapRouter.delete("/work/:workCode", async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: `Work ${workCode} deleted successfully`
+      message: `Work ${workCode} deleted successfully`,
     });
   } catch (error: any) {
     console.error("Error in delete work endpoint:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "Internal server error"
+      error: error.message || "Internal server error",
     });
   }
 });
