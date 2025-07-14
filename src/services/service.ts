@@ -26,8 +26,11 @@ export class MgnregaScraperService {
 
       const $ = cheerio.load(response.data);
 
+      // Extract location data first
+      const locationData = this.extractLocationData($);
+
       // Extract work details from Table 1
-      const workDetail = this.extractWorkDetails($);
+      const workDetail = this.extractWorkDetails($, locationData);
 
       // Extract document links from Table 2
       const workDocuments = this.extractDocumentLinks($, workDetail.workCode);
@@ -43,13 +46,74 @@ export class MgnregaScraperService {
   }
 
   /**
+   * Extracts location data from the header span
+   * @param $ - Cheerio instance
+   * @returns Object with state, district, block, and panchayat
+   */
+  private extractLocationData($: cheerio.CheerioAPI): {
+    state: string;
+    district: string;
+    block: string;
+    panchayat: string;
+  } {
+    const locationData = {
+      state: "",
+      district: "",
+      block: "",
+      panchayat: "",
+    };
+
+    try {
+      // Find the span with location information
+      const locationSpan = $("#ctl00_ContentPlaceHolder1_lbl_head");
+      const locationText = locationSpan.text();
+
+      console.log("Location text:", locationText);
+
+      // Parse the location text using regex patterns
+      const stateMatch = locationText.match(/State\s*:\s*([^<]*?)(?=\s*District|$)/i);
+      const districtMatch = locationText.match(/District\s*:\s*([^<]*?)(?=\s*Block|$)/i);
+      const blockMatch = locationText.match(/Block\s*:\s*([^<]*?)(?=\s*Panchayat|$)/i);
+      const panchayatMatch = locationText.match(/Panchayat\s*:\s*([^<]*?)(?=\s*$)/i);
+
+      if (stateMatch) {
+        locationData.state = stateMatch[1].trim();
+      }
+      if (districtMatch) {
+        locationData.district = districtMatch[1].trim();
+      }
+      if (blockMatch) {
+        locationData.block = blockMatch[1].trim();
+      }
+      if (panchayatMatch) {
+        locationData.panchayat = panchayatMatch[1].trim();
+      }
+
+      console.log("Extracted location data:", locationData);
+    } catch (error) {
+      console.error("Error extracting location data:", error);
+    }
+
+    return locationData;
+  }
+
+  /**
    * Extracts work details from the first table
    * @param $ - Cheerio instance
+   * @param locationData - Location data to merge with work details
    * @returns WorkDetailData object
    */
-  private extractWorkDetails($: cheerio.CheerioAPI): WorkDetailData {
+  private extractWorkDetails(
+    $: cheerio.CheerioAPI,
+    locationData: { state: string; district: string; block: string; panchayat: string }
+  ): WorkDetailData {
     const workDetails: WorkDetailData = {
       workCode: "",
+      // Add location data
+      state: locationData.state,
+      district: locationData.district,
+      block: locationData.block,
+      panchayat: locationData.panchayat,
     };
 
     // Find the main table with work details (identified by class="mytable")
@@ -144,7 +208,7 @@ export class MgnregaScraperService {
     });
 
     // Log the extracted details
-    // console.log("Extracted work details:", workDetails);
+    console.log("Extracted work details:", workDetails);
 
     return workDetails;
   }

@@ -15,6 +15,10 @@ export async function saveWorkData(data: ScrapedWorkData) {
       },
       update: {
         // Update all fields with new scraped data
+        state: data.workDetail.state,
+        district: data.workDetail.district,
+        block: data.workDetail.block,
+        panchayat: data.workDetail.panchayat,
         workName: data.workDetail.workName,
         workCategory: data.workDetail.workCategory,
         workType: data.workDetail.workType,
@@ -30,6 +34,10 @@ export async function saveWorkData(data: ScrapedWorkData) {
       create: {
         // Create new record with all data
         workCode: data.workDetail.workCode,
+        state: data.workDetail.state,
+        district: data.workDetail.district,
+        block: data.workDetail.block,
+        panchayat: data.workDetail.panchayat,
         workName: data.workDetail.workName,
         workCategory: data.workDetail.workCategory,
         workType: data.workDetail.workType,

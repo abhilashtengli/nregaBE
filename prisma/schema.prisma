@@ -35,6 +35,10 @@ model User {
 // Main work details table (Table 1 data)
 model WorkDetail {
   id                 String    @id @default(uuid())
+  state              String
+  district           String
+  panchayat          String
+  block              String
   workCode           String    @unique // This will be our reference key
   workName           String?
   workCategory       String?
