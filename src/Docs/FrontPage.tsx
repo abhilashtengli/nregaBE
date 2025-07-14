@@ -1,5 +1,6 @@
 import React from "react";
 
+// COMPLETED
 interface MGNREGAData {
   // Database fields (comment //1)
   state: string;

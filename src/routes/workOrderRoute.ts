@@ -1,14 +1,14 @@
 import { prisma } from "@lib/prisma";
 import express, { Request, Response } from "express";
 
-const checklistRouter = express.Router();
+const workOrderRouter = express.Router();
 
-checklistRouter.get(
+workOrderRouter.get(
   "/get-checklist/:id",
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      console.log("Fetching checklist for ID:", id);
+      console.log("Fetching Work order for ID:", id);
 
       // Validate ID parameter
       if (!id) {
@@ -29,9 +29,9 @@ checklistRouter.get(
           id: true,
           workCode: true,
           workName: true,
-          sanctionYear: true,
           panchayat: true,
           block: true,
+          estimatedCost: true,
         },
       });
 
@@ -52,15 +52,15 @@ checklistRouter.get(
         message: "Work details retrieved successfully",
       });
     } catch (error: any) {
-      console.error("Error in get-checklist endpoint:", error);
+      console.error("Error in get-Work order endpoint:", error);
       res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
-        code: "FETCH_CHECKLIST_ERROR",
+        code: "FETCH_WORK_ORDER_ERROR",
       });
       return;
     }
   }
 );
 
-export default checklistRouter;
+export default workOrderRouter;

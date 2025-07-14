@@ -1,16 +1,26 @@
 import React from "react";
+// PENDING
+type WorkData = {
+  id: string;
+  workCode: string;
+  workName: string;
+  panchayat: string;
+  block: string;
+  estimatedCost: string;
+  date: string; // figure out from where this comes
+};
+type WorkOrderProps = {
+  workOrderDate: WorkData;
+};
+const WorkOrderPDF = ({ workOrderDate }: WorkOrderProps) => {
+  const { panchayat, block, date, workCode, workName, estimatedCost } =
+    workOrderDate;
 
-const WorkOrderPDF = ({
-  gramPanchayat = "ಕಾಳಗಿ",
-  taluka = "ಮುದ್ದೇಬಿಹಾಳ",
-  date = "20/04/2022",
-  grama = "ಕಾಳಗಿ",
-  workCode = "1507004008/AV/93393042892262348",
-  workName = "ಕಾಳಗಿ ಗ್ರಾಮ ಪಂಚಾಯಿತಿಯ ಘನತ್ಯಾಜ್ಯ ವಿಲೇವಾರಿ ಘಟಕ ನಿರ್ಮಾಣ",
-  estimatedAmount = "1199999.87",
-  leftLogoUrl = "",
-  rightLogoUrl = ""
-}) => {
+  const gramPanchayat = panchayat || "";
+  const taluka = block || "";
+  const estimatedAmount = estimatedCost || "";
+  const grama = panchayat || ""; // Assuming grama is the same as gramPanchayat
+
   return (
     <div
       className="max-w-4xl mx-auto p-6 bg-white"
@@ -24,17 +34,11 @@ const WorkOrderPDF = ({
       <div className="flex justify-between items-start mb-6">
         {/* Left Logo */}
         <div className="w-20 h-20 flex-shrink-0">
-          {leftLogoUrl ? (
-            <img
-              src={leftLogoUrl}
-              alt="Government Logo"
-              className="w-full h-full object-contain"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 border border-gray-400 flex items-center justify-center">
-              <span className="text-xs text-gray-600">Logo</span>
-            </div>
-          )}
+          <img
+            src="/"
+            alt="Government Logo"
+            className="w-full h-full object-contain"
+          />
         </div>
 
         {/* Center Content */}
@@ -57,17 +61,11 @@ const WorkOrderPDF = ({
 
         {/* Right Logo */}
         <div className="w-20 h-20 flex-shrink-0">
-          {rightLogoUrl ? (
-            <img
-              src={rightLogoUrl}
-              alt="MGNREGA Logo"
-              className="w-full h-full object-contain"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 border border-gray-400 flex items-center justify-center">
-              <span className="text-xs text-gray-600">Logo</span>
-            </div>
-          )}
+          <img
+            src="/"
+            alt="MGNREGA Logo"
+            className="w-full h-full object-contain"
+          />
         </div>
       </div>
 
@@ -213,8 +211,8 @@ const WorkOrderPDF = ({
           <div>
             <div className="font-bold">ಪ್ರತಿ ಮಾಹಿತಿಗಾಗಿ:</div>
             <div>
-              ಮಾನ್ಯ ಕಾರ್ಯನಿರ್ವಾಹಕ ಅಧಿಕಾರಿಗಳು ತಾಲೂಕ ಪಂಚಾಯತಿ, {taluka}{" "}
-              ರವರಿಗೆ ಗೌರವಗಳೊಂದಿಗೆ ಮಾಹಿತಿಗಾಗಿ ಸಲ್ಲಿಸಿದೆ.
+              ಮಾನ್ಯ ಕಾರ್ಯನಿರ್ವಾಹಕ ಅಧಿಕಾರಿಗಳು ತಾಲೂಕ ಪಂಚಾಯತಿ, {taluka} ರವರಿಗೆ
+              ಗೌರವಗಳೊಂದಿಗೆ ಮಾಹಿತಿಗಾಗಿ ಸಲ್ಲಿಸಿದೆ.
             </div>
           </div>
         </div>
