@@ -11,7 +11,7 @@ type ApplicantData = {
 };
 
 // Define the props structure for Form6PDF
-type Form6PropsData = {
+type Form8PropsData = {
   gramPanchayat?: string;
   workCode?: string;
   workName?: string;
@@ -22,8 +22,8 @@ type Form6PropsData = {
   applicantsData?: ApplicantData[];
 };
 
-type Form6Data = {
-  form6Data: Form6PropsData;
+type Form8Data = {
+  form6Data: Form8PropsData;
 };
 // {
 //   ((gramPanchayat = "ಕಾಳಗ"), //1
@@ -53,7 +53,7 @@ type Form6Data = {
 //       }
 //     ]));
 // }
-const Form6PDF = ({ form6Data }: Form6Data) => {
+const Form6PDF = ({ form6Data }: Form8Data) => {
   const {
     gramPanchayat,
     workCode,

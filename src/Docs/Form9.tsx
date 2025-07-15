@@ -1,174 +1,50 @@
 import React from "react";
 
-const Form9PDF = ({
-  district = "ವಿಜಯಪುರ",
-  taluka = "ಮುದ್ದೇಬಿಹಾಳ",
-  gramPanchayat = "ಕಾಳಗಿ",
-  date = "09/08/2021",
-  workCode = "1507004008/AV/93393042892262348",
-  workName = "ಕಾಳಗಿ ಗ್ರಾಮ ಪಂಚಾಯತಿಯ ಘನತ್ಯಾಜ್ಯ ವಿಲೇವಾರಿ ಘಟಕ ನಿರ್ಮಾಣ",
-  workLocation = "ಕಾಳಗಿ",
-  workingDays = "ದಿನಾಂಕ : 09/08/2021ರಿಂದ15/08/2021ವರೆಗೆ",
-  workerData = [
-    {
-      slNo: 1,
-      name: "ಸಂಗಪ್ಪ ಬಸಪ್ಪ ಕುಂಬಾರ",
-      jobCardNo: "KN-07-004-008-002/276"
-    },
-    {
-      slNo: 2,
-      name: "ಸುಜಾತಾ",
-      jobCardNo: "KN-07-004-008-002/276"
-    },
-    {
-      slNo: 3,
-      name: "ಶಾಹೀನ ಮೈಬೂಸಾ ವಾಲಿಕಾರ",
-      jobCardNo: "KN-07-004-008-002/244"
-    },
-    {
-      slNo: 4,
-      name: "ಶಿವಾನಂದ ನಾಗಪ್ಪ ಹೆಳವರ",
-      jobCardNo: "KN-07-004-008-002/385"
-    },
-    {
-      slNo: 5,
-      name: "ಸಾಬವ್ವ ಶಿವಾನಂದ ಹೆಳವರ",
-      jobCardNo: "KN-07-004-008-002/385"
-    },
-    {
-      slNo: 6,
-      name: "ಸಿದ್ದಲಿಂಗಪ್ಪ ಶಿವಾನಂದ ಹೆಳವರ",
-      jobCardNo: "KN-07-004-008-002/385"
-    },
-    {
-      slNo: 7,
-      name: "ದೀಪಾ ಸಿದ್ದಲಿಂಗಪ್ಪ ಹೆಳವರ",
-      jobCardNo: "KN-07-004-008-002/385"
-    },
-    {
-      slNo: 8,
-      name: "ಸುವರ್ಣ ಸಿದ್ದನಗೌಡ ಬಿರಾದಾರ",
-      jobCardNo: "KN-07-004-008-002/398"
-    },
-    {
-      slNo: 9,
-      name: "ಬಸಮ್ಮ ಶರಣಪ್ಪ ಬೋರಗಿ",
-      jobCardNo: "KN-07-004-008-002/77"
-    },
-    {
-      slNo: 10,
-      name: "ನೀಲಮ್ಮ ಶರಣಪ್ಪ ಕುಂಬಾರ",
-      jobCardNo: "KN-07-004-008-002/384"
-    },
-    {
-      slNo: 11,
-      name: "ಶರಣಪ್ಪ ಬಸಪ್ಪ ಕುಂಬಾರ",
-      jobCardNo: "KN-07-004-008-002/384"
-    },
-    {
-      slNo: 12,
-      name: "ಬಾಯವ್ವ ಮುದಿಗೌಡ ಬಿರಾದರ",
-      jobCardNo: "KN-07-004-008-002/400"
-    },
-    {
-      slNo: 13,
-      name: "ಅಮ್ಮವ್ವ ತಿಪ್ಪಣ್ಣ ಹೆಳವರ",
-      jobCardNo: "KN-07-004-008-002/374"
-    },
-    {
-      slNo: 14,
-      name: "ತಿಪ್ಪಣ್ಣ ಬುಡ್ಡಪ್ಪ ಹೆಳವರ",
-      jobCardNo: "KN-07-004-008-002/374"
-    },
-    {
-      slNo: 15,
-      name: "ಲಕ್ಷ್ಮೀಬಾಯಿ ಮುತ್ತಪ್ಪ ಮಸೂತಿ",
-      jobCardNo: "KN-07-004-008-002/387"
-    },
-    {
-      slNo: 16,
-      name: "ಶ್ರೀಶೈಲ ಮುತ್ತಣ್ಣ ಮಸೂತಿ",
-      jobCardNo: "KN-07-004-008-002/387"
-    },
-    {
-      slNo: 17,
-      name: "ಸಾವಿತ್ರಿ ಶ್ರೀಶೈಲ ಮಸೂತಿ",
-      jobCardNo: "KN-07-004-008-002/387"
-    },
-    {
-      slNo: 18,
-      name: "ಗುರುಪಾದಪ್ಪ ಭೀಮನಗೌಡ ಬೋರಗಿ",
-      jobCardNo: "KN-07-004-008-002/407"
-    },
-    {
-      slNo: 19,
-      name: "ಸಾವಿತ್ರಿ ಪರಶುರಾಮ ಮಾದರ",
-      jobCardNo: "KN-07-004-008-002/376"
-    },
-    {
-      slNo: 20,
-      name: "ಬಸವರಾಜ ಚಂದ್ರಾಮಪ್ಪ ಹಂಚನಾಳ",
-      jobCardNo: "KN-07-004-008-002/323"
-    },
-    {
-      slNo: 21,
-      name: "ಮಂಜುಳಾ",
-      jobCardNo: "KN-07-004-008-002/323"
-    },
-    {
-      slNo: 22,
-      name: "ಮಾಳವ್ವ ಲಕ್ಷ್ಮಣ ಡೋಣೂರ",
-      jobCardNo: "KN-07-004-008-002/334"
-    },
-    {
-      slNo: 23,
-      name: "ಲಕ್ಷ್ಮಣ",
-      jobCardNo: "KN-07-004-008-002/334"
-    },
-    {
-      slNo: 24,
-      name: "ಸಿದ್ದಪ್ಪ ಸಿದ್ದಪ್ಪ ಗಂಗೂರ",
-      jobCardNo: "KN-07-004-008-002/351"
-    },
-    {
-      slNo: 25,
-      name: "ಸೀತಮ್ಮ ಸಿದ್ದಪ್ಪ ಗಂಗೂರ",
-      jobCardNo: "KN-07-004-008-002/351"
-    },
-    {
-      slNo: 26,
-      name: "ಸಂಗಪ್ಪ ನಿಜಪ್ಪ ಮಾದರ",
-      jobCardNo: "KN-07-004-008-002/363"
-    },
-    {
-      slNo: 27,
-      name: "ಶಿದ್ದಪ್ಪ ಮಸೂತಿ",
-      jobCardNo: "KN-07-004-008-002/131"
-    },
-    {
-      slNo: 28,
-      name: "ಬೋರಮ್ಮ ಮಸೂತಿ",
-      jobCardNo: "KN-07-004-008-002/131"
-    },
-    {
-      slNo: 29,
-      name: "ನೀಲಪ್ಪ ಬಸಪ್ಪ ಹೆಳವರ",
-      jobCardNo: "KN-07-004-008-002/411"
-    },
-    {
-      slNo: 30,
-      name: "ಶೈಲಾ ನೀಲಪ್ಪ ಹೆಳವರ",
-      jobCardNo: "KN-07-004-008-002/411"
-    }
-  ]
-}) => {
+//COMPLETED .comes from the form 6 data only
+type ApplicantData = {
+  slNo: number;
+  applicantName: string;
+  jobCardNo: string;
+  workFrom: string;
+  workTo: string;
+  childCareRequired: string;
+  signature: string;
+};
+
+// Define the props structure for Form6PDF
+type Form9PropsData = {
+  gramPanchayat?: string;
+  workCode?: string;
+  workName?: string;
+  taluka?: string;
+  district?: string;
+  date?: string;
+  applicationNumber?: string;
+  applicantsData?: ApplicantData[];
+};
+
+type Form9Data = {
+  form6Data: Form9PropsData;
+};
+const Form9PDF = ({ form6Data }: Form9Data) => {
+  const {
+    gramPanchayat,
+    workCode,
+    workName,
+    taluka,
+    district,
+    date,
+    applicantsData = []
+  } = form6Data;
+  const workingDays = `ದಿನಾಂಕ  : ${applicantsData[0].workFrom} ರಂದ ${applicantsData[0].workTo} ವರೆಗೆ`;
+  const workLocation = gramPanchayat || "";
   const itemsPerPage = 20; // Based on the PDF structure
-  const totalPages = Math.ceil(workerData.length / itemsPerPage);
+  const totalPages = Math.ceil(applicantsData.length / itemsPerPage);
 
   const renderPage = (pageNumber: number) => {
     const startIndex = (pageNumber - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const pageData = workerData.slice(startIndex, endIndex);
+    const pageData = applicantsData.slice(startIndex, endIndex);
     const isFirstPage = pageNumber === 1;
     const isLastPage = pageNumber === totalPages;
 
@@ -314,7 +190,7 @@ const Form9PDF = ({
                     {worker.slNo}
                   </td>
                   <td className="border border-black px-2 py-2">
-                    {worker.name}
+                    {worker.applicantName}
                   </td>
                   <td className="border border-black px-2 py-2 text-center">
                     {worker.jobCardNo}
