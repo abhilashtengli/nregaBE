@@ -1,5 +1,6 @@
 import React from "react";
 
+// COMPLETED
 type ftoDataProp = {
   slNo: number;
   jobCardNo: string;
