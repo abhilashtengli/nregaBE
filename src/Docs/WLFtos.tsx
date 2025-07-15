@@ -1,42 +1,31 @@
 import React from "react";
 
-const WLFTOPdf = ({
-  gramPanchayat = "ರಂಜಣಗಿ",
-  taluka = "ಜೇವರ್ಗಿ",
-  district = "ಕಲಬುರಗಿ",
-  ftoData = [
-    {
-      slNo: 1,
-      jobCardNo: "KN-15-006-030-002/202",
-      applicantNo: 1,
-      applicantName: "ಹುಸೇನಬಾಶಾ ಮೋಹಿನ್ಸಾಬ್ ಮುಲ್ಲಾ",
-      mustrollNo: "42544",
-      wageListNo: "1515006040",
-      referenceNo: "WL063127",
-      ftoNo: "1515006040NRG242",
-      verifyPo: "70320242129958",
-      status: "YP",
-      bankName: "BANK OF MAHARASHTRA",
-      wgApbCrAccount: "XXXXXXX XXXX029",
-      favoringAsPerBank: "Master MOHIN MGF HUSEN BASHA MULLA"
-    },
-    {
-      slNo: 2,
-      jobCardNo: "KN-15-006-030-002/202",
-      applicantNo: 5,
-      applicantName: "ಸಲಿಮಾಬೇಗಂ ಹುಸೇನಬಾಶಾ",
-      mustrollNo: "42544",
-      wageListNo: "1515006040",
-      referenceNo: "WL063127",
-      ftoNo: "1515006040NRG242",
-      verifyPo: "70320242129959",
-      status: "YP",
-      bankName: "PUNJAB NATIONAL BANK",
-      wgApbCrAccount: "XXXXXXX XXXX796",
-      favoringAsPerBank: "SALIMA BEE"
-    }
-  ]
-}) => {
+type ftoDataProp = {
+  slNo: number;
+  jobCardNo: string;
+  applicantNo: number;
+  applicantName: string;
+  mustrollNo: string;
+  wageListNo: string;
+  referenceNo: string;
+  ftoNo: string;
+  verifyPo: string;
+  status: string;
+  bankName: string;
+  wgApbCrAccount: string;
+  favoringAsPerBank: string;
+};
+type WLFTOPdfProps = {
+  gramPanchayat?: string;
+  taluka?: string;
+  district?: string;
+  ftoData?: ftoDataProp[];
+};
+type wlftoData = {
+  wlfto: WLFTOPdfProps;
+};
+const WLFTOPdf = ({ wlfto }: wlftoData) => {
+  const { gramPanchayat, taluka, district, ftoData = [] } = wlfto;
   const itemsPerPage = 10; // Based on A4 landscape space available
   const totalPages = Math.ceil(ftoData.length / itemsPerPage);
 
