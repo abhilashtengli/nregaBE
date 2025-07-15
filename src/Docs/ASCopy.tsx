@@ -1,5 +1,6 @@
 import React from "react";
 
+// Comes from TS copy only
 type AdministrativeSanctionPDFProps = {
   administrativeSanctionDate?: string; //3 - from external API
   workCode?: string; //1 - from database

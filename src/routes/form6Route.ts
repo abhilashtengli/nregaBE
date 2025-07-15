@@ -35,6 +35,7 @@ form6Router.get("/get-form6/:id", async (req: Request, res: Response) => {
         workCode: true,
         panchayat: true,
         block: true,
+        workName: true,
         district: true
       }
     });
@@ -92,13 +93,15 @@ form6Router.get("/get-form6/:id", async (req: Request, res: Response) => {
 
     // Prepare the response data
     const form6Data: Form6Data = {
+      workCode: workDetail.workCode,
+      workName: workDetail.workName || "",
       gramPanchayat: workDetail.panchayat,
       taluka: workDetail.block,
       date: subtractOneDay(applicantsData[0].workFrom), // Subtract one day from first applicant's workFrom
       district: workDetail.district,
       applicationNumber: id.split("-")[0] || "1", // Simple application number generation
-      applicantsData: applicantsData,
-      };
+      applicantsData: applicantsData
+    };
 
     res.status(200).json({
       success: true,

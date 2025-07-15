@@ -1,42 +1,78 @@
 import React from "react";
+//COMPLETED .comes from the form 6 data only
+type ApplicantData = {
+  slNo: number;
+  applicantName: string;
+  jobCardNo: string;
+  workFrom: string;
+  workTo: string;
+  childCareRequired: string;
+  signature: string;
+};
 
-const WorkAllocationPDF = ({
-  gramPanchayat = "ಕಾಳಗ",
-  taluka = "ಮುದೆ್ೕಬಹಾಳ",
-  district = " ವಿಜಯಪುರ",
-  date = "06/08/2021",
-  workDate = "09/08/2021",
-  workCode = "1507004008/AV/93393042892262348",
-  workName = "ಕಾಳಗ ಗಾ್ಮ ಪಂಚಾಯತಯ ಘನತಾ್ಜ್ ವಲೇವಾರ ಘಟಕ ನಮಾರಣ",
-  workLocation = "ಕಾಳಗ",
-  schemeExecutionBody = "ಕಾಳಗ",
-  schemeImplementingBody = "ಕಾಳಗ",
-  workingDays = "ದಿನಾಂಕ  : 09/08/2021ರಂದ15/08/2021ವರೆಗೆ",
-  labourData = [
-    {
-      slNo: 1,
-      name: "ಸಂಗಪ್ ಬಸಪ್ ಕುಂಬಾರ",
-      jobCardNo: "KN-07-004-008-002/276"
-    },
-    {
-      slNo: 2,
-      name: "ಸುಜಾತಾ",
-      jobCardNo: "KN-07-004-008-002/276"
-    },
-    {
-      slNo: 3,
-      name: "ಶಾಹೀನ ಮೈಬೂಸಾ ವಾಲಕಾರ",
-      jobCardNo: "KN-07-004-008-002/244"
-    }
-  ]
-}) => {
+// Define the props structure for Form6PDF
+type Form6PropsData = {
+  gramPanchayat?: string;
+  workCode?: string;
+  workName?: string;
+  taluka?: string;
+  district?: string;
+  date?: string;
+  applicationNumber?: string;
+  applicantsData?: ApplicantData[];
+};
+
+type Form6Data = {
+  form6Data: Form6PropsData;
+};
+// {
+//   ((gramPanchayat = "ಕಾಳಗ"), //1
+//     (taluka = "ಮುದೆ್ೕಬಹಾಳ"), //1
+//     (district = " ವಿಜಯಪುರ"), //1
+//     (date = "06/08/2021"), //6
+//     (workDate = "09/08/2021"), // workFrom 6
+//     (workCode = "1507004008/AV/93393042892262348"), //1
+//     (workName = "ಕಾಳಗ ಗಾ್ಮ ಪಂಚಾಯತಯ ಘನತಾ್ಜ್ ವಲೇವಾರ ಘಟಕ ನಮಾರಣ"), //1
+//     (workLocation = "ಕಾಳಗ"), //1
+//     (workingDays = "ದಿನಾಂಕ  : 09/08/2021 ರಂದ 15/08/2021ವರೆಗೆ"),
+//     (labourData = [
+//       {
+//         slNo: 1,
+//         name: "ಸಂಗಪ್ ಬಸಪ್ ಕುಂಬಾರ",
+//         jobCardNo: "KN-07-004-008-002/276"
+//       },
+//       {
+//         slNo: 2,
+//         name: "ಸುಜಾತಾ",
+//         jobCardNo: "KN-07-004-008-002/276"
+//       },
+//       {
+//         slNo: 3,
+//         name: "ಶಾಹೀನ ಮೈಬೂಸಾ ವಾಲಕಾರ",
+//         jobCardNo: "KN-07-004-008-002/244"
+//       }
+//     ]));
+// }
+const Form6PDF = ({ form6Data }: Form6Data) => {
+  const {
+    gramPanchayat,
+    workCode,
+    workName,
+    taluka,
+    district,
+    date,
+    applicantsData = []
+  } = form6Data;
+  const workDate = date;
+  const workingDays = `ದಿನಾಂಕ  : ${applicantsData[0].workFrom} ರಂದ ${applicantsData[0].workTo} ವರೆಗೆ`;
+  const workLocation = gramPanchayat || "";
   const rowsPerPage = 21; // Based on the PDF structure
-  const totalPages = Math.ceil(labourData.length / rowsPerPage);
+  const totalPages = Math.ceil(applicantsData.length / rowsPerPage);
 
   const renderPage = (pageNumber: number) => {
     const startIndex = (pageNumber - 1) * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
-    const pageData = labourData.slice(startIndex, endIndex);
+    const pageData = applicantsData.slice(startIndex, endIndex);
     const isFirstPage = pageNumber === 1;
     const isLastPage = pageNumber === totalPages;
 
@@ -270,7 +306,7 @@ const WorkAllocationPDF = ({
                     {labour.slNo}
                   </td>
                   <td className="border border-black px-2 py-3">
-                    {labour.name}
+                    {labour.applicantName}
                   </td>
                   <td className="border border-black px-2 py-3 text-center">
                     {labour.jobCardNo}
@@ -330,4 +366,4 @@ const WorkAllocationPDF = ({
   );
 };
 
-export default WorkAllocationPDF;
+export default Form6PDF;

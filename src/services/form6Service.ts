@@ -14,6 +14,8 @@ export interface ApplicantData {
 }
 
 export interface Form6Data {
+  workCode: string;
+  workName: string;
   gramPanchayat: string;
   taluka: string;
   district: string;
@@ -83,11 +85,21 @@ export const scrapeDemandApplicationForm = async (
               const workDemandTo = cells[6] || "";
 
               // Format work dates separately - ensure string output
-              const workFromFormatted = workDemandFrom ? formatDate(workDemandFrom) : "";
-              const workToFormatted = workDemandTo ? formatDate(workDemandTo) : "";
-              
-              const workFrom = typeof workFromFormatted === 'string' ? workFromFormatted : workFromFormatted.formatted;
-              const workTo = typeof workToFormatted === 'string' ? workToFormatted : workToFormatted.formatted;
+              const workFromFormatted = workDemandFrom
+                ? formatDate(workDemandFrom)
+                : "";
+              const workToFormatted = workDemandTo
+                ? formatDate(workDemandTo)
+                : "";
+
+              const workFrom =
+                typeof workFromFormatted === "string"
+                  ? workFromFormatted
+                  : workFromFormatted.formatted;
+              const workTo =
+                typeof workToFormatted === "string"
+                  ? workToFormatted
+                  : workToFormatted.formatted;
 
               // Only add if we have essential data
               if (applicantName && jobCardNo) {
