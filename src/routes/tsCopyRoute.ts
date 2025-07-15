@@ -14,7 +14,6 @@ const tsCopyRouter = express.Router();
 tsCopyRouter.get("/get-ts-copy/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    console.log("Fetching TS Copy data for ID:", id);
 
     // Validate ID parameter
     if (!id) {
@@ -71,16 +70,16 @@ tsCopyRouter.get("/get-ts-copy/:id", async (req: Request, res: Response) => {
 
     // Initialize default values
     let technicalSanctionData: TechnicalSanctionData = {
-      sanctionDate: "1/5/2024",
-      sanctionDateFormatted: "01/05/2024",
-      technicalSanctionNo: "???? ?? ? 2024/25/15",
-      unskilledLabourCharges: "320000",
-      estimateMaterialCost: "549000"
+      sanctionDate: "",
+      sanctionDateFormatted: "",
+      technicalSanctionNo: "",
+      unskilledLabourCharges: "",
+      estimateMaterialCost: ""
     };
 
     let administrativeSanctionData: AdministrativeSanctionData = {
-      sanctionedAmount: "549000",
-      sanctionedAmountInWords: "Five Lakh Forty Nine Thousand Rupees Only"
+      sanctionedAmount: "",
+      sanctionedAmountInWords: ""
     };
 
     // Scrape technical sanction data if URL exists
