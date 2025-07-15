@@ -1,5 +1,6 @@
 import React from "react";
 
+// PENDING (Date integration is pending..)
 const NMRPDF = ({
   musterRollNo = "30515", //11
   district = "ಕಲಬುರಗಿ", //1
