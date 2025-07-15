@@ -1,46 +1,41 @@
 import React from "react";
 
 const NMRPDF = ({
-  masterRollNo = "30515",
-  district = "ಕಲಬುರಗಿ",
-  taluka = "ಜೇವರ್ಗಿ",
-  gramPanchayat = "ರಂಜಣಗಿ",
-  financialYear = "2024-2025",
-  workCode = "1515006040/RC/93393042892451831",
-  workName = "ಜೇಸಣಗಿ ಗಾ್ಮದ ಮಲಗಣಗಾಗಣಗೊಲಗಂದ ಗೋಗಾಗಳಪಗ ಗದಗಪಗ ರವರ ಗೊಲದ ವಗೆೆ ರಗೆಗಸುಗಾರೆ ಗಾಮಾ",
-  fromDate = "01/01/2025",
-  toDate = "07/01/2025",
-  technicalSanctionNo = "1515006040/2024-2025/324546/TS",
-  technicalSanctionDate = "10/10/2024",
-  financialSanctionNo = "1515006040/2024-2025/324546/AS",
-  financialSanctionDate = "23/11/2024",
+  musterRollNo = "30515", //11
+  district = "ಕಲಬುರಗಿ", //1
+  taluka = "ಜೇವರ್ಗಿ", //1
+  gramPanchayat = "ರಂಜಣಗಿ", //1
+  financialYear = "2024-2025", //1
+  workCode = "1515006040/RC/93393042892451831", //1
+  workName = "ಜೇಸಣಗಿ ಗಾ್ಮದ ಮಲಗಣಗಾಗಣಗೊಲಗಂದ ಗೋಗಾಗಳಪಗ ಗದಗಪಗ ರವರ ಗೊಲದ ವಗೆೆ ರಗೆಗಸುಗಾರೆ ಗಾಮಾ", //1
+  fromDate = "01/01/2025", // 11
+  toDate = "07/01/2025", //11
+  technicalSanctionNo = "1515006040/2024-2025/324546/TS", //3
+  technicalSanctionDate = "10/10/2024", //3
+  financialSanctionNo = "1515006040/2024-2025/324546/AS", //4
+  financialSanctionDate = "23/11/2024", //4
   workerData = [
     {
       slNo: 1,
       jobCardNo: "KN-15-006-030-002/426",
       familyHeadName: "ಶಗಗರಪೇಲ ಗಾಗೇಬಪೇಲ",
-      requestLetterFrom: "ಶಗಗರಪೇಲ ಗಾಗೇಬಪೇಲ",
-      village: "ರಂಜಣಗಿ",
       accountNo: "PUNJAB NATIONAL BANK XXXXXXXXXXX1522"
     },
     {
       slNo: 2,
       jobCardNo: "KN-15-006-030-002/232",
       familyHeadName: "ಯಾಕುಬ",
-      requestLetterFrom: "ಯಾಕುಬ",
-      village: "ರಂಜಣಗಿ",
       accountNo: "AIRTEL PAYMENTS BANK LIMITED XXXXXXXXXXX1156"
     },
     {
       slNo: 3,
       jobCardNo: "KN-15-006-030-002/510",
       familyHeadName: "ಅಗಾಗಪೇಲ ಸಯಗದಪೇಲ",
-      requestLetterFrom: "ಅಗಾಗಪೇಲ ಸಯಗದಪೇಲ",
-      village: "ರಂಜಣಗಿ",
       accountNo: "INDIA POST PAYMENTS BANK LIMITED XXXXXXXXXXX3136"
     }
   ]
 }) => {
+  const village = "";
   const rowsPerPage = workerData.length > 20 ? 20 : workerData.length; // Dynamic based on data
   const totalPages = Math.ceil(workerData.length / rowsPerPage);
 
@@ -106,7 +101,7 @@ const NMRPDF = ({
                     <span className="">ರಾಜ್ಯ:</span> ಕರ್ನಾಟಕ
                   </span>
                   <span className="font-bold">
-                    <span>ಮಸ್ಟರ್ ರೋಲ್ ಸಂಖ್ಯೆ:</span> {masterRollNo}
+                    <span>ಮಸ್ಟರ್ ರೋಲ್ ಸಂಖ್ಯೆ:</span> {musterRollNo}
                   </span>
                   <span className="font-bold">
                     <span>Muster roll Printing Date:</span> ____
@@ -296,10 +291,10 @@ const NMRPDF = ({
                     {worker.familyHeadName}
                   </td>
                   <td className="border border-black px-1 py-1 text-[7px] break-all">
-                    {worker.requestLetterFrom}
+                    {worker.familyHeadName}
                   </td>
                   <td className="border border-black px-1 py-1 text-center text-[7px]">
-                    {worker.village}
+                    {village}
                   </td>
                   <td className="border border-black px-1 py-1 text-[7px] break-all">
                     {worker.accountNo}

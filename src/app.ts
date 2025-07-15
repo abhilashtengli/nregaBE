@@ -8,6 +8,7 @@ import checklistRouter from "./routes/checklistRoute";
 import frontPageRouter from "./routes/frontPageRoute";
 import tsCopyRouter from "./routes/tsCopyRoute";
 import form6Router from "./routes/form6Route";
+import blankNmrRouter from "./routes/blankNmrRoute";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use("/", checklistRouter);
 app.use("/", frontPageRouter);
 app.use("/", tsCopyRouter);
 app.use("/", form6Router);
+app.use("/", blankNmrRouter);
 
 const PORT = process.env.PORT || 3000;
 app
