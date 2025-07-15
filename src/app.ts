@@ -7,6 +7,7 @@ import getVendorsRouter from "./routes/getVendors";
 import checklistRouter from "./routes/checklistRoute";
 import frontPageRouter from "./routes/frontPageRoute";
 import tsCopyRouter from "./routes/tsCopyRoute";
+import form6Router from "./routes/form6Route";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use("/", getVendorsRouter);
 app.use("/", checklistRouter);
 app.use("/", frontPageRouter);
 app.use("/", tsCopyRouter);
+app.use("/", form6Router);
 
 const PORT = process.env.PORT || 3000;
 app

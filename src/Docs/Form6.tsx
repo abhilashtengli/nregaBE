@@ -1,68 +1,42 @@
 import React from "react";
 
-const Form6PDF = ({
-  gramPanchayat = "ಕಾಳಗಿ",
-  taluka = "ಮುದೆ್ೕಬಹಾಳ",
-  district = "ವಜಯಪುರ",
-  date = "26/05/2021",
-  applicationNumber = "3",
-  applicantsData = [
-    {
-      slNo: 1,
-      applicantName: "ಯಮನಪ್ ಮಲ್ಪ್ ಹಂಗರಗ",
-      address: "ಚಲಮ",
-      jobCardNo: "KN-07-004-008-002/315",
-      workDuration: "29/05/2021 - 04/06/2021",
-      childCareRequired: "ಇಲ್",
-      signature: "ಇಲ್"
-    },
-    {
-      slNo: 2,
-      applicantName: "ರಾಯಮ್",
-      address: "ಚಲಮ",
-      jobCardNo: "KN-07-004-008-002/315",
-      workDuration: "29/05/2021 - 04/06/2021",
-      childCareRequired: "ಇಲ್",
-      signature: "ಇಲ್"
-    },
-    {
-      slNo: 3,
-      applicantName: "ಮಾಳಪ್ ಭೕಮಪ್ ಮಾ್ಗೇರ",
-      address: "ಚಲಮ",
-      jobCardNo: "KN-07-004-008-002/316",
-      workDuration: "29/05/2021 - 04/06/2021",
-      childCareRequired: "ಇಲ್",
-      signature: "ಇಲ್"
-    },
-    {
-      slNo: 4,
-      applicantName: "ಯಲ್ಪ್",
-      address: "ಚಲಮ",
-      jobCardNo: "KN-07-004-008-002/316",
-      workDuration: "29/05/2021 - 04/06/2021",
-      childCareRequired: "ಇಲ್",
-      signature: "ಇಲ್"
-    },
-    {
-      slNo: 5,
-      applicantName: "ಬೕರಪ್ ಭೕಮಪ್ ಮಾ್ಗೇರ",
-      address: "ಚಲಮ",
-      jobCardNo: "KN-07-004-008-002/316",
-      workDuration: "29/05/2021 - 04/06/2021",
-      childCareRequired: "ಇಲ್",
-      signature: "ಇಲ್"
-    },
-    {
-      slNo: 6,
-      applicantName: "ಭೕಯಪ್ ಮಲ್ಪ್ ಮಾ್ಗೇರ",
-      address: "ಚಲಮ",
-      jobCardNo: "KN-07-004-008-002/316",
-      workDuration: "29/05/2021 - 04/06/2021",
-      childCareRequired: "ಇಲ್",
-      signature: "ಇಲ್"
-    }
-  ]
-}) => {
+type ApplicantData = {
+  slNo: number;
+  applicantName: string;
+  jobCardNo: string;
+  workFrom: string;
+  workTo: string;
+  childCareRequired: string;
+  signature: string;
+};
+
+// Define the props structure for Form6PDF
+type Form6PropsData = {
+  gramPanchayat?: string;
+  taluka?: string;
+  district?: string;
+  date?: string;
+  applicationNumber?: string;
+  applicantsData?: ApplicantData[];
+};
+
+type Form6Data = {
+  form6Data: Form6PropsData;
+};
+
+const Form6PDF = ({ form6Data }: Form6Data) => {
+  const {
+    gramPanchayat,
+    taluka,
+    district,
+    applicationNumber,
+    date,
+    applicantsData = []
+  } = form6Data;
+
+  const address = "";
+  // Assuming a fixed duration for simplicity
+
   const rowsPerPage = 13; // Based on the PDF structure, approximately 13 rows per page
   const totalPages = Math.ceil(applicantsData.length / rowsPerPage);
 
@@ -206,13 +180,20 @@ const Form6PDF = ({
                     {applicant.applicantName}
                   </td>
                   <td className="border border-black px-2 py-2 text-center">
-                    {applicant.address}
+                    {address}
                   </td>
                   <td className="border border-black px-2 py-2 text-center">
                     {applicant.jobCardNo}
                   </td>
-                  <td className="border border-black px-2 py-2 text-center">
-                    {applicant.workDuration}
+                  <td className="border border-black p-0 h-full">
+                    <div className="flex h-full w-full">
+                      <div className="flex-1 h-full px-1  flex items-center justify-center text-[10px]">
+                        {applicant.workFrom}
+                      </div>
+                      <div className="flex-1 h-full px-1 flex items-center justify-center text-[10px]">
+                        {applicant.workTo}
+                      </div>
+                    </div>
                   </td>
                   <td className="border border-black px-2 py-2 text-center">
                     {applicant.childCareRequired}
