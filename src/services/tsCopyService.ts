@@ -12,6 +12,7 @@ export interface TechnicalSanctionData {
 export interface AdministrativeSanctionData {
   sanctionedAmount: string;
   sanctionedAmountInWords: string;
+  administrativeSanctionDate: string;
 }
 
 export interface TSCopyResponse {
@@ -283,12 +284,15 @@ export const scrapTSeAdministrativeSanction = async (
     }
 
     const sanctionedAmountRaw = cells.eq(5).text().trim();
+    const asDate = cells.eq(4).text().trim();
+    const administrativeSanctionDate = formatDate(asDate);
     const sanctionedAmount = sanctionedAmountRaw.replace(/[^0-9]/g, "");
     const sanctionedAmountInWords = numberToWords(parseInt(sanctionedAmount));
 
     return {
       sanctionedAmount,
-      sanctionedAmountInWords
+      sanctionedAmountInWords,
+      administrativeSanctionDate: administrativeSanctionDate.formatted
     };
   } catch (error) {
     return null;

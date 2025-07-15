@@ -1,20 +1,40 @@
 import React from "react";
 
-const AdministrativeSanctionPDF = ({
-  administrativeSanctionDate = "20/05/2024",
-  workCode = "1515001014/RC/93393042892467706",
-  financialYear = "2024-25",
-  workName = "ಆಲೂರ ಾÎಮದĹÐ ಬುದು Īೕರು Ī®ಾಹೆಯĹÐ ±ೆ¾İ¬ೆಶನ ¤ೌಂಡ Ļತ ±ೆಟಲŝ",
-  gramPanchayat = "ANOOR",
-  blockPanchayat = "AFZALPUR",
-  technicalSanctionNo = "???? ?? ?2024/25/15",
-  sanctionedAmount = "549000",
-  sanctionedAmountInWords = "Five Lakh Forty Nine Thousand Rupees Only",
-  unskilledLabourCharges = "320000",
-  estimatedMaterialCost = "549000",
-  estimatePersonDays = "1012.6582278481",
-  proceedingsNo = "???? ?? ?2024/25/15"
-}) => {
+type AdministrativeSanctionPDFProps = {
+  administrativeSanctionDate?: string; //3 - from external API
+  workCode?: string; //1 - from database
+  financialYear?: string; //1 - from database
+  workName?: string; //1 - from database
+  gramPanchayat?: string; //1 - from database
+  blockPanchayat?: string; //1 - from database
+  sanctionedAmount?: string; //4 - from external API
+  sanctionedAmountInWords?: string; //1 - generated from sanctionedAmount
+  technicalSanctionNo?: string; //3 - from external API
+  sanctionDateFormatted?: string; //3 - from external API
+  unskilledLabourCharges?: string; //3 - from external API
+  estimateMaterialCost?: string; //3 - from external API
+  estimatePersonDays?: string; //1 - from database
+};
+type ASData = {
+  asData: AdministrativeSanctionPDFProps;
+};
+const AdministrativeSanctionPDF = ({ asData }: ASData) => {
+  const {
+    administrativeSanctionDate,
+    workCode,
+    financialYear,
+    workName,
+    gramPanchayat,
+    blockPanchayat,
+    sanctionedAmount,
+    sanctionedAmountInWords,
+    technicalSanctionNo,
+    unskilledLabourCharges,
+    estimateMaterialCost,
+    estimatePersonDays
+  } = asData;
+  const estimatedMaterialCost = estimateMaterialCost || "0";
+  const proceedingsNo = technicalSanctionNo;
   return (
     <div
       className="max-w-4xl mx-auto p-6 bg-white border-2 border-black"
@@ -66,8 +86,6 @@ const AdministrativeSanctionPDF = ({
             </span>
           </div>
         </div>
-
-        
       </div>
 
       {/* Main Content Paragraph */}

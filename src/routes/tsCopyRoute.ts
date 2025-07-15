@@ -11,6 +11,7 @@ import {
 const tsCopyRouter = express.Router();
 
 // Main API endpoint
+// Same API for the ASCopy and TSCopy
 tsCopyRouter.get("/get-ts-copy/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -79,7 +80,8 @@ tsCopyRouter.get("/get-ts-copy/:id", async (req: Request, res: Response) => {
 
     let administrativeSanctionData: AdministrativeSanctionData = {
       sanctionedAmount: "",
-      sanctionedAmountInWords: ""
+      sanctionedAmountInWords: "",
+      administrativeSanctionDate: ""
     };
 
     // Scrape technical sanction data if URL exists
@@ -124,7 +126,9 @@ tsCopyRouter.get("/get-ts-copy/:id", async (req: Request, res: Response) => {
       estimateMaterialCost: technicalSanctionData.estimateMaterialCost,
       sanctionedAmount: administrativeSanctionData.sanctionedAmount,
       sanctionedAmountInWords:
-        administrativeSanctionData.sanctionedAmountInWords
+        administrativeSanctionData.sanctionedAmountInWords,
+      administrativeSanctionDate:
+        administrativeSanctionData.administrativeSanctionDate
     };
 
     res.status(200).json({
