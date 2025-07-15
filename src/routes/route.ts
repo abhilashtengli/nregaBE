@@ -7,7 +7,7 @@ import {
   getWorkByCode,
   saveWorkData
 } from "../services/databaseService";
-import { findPanchayatByCode } from "@lib/constant";
+import { findPanchayatByCode } from "../utils/findPanchayat";
 
 const scrapRouter = express.Router();
 const scraperService = new MgnregaScraperService();
