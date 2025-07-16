@@ -1,24 +1,24 @@
 import React from "react";
 
 interface Material {
-  material: string;
-  unitPrice: string;
-  quantity: string;
-  amount: string;
+  material: string; // from vendor link
+  unitPrice: string; // from vendor link
+  quantity: string; // from vendor link
+  amount: string; // from vendor link
 }
 
 interface PDFData {
-  workName: string;
-  year: string;
-  workCode: string;
-  vendorName: string;
-  financialYear: string;
-  billNo: string;
-  billAmount: string;
-  billDate: string;
-  dateOfPayment: string;
-  materials: Material[];
-  totalAmount: string;
+  workName: string; //1
+  year: string; // from vendor link
+  workCode: string; //1
+  vendorName: string; //13
+  financialYear: string; // from vendor link
+  billNo: string; // from vendor link
+  billAmount: string; // from vendor link
+  billDate: string; // from vendor link
+  dateOfPayment: string; // from vendor link
+  materials: Material[]; // from vendor link
+  totalAmount: string; // We need to calculate this based on the sum of all material amounts
 }
 
 interface PDFTableStructureProps {
@@ -26,10 +26,10 @@ interface PDFTableStructureProps {
   itemsPerPage?: number;
 }
 
-export default function PDFTableStructure({
+const PDFTableStructure = ({
   data,
   itemsPerPage = 15
-}: PDFTableStructureProps) {
+}: PDFTableStructureProps) => {
   if (!data) {
     return <div>No data provided.</div>;
   }
@@ -149,4 +149,4 @@ export default function PDFTableStructure({
       ))}
     </div>
   );
-}
+};

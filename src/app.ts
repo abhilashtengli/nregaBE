@@ -10,6 +10,7 @@ import tsCopyRouter from "./routes/tsCopyRoute";
 import form6Router from "./routes/form6Route";
 import blankNmrRouter from "./routes/blankNmrRoute";
 import ftoRouter from "./routes/wlFtoRoute";
+import materialMisRouter from "./routes/materialMisRoute";
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use("/", tsCopyRouter);
 app.use("/", form6Router);
 app.use("/", blankNmrRouter);
 app.use("/", ftoRouter);
+app.use("/", materialMisRouter);
 
 const PORT = process.env.PORT || 3000;
 app

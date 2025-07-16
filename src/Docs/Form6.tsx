@@ -1,5 +1,6 @@
 import React from "react";
 
+// COMPLETED
 type ApplicantData = {
   slNo: number;
   applicantName: string;

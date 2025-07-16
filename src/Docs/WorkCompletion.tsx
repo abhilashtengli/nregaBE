@@ -1,25 +1,25 @@
 import React from "react";
 
 const WorkCompletionPDF = ({
-  gramPanchayat = "ಕಾಳಗಿ",
-  taluka = "ಮುದ್ದೇಬಿಹಾಳ",
-  district = "ವಿಜಯಪುರ",
+  gramPanchayat = "ಕಾಳಗಿ", //1
+  taluka = "ಮುದ್ದೇಬಿಹಾಳ", //1
+  district = "ವಿಜಯಪುರ", //1
   year = "2021-2022",
-  workCode = "1507004008/AV/93393042892262348",
-  workName = "ಕಾಳಗಿ ಗ್ರಾಮ ಪಂಚಾಯಿತಿಯ ಘನತ್ಯಾಜ್ಯ ವಿಲೇವಾರಿ ಘಟಕ ನಿರ್ಮಾಣ",
-  grama = "ಕಾಳಗಿ",
-  worksite = "ಕಾಳಗಿ",
-  administrativeSanctionNo = "1507004008/2021-2022/567750/AS",
+  workCode = "1507004008/AV/93393042892262348", //1
+  workName = "ಕಾಳಗಿ ಗ್ರಾಮ ಪಂಚಾಯಿತಿಯ ಘನತ್ಯಾಜ್ಯ ವಿಲೇವಾರಿ ಘಟಕ ನಿರ್ಮಾಣ", //1
+  administrativeSanctionNo = "1507004008/2021-2022/567750/AS", //4
   workOrderNo = "25",
   workOrderDate = "20/04/2022",
-  workStartDate = "8/7/2021",
-  workEndDate = "",
-  masterollId = "",
-  expenditure = "",
-  wage = "",
-  material = "",
-  total = ""
+  workStartDate = "8/7/2021", //1
+  workEndDate = "", //?
+  masterollId = "",  // ?
+  expenditure = "", //?
+  wage = "", // 3
+  material = "", //3
+  total = "" // sum of wage + material + Est. Skilled Cost (in Rs.) + Est.Semi-Skilled Cost (in Rs.) + Contingency (in Rs.)
 }) => {
+  const grama = gramPanchayat;
+  const worksite = gramPanchayat;
   return (
     <div
       className="w-full max-w-4xl mx-auto bg-white border-2 border-black"
