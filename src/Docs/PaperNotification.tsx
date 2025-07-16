@@ -1,12 +1,12 @@
 import React from "react";
 
 const PaperNotificationPDF = ({
-  district = "ಕಲಬುರಗಿ",
-  taluka = "ಕಲಬುರಗಿ",
-  gramPanchayat = "ಕಲ್ಲಹಂಗರಗಾ",
-  year = "2023-2024",
+  district = "ಕಲಬುರಗಿ", //1
+  taluka = "ಕಲಬುರಗಿ", //1
+  gramPanchayat = "ಕಲ್ಲಹಂಗರಗಾ", //1
+  year = "2023-2024", //1
   date = "07/07/2025",
-  workName = "ಕಲ್ಲಹಂಗರಗಾ ಗ್ರಾಮದ ರೇಷ್ಮಾ ಶ್ರೀನಾಥ ಕುರಿ ದೂಡ್ಡಿ ನಿರ್ಮಾಣ",
+  workName = "ಕಲ್ಲಹಂಗರಗಾ ಗ್ರಾಮದ ರೇಷ್ಮಾ ಶ್ರೀನಾಥ ಕುರಿ ದೂಡ್ಡಿ ನಿರ್ಮಾಣ", //1
   quotationAmount = "39096",
   emdPrice = "500",
   eligibleContractors = "_______ದಿನಗಳು",

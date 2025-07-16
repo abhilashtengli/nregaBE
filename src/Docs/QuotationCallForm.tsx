@@ -1,171 +1,43 @@
 import React from "react";
 
-const QuotationCallPDF = ({
-  gramPanchayat = "ಹಸೂಡಿ",
-  taluka = "ಶಿವಮೊಗ್ಗ",
-  district = "ಶಿವಮೊಗ್ಗ",
-  year = "2020-2021",
-  administrativeSanction = "1524005018/2020-2021/770080/AS",
-  date = "23/10/2020",
-  workCode = "1524005018/IF/93393042892575291",
-  workName = "ಭದ್ರಾಪುರ ಗ್ರಾಮದ ಕೆಂಚಮ್ಮ ಕೋಂ ಹನುಮಂತಪ್ಪರವರ ಮನೆಯಲ್ಲಿ ಸೋಕ್ ಪೀಟ್ ನಿರ್ಮಾಣ ಕಾಮಗಾರಿ",
-  lastSubmissionDate = "15/10/2020",
-  materialData = [
-    {
-      slNo: 1,
-      materialName: "0295-Stone Aggregate(single size):20 mm nominal size",
-      quantity: "0.484",
-      price: "1504"
-    },
-    {
-      slNo: 2,
-      materialName: "0367-Portland Cement",
-      quantity: "0.066",
-      price: "15000"
-    },
-    {
-      slNo: 3,
-      materialName: "0982-Coarse sand (zone III)",
-      quantity: "0.579",
-      price: "11838"
-    },
-    {
-      slNo: 4,
-      materialName: "10-Miscellaneous /Contingencies charges",
-      quantity: "1",
-      price: "160.32"
-    },
-    {
-      slNo: 5,
-      materialName: "3-Display Board",
-      quantity: "1",
-      price: "800"
-    },
-    {
-      slNo: 6,
-      materialName: "7318-Plasticizer / super plasticizer",
-      quantity: "0.62",
-      price: "0159.32"
-    },
-    {
-      slNo: 7,
-      materialName: "MR9431-Broken stone aggregate 12 mm to 10 mm size",
-      quantity: "0.0488",
-      price: "1428"
-    },
-    {
-      slNo: 8,
-      materialName: "MR9432-Broken stone aggregate 20 mm size",
-      quantity: "0.0938",
-      price: "1504"
-    },
-    {
-      slNo: 9,
-      materialName: "MR9528-Rubble stones",
-      quantity: "2.025",
-      price: "619.05"
-    },
-    {
-      slNo: 10,
-      materialName: "MR9609-Add",
-      quantity: "1",
-      price: "281"
-    },
-    {
-      slNo: 11,
-      materialName: "MR9670-Stone spalls of minimum 25 mm size",
-      quantity: "0.484",
-      price: "333.3"
-    },
-    {
-      slNo: 12,
-      materialName: "MR9675-HOM of Vibrator 0.71 days",
-      quantity: "0.0147",
-      price: "169"
-    },
-    {
-      slNo: 13,
-      materialName: "MR9678-Mixer (concrete) - 1 cum Capacity",
-      quantity: "0.0147",
-      price: "1356"
-    },
-    {
-      slNo: 14,
-      materialName:
-        "MR9752-Add Handling , loading and unloading at 1% on Material",
-      quantity: "1",
-      price: "0.74281"
-    },
-    {
-      slNo: 15,
-      materialName:
-        "MR9757-Miscellaneous/Unforeseen charges which are necessary during execution.",
-      quantity: "1",
-      price: "557.33961"
-    },
-    {
-      slNo: 16,
-      materialName: "MR9762-Add sundries charges at 1 % on Material",
-      quantity: "1",
-      price: "0.8491"
-    },
-    {
-      slNo: 17,
-      materialName: "MR9773-Add watering charges at 1 % on Material",
-      quantity: "1",
-      price: "7.75621"
-    },
-    {
-      slNo: 18,
-      materialName: "MR9862-RCC Cap 1000 mm dia, 100 mm thick",
-      quantity: "1",
-      price: "750"
-    },
-    {
-      slNo: 19,
-      materialName: "MR9863-Quarry Spalls",
-      quantity: "0.405",
-      price: "285.71"
-    },
-    {
-      slNo: 20,
-      materialName: "MR9867-Charcoal",
-      quantity: "5",
-      price: "30"
-    },
-    {
-      slNo: 21,
-      materialName: "MR9868-Aqua Nylon mesh",
-      quantity: "2.25",
-      price: "125"
-    },
-    {
-      slNo: 22,
-      materialName: "MR9961-Cost of 6.5mm M.S. Coil",
-      quantity: "16.5",
-      price: "33.89"
-    },
-    {
-      slNo: 23,
-      materialName: "MR9962-Fabrication charges.",
-      quantity: "16.5",
-      price: "11"
-    },
-    {
-      slNo: 24,
-      materialName:
-        "MR9963-Transportation charges of materials beyond 5 KM @ 10%",
-      quantity: "1",
-      price: "75.411"
-    },
-    {
-      slNo: 25,
-      materialName: "MR9984-PVC pipe of 10kg\\cum,90 mm",
-      quantity: "10",
-      price: "337.55"
-    }
-  ]
-}) => {
+// COMPLETED ( Pending date )
+type MaterialData = {
+  slNo: number;
+  materialName: string;
+  quantity: string;
+  price: string;
+};
+
+type QuotationCallDataProp = {
+  gramPanchayat: string;
+  taluka: string;
+  district: string;
+  year: string;
+  administrativeSanction: string;
+  workCode: string;
+  workName: string;
+  materialData: MaterialData[];
+};
+
+type QuotationCallPDFProps = {
+  QuotationCallPDF: QuotationCallDataProp;
+};
+
+const QuotationCallPDF = ({ QuotationCallPDF }: QuotationCallPDFProps) => {
+  const {
+    gramPanchayat,
+    taluka,
+    district,
+    year,
+    administrativeSanction,
+    workCode,
+    workName,
+    materialData
+  } = QuotationCallPDF;
+
+  const lastSubmissionDate = "15/10/2020"; // Pending date
+  const date = "23/10/2020"; // // Pending date
+
   const itemsPerPage = 15; // Based on the PDF structure
   const totalPages = Math.ceil(materialData.length / itemsPerPage);
 
