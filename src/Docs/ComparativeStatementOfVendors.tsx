@@ -1,12 +1,12 @@
 import React from "react";
 
 // first PDF to add in this Quotation call form letter and later on this current PDF
-// PENDING // data comes frmo link 2
+// PENDING // data comes from link 2
 //Supply order date will be last submission date given by user
 const ComparativeStatementPDF = ({
   gramPanchayat = "ಹಸೂಡಿ", //1
-  taluka = "ಶಿವಮೊಗ್ಗ", //2
-  district = "ಶಿವಮೊಗ್ಗ", //3
+  taluka = "ಶಿವಮೊಗ್ಗ", //1
+  district = "ಶಿವಮೊಗ್ಗ", //1
   address = "Kote Road, Shivamogga",
   year = "2020-2021", // 1
   date = "10/10/2020", // from date user input

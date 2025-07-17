@@ -1,6 +1,6 @@
 import React from "react";
 
-// PENDING (Data integration is pending..)
+// PENDING (Data integration is pending..) This we will integrate in the frontend
 const NMRPDF = ({
   musterRollNo = "30515", //11
   district = "ಕಲಬುರಗಿ", //1
