@@ -4,7 +4,7 @@ import { findPanchayatByCode } from "../utils/findPanchayat";
 import * as cheerio from "cheerio";
 import puppeteer from "puppeteer";
 
-const vendorScraperRouter = express.Router();
+const testingVendorScrape = express.Router();
 
 // Types/Interfaces
 interface TableData {
@@ -491,7 +491,7 @@ function buildUrls(
 /**
  * Main API endpoint
  */
-vendorScraperRouter.get(
+testingVendorScrape.get(
   "/vendor-scraper/:id",
   async (req: Request, res: Response) => {
     try {
@@ -689,4 +689,4 @@ vendorScraperRouter.get(
   }
 );
 
-export default vendorScraperRouter;
+export default testingVendorScrape;
