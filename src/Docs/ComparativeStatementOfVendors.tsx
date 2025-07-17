@@ -1,27 +1,34 @@
 import React from "react";
 
+// first PDF to add in this Quotation call form letter and later on this current PDF
+// PENDING // data comes frmo link 2
+//Supply order date will be last submission date given by user
 const ComparativeStatementPDF = ({
-  gramPanchayat = "ಹಸೂಡಿ",
-  taluka = "ಶಿವಮೊಗ್ಗ",
-  district = "ಶಿವಮೊಗ್ಗ",
-  year = "2020-2021",
-  date = "10/10/2020",
-  workName = "ಭದ್ರಾಪುರ ಗ್ರಾಮದ ಕೆಂಚಮ್ಮ ಕೋಂ ಹನುಮಂತಪ್ಪರವರ ಮನೆಯಲ್ಲಿ ಸೋಕ್ ಪೀಟ್ ನಿರ್ಮಾಣ ಕಾಮಗಾರಿ",
-  workCode = "1524005018/IF/93393042892575291",
-  tenderPublishDate = "14/10/2020",
-  tenderSubmissionDate = "",
+  gramPanchayat = "ಹಸೂಡಿ", //1
+  taluka = "ಶಿವಮೊಗ್ಗ", //2
+  district = "ಶಿವಮೊಗ್ಗ", //3
+  address = "Kote Road, Shivamogga",
+  year = "2020-2021", // 1
+  date = "10/10/2020", // from date user input
+  workName = "ಭದ್ರಾಪುರ ಗ್ರಾಮದ ಕೆಂಚಮ್ಮ ಕೋಂ ಹನುಮಂತಪ್ಪರವರ ಮನೆಯಲ್ಲಿ ಸೋಕ್ ಪೀಟ್ ನಿರ್ಮಾಣ ಕಾಮಗಾರಿ", //1
+  workCode = "1524005018/IF/93393042892575291", //1
+  tenderPublishDate = "14/10/2020", //from date user input
+  tenderSubmissionDate = "", // from date user input + 2
   contractor1 = {
+    //comes from the user input
     name: "Shantamma",
     gst: "18AABCU9603R1ZM",
-    address: "Kote Road, Shivamogga"
+    QuotationSubmissiondate: "" // from date user input + 2
   },
   contractor2 = {
     name: "Manikyam",
-    gst: "18AABCU9603R1ZP"
+    gst: "18AABCU9603R1ZP",
+    QuotationSubmissiondate: "" // from date user input + 1
   },
   contractor3 = {
     name: "Valli",
-    gst: "18AABCU9603R1ZS"
+    gst: "18AABCU9603R1ZS",
+    QuotationSubmissiondate: "" // from date user input + 3
   },
   materialData = [
     {
@@ -615,7 +622,7 @@ const ComparativeStatementPDF = ({
                 <strong>GST :-</strong> {contractor1.gst}
               </div>
               <div className="mb-1">
-                <strong>ವಿಳಾಸ :-</strong> {contractor1.address}
+                <strong>ವಿಳಾಸ :-</strong> {address}
               </div>
             </div>
             <div className="text-right text-xs">

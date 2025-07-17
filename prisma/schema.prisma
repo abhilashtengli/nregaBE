@@ -59,6 +59,8 @@ model WorkDetail {
 
   // One-to-one relation with documents
   workDocuments WorkDocuments?
+
+  vendorDetails VendorDetail?
 }
 
 // Work documents table (Table 2 data)
@@ -92,4 +94,27 @@ model WorkDocuments {
 
   // Relation to WorkDetail
   workDetail WorkDetail @relation(fields: [workCode], references: [workCode], onDelete: Cascade)
+}
+
+// Vendor details table
+model VendorDetail {
+  id              String    @id @default(uuid())
+  vendorNameOne   String?
+  vendorNameTwo   String?
+  vendorNameThree String?
+  vendorGstOne    String?
+  vendorGstTwo    String?
+  vendorGstThree  String?
+  fromDate        DateTime?
+  toDate          DateTime?
+  workDetailId    String    @unique @map("work_detail_id")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // One-to-one relation to WorkDetail
+  workDetail WorkDetail @relation(fields: [workDetailId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_detail")
 }

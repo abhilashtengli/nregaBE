@@ -15,7 +15,7 @@ checklistRouter.get(
         res.status(400).json({
           success: false,
           error: "Work Detail ID is required",
-          code: "MISSING_ID",
+          code: "MISSING_ID"
         });
         return;
       }
@@ -23,7 +23,7 @@ checklistRouter.get(
       // Fetch work details with related panchayat data
       const workDetail = await prisma.workDetail.findUnique({
         where: {
-          id: id,
+          id: id
         },
         select: {
           id: true,
@@ -31,8 +31,8 @@ checklistRouter.get(
           workName: true,
           sanctionYear: true,
           panchayat: true,
-          block: true,
-        },
+          block: true
+        }
       });
 
       // Check if work detail exists
@@ -40,7 +40,7 @@ checklistRouter.get(
         res.status(404).json({
           success: false,
           error: "Work Detail not found",
-          code: "WORK_DETAIL_NOT_FOUND",
+          code: "WORK_DETAIL_NOT_FOUND"
         });
         return;
       }
@@ -49,14 +49,14 @@ checklistRouter.get(
       res.status(200).json({
         success: true,
         data: workDetail,
-        message: "Work details retrieved successfully",
+        message: "Work details retrieved successfully"
       });
     } catch (error: any) {
       console.error("Error in get-checklist endpoint:", error);
       res.status(500).json({
         success: false,
         error: error.message || "Internal server error",
-        code: "FETCH_CHECKLIST_ERROR",
+        code: "FETCH_CHECKLIST_ERROR"
       });
       return;
     }

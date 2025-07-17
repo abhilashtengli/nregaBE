@@ -35,8 +35,8 @@ const QuotationCallPDF = ({ QuotationCallPDF }: QuotationCallPDFProps) => {
     materialData
   } = QuotationCallPDF;
 
-  const lastSubmissionDate = "15/10/2020"; // Pending date
-  const date = "23/10/2020"; // // Pending date
+  const lastSubmissionDate = "15/10/2020"; // todate user input(last submision date) Pending date
+  const date = "23/10/2020"; // from date user input // // Pending date
 
   const itemsPerPage = 15; // Based on the PDF structure
   const totalPages = Math.ceil(materialData.length / itemsPerPage);

@@ -13,7 +13,7 @@ const GPAbstract = ({
   includedInPerspectivePlan = "No", //2
   approvedInAnnualPlan = "No", //2
   estimatedCost = "1.89363", //1
-  estimatedCompletionTime = "6",
+  estimatedCompletionTime = "0.6",
   expenditureIncurred = {
     unskilled: "21172", //3
     semiSkilled: "0", //3
@@ -23,11 +23,11 @@ const GPAbstract = ({
     total: "21172" //sum of all above
   },
   employmentGenerated = {
-    unskilled: { persondays: "67", totalPersons: "12" },
+    unskilled: { persondays: "67", totalPersons: "12" }, // persondays is sum of Total Attendance and totalPersons sl.no of the link
     semiSkilled: { persondays: "0", totalPersons: "0" },
     skilled: { persondays: "0", totalPersons: "0" }
   },
-  musterRollsUsed = "42544(3160),44017(18012)",
+  musterRollsUsed = "42544(3160),44017(18012)", // add this from the link 8 mustrollNo (total amount) (add all the unique mustroll no with total amount)
   workStartDate = "25/09/2023", //1
   beforeWorkPhoto = null,
   duringWorkPhoto = null

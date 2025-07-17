@@ -1,5 +1,6 @@
 import React from "react";
 
+// PENDING
 const MovementSlipPDF = ({
   workCode = "1507004008/AV/93393042892262348",
   workName = "ಕಾಳಗಿ ಗ್ರಾಮ ಪಂಚಾಯಿತಿಯ ಘನತ್ಯಾಜ್ಯ ವಿಲೇವಾರಿ ಘಟಕ ನಿರ್ಮಾಣ",
@@ -7,7 +8,8 @@ const MovementSlipPDF = ({
   gramPanchayat = "ಕಾಳಗಿ",
   taluka = "ಮುದ್ದೇಬಿಹಾಳ",
   district = "ವಿಜಯಪುರ",
-  date = ""
+  date = "" // blank
+  //ಇ-ಹಾಜರಾತಿ  mustroll // from link 8
 }) => {
   return (
     <div
@@ -106,28 +108,28 @@ const MovementSlipPDF = ({
                 ಕ್ರ ಸಂ
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-20">
-                ಇ-ಹಾಜರಾತಿ
+                ಇ-ಹಾಜರಾತಿ // mustroll
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-24">
-                ಇ-ಎನ್‌ಎಮ್‌ಆರ್ ವಿತರಣೆ
+                ಇ-ಎನ್‌ಎಮ್‌ಆರ್ ವಿತರಣೆ // from date
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-24">
-                ಇ-ಎನ್‌ಎಮ್‌ಆರ್ ಮುಕ್ತಾಯ
+                ಇ-ಎನ್‌ಎಮ್‌ಆರ್ ಮುಕ್ತಾಯ // to date
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-32">
-                ಎಮ್‌ಐಎಸ್‌ನಲ್ಲಿ ಹಾಜರಾತಿ ಇಂದೀಕರಿಸುವಿಕೆ
+                ಎಮ್‌ಐಎಸ್‌ನಲ್ಲಿ ಹಾಜರಾತಿ ಇಂದೀಕರಿಸುವಿಕೆ // to date + 1
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-16">
-                ಕೆಲಸದ ಅಳತೆ
+                ಕೆಲಸದ ಅಳತೆ // to date + 2
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-32">
-                ಎಮ್‌ಐಎಸ್‌ನಲ್ಲಿ ದಾಖಲಿಸಿದ ಅಳತೆ
+                ಎಮ್‌ಐಎಸ್‌ನಲ್ಲಿ ದಾಖಲಿಸಿದ ಅಳತೆ to date + 2
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-20">
-                ಎಫ್‌ಟಿಒ 1ನೇ ಸಹಿ
+                ಎಫ್‌ಟಿಒ 1ನೇ ಸಹಿ // payment date - 1 from link 8
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-20">
-                ಎಫ್‌ಟಿಒ 2ನೇ ಸಹಿ
+                ಎಫ್‌ಟಿಒ 2ನೇ ಸಹಿ // payment date
               </th>
             </tr>
           </thead>

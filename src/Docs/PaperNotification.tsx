@@ -1,20 +1,21 @@
 import React from "react";
 
+// PENDING
 const PaperNotificationPDF = ({
   district = "ಕಲಬುರಗಿ", //1
   taluka = "ಕಲಬುರಗಿ", //1
   gramPanchayat = "ಕಲ್ಲಹಂಗರಗಾ", //1
   year = "2023-2024", //1
-  date = "07/07/2025",
+  date = "07/07/2025", // from date user input
   workName = "ಕಲ್ಲಹಂಗರಗಾ ಗ್ರಾಮದ ರೇಷ್ಮಾ ಶ್ರೀನಾಥ ಕುರಿ ದೂಡ್ಡಿ ನಿರ್ಮಾಣ", //1
   quotationAmount = "39096",
   emdPrice = "500",
   eligibleContractors = "_______ದಿನಗಳು",
-  fromDate = "07/07/2025",
-  toDate = "12/07/2025",
-  prebidMeetingDate = "09/07/2025",
-  documentSubmissionDate = "16/07/2025",
-  envelopeOpeningDetails = "ಹಾಜರಿರುವ ದರಪಟ್ಟಿದಾರರ ಸಮುಖದಲ್ಲಿ 16/07/2025 ರಂದು ಅಪರಾಹ್ನ 3-00 ಗಂಟೆ ಗ್ರಾಮ ಪಂಚಾಯತ ಕಛೇರಿಯಲ್ಲಿ"
+  fromDate = "07/07/2025", // from date user input
+  toDate = "12/07/2025", // from date user input
+  prebidMeetingDate = "09/07/2025", // to date user input
+  documentSubmissionDate = "16/07/2025", // to date user input
+  envelopeOpeningDetails = " 16/07/2025" //to date user input
 }) => {
   return (
     <div
@@ -228,7 +229,8 @@ const PaperNotificationPDF = ({
                 ಮೊಹರು ಮಾಡಿದ ದರಪಟ್ಟಿ ಲಕೋಟೆ ತೆರೆಯುವ ಸ್ಥಳ, ದಿನಾಂಕ ಮತ್ತು ಸಮಯ
               </td>
               <td className="border border-black px-2 py-2 text-left">
-                {envelopeOpeningDetails}
+                "ಹಾಜರಿರುವ ದರಪಟ್ಟಿದಾರರ ಸಮುಖದಲ್ಲಿ {envelopeOpeningDetails} ರಂದು
+                ಅಪರಾಹ್ನ 3-00 ಗಂಟೆ ಗ್ರಾಮ ಪಂಚಾಯತ ಕಛೇರಿಯಲ್ಲಿ"
               </td>
               <td className="border border-black px-2 py-2 text-center"></td>
             </tr>

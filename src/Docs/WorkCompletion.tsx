@@ -1,10 +1,11 @@
 import React from "react";
 
+// PENDING
 const WorkCompletionPDF = ({
   gramPanchayat = "ಕಾಳಗಿ", //1
   taluka = "ಮುದ್ದೇಬಿಹಾಳ", //1
   district = "ವಿಜಯಪುರ", //1
-  year = "2021-2022",
+  year = "2021-2022",// financila year
   workCode = "1507004008/AV/93393042892262348", //1
   workName = "ಕಾಳಗಿ ಗ್ರಾಮ ಪಂಚಾಯಿತಿಯ ಘನತ್ಯಾಜ್ಯ ವಿಲೇವಾರಿ ಘಟಕ ನಿರ್ಮಾಣ", //1
   administrativeSanctionNo = "1507004008/2021-2022/567750/AS", //4
@@ -12,7 +13,7 @@ const WorkCompletionPDF = ({
   workOrderDate = "20/04/2022",
   workStartDate = "8/7/2021", //1
   workEndDate = "", //?
-  masterollId = "",  // ?
+  masterollId = "", // ?
   expenditure = "", //?
   wage = "", // 3
   material = "", //3

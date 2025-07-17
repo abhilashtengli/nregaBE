@@ -1,13 +1,12 @@
 import React from "react";
 // PENDING
 type WorkData = {
-  id: string;
-  workCode: string;
-  workName: string;
-  panchayat: string;
-  block: string;
-  estimatedCost: string;
-  date: string; // figure out from where this comes
+  workCode: string; //1
+  workName: string; //1
+  panchayat: string; //1
+  block: string; //1
+  estimatedCost: string; //1
+  date: string; // link 8 (from date -1 )
 };
 type WorkOrderProps = {
   workOrderDate: WorkData;
