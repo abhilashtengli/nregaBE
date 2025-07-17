@@ -11,10 +11,10 @@ import form6Router from "./routes/form6Route";
 import blankNmrRouter from "./routes/blankNmrRoute";
 import ftoRouter from "./routes/wlFtoRoute";
 import materialMisRouter from "./routes/materialMisRoute";
-import quotationCallRouter from "./routes/quotationCallLetterRoute";
 import stageWisePhotosRouter from "./routes/stageWiseTaggingRoute";
 import vendorRouter from "./routes/vendorDetailsRoute";
 import testingVendorScrape from "./routes/testing";
+import quotationCallRouter from "./routes/quotationCallLetterVersion2";
 
 dotenv.config();
 
@@ -43,6 +43,7 @@ app.use("/", quotationCallRouter);
 app.use("/", materialMisRouter);
 app.use("/", testingVendorScrape);
 app.use("/", vendorRouter);
+app.use("/", stageWisePhotosRouter);
 app.use("/", stageWisePhotosRouter);
 
 const PORT = process.env.PORT || 3000;

@@ -1,17 +1,20 @@
 import express, { Request, Response } from "express";
 import { prisma } from "@lib/prisma";
+
 import {
+  saveQuotationCallToDatabase,
   MaterialData,
   QuotationCallData,
   QuotationCallResponse,
   scrapeAdministrativeSanctionNumber,
   scrapeTechnicalEstimateMaterialData,
   validateAndCleanMaterialData
-} from "../services/quotationCallLetterService";
+} from "../services/quotationCallLetterServiceVersion2";
 
 const quotationCallRouter = express.Router();
+
 /**
- * Main API endpoint - Get quotation call data by work detail ID
+ * Main API endpoint - Get quotation call data by work detail ID and save to database
  */
 quotationCallRouter.get(
   "/get-quotation-call/:id",
@@ -29,7 +32,7 @@ quotationCallRouter.get(
         return;
       }
 
-      // Fetch work details from database - same structure as tsCopy
+      // Fetch work details from database
       const workDetail = await prisma.workDetail.findUnique({
         where: { id: id },
         select: {
@@ -52,7 +55,7 @@ quotationCallRouter.get(
         return;
       }
 
-      // Fetch work documents to get required links - same structure as tsCopy
+      // Fetch work documents to get required links
       const workDocument = await prisma.workDocuments.findFirst({
         where: { workCode: workDetail.workCode },
         select: {
@@ -76,7 +79,7 @@ quotationCallRouter.get(
       let materialData: MaterialData[] = [];
       let administrativeSanctionNo = "";
 
-      // Scrape material data from technical estimate - same pattern as tsCopy
+      // Scrape material data from technical estimate
       if (workDocument.technicalEstimate) {
         console.log(
           `Fetching material data from: ${workDocument.technicalEstimate}`
@@ -89,7 +92,7 @@ quotationCallRouter.get(
         materialData = validateAndCleanMaterialData(materialData);
       }
 
-      // Scrape administrative sanction number - same pattern as tsCopy
+      // Scrape administrative sanction number
       if (workDocument.administrativeSanction) {
         console.log(
           `Fetching administrative sanction from: ${workDocument.administrativeSanction}`
@@ -121,7 +124,7 @@ quotationCallRouter.get(
         return;
       }
 
-      // Prepare the response data - same structure as tsCopy
+      // Prepare the response data
       const quotationCallData: QuotationCallData = {
         gramPanchayat: workDetail.panchayat || "",
         taluka: workDetail.block || "",
@@ -133,10 +136,19 @@ quotationCallRouter.get(
         materialData: materialData
       };
 
+      // Save to database
+      try {
+        await saveQuotationCallToDatabase(workDetail.id, quotationCallData);
+        console.log("Quotation call data saved to database successfully");
+      } catch (dbError: any) {
+        console.error("Error saving to database:", dbError);
+        // Continue with response even if database save fails
+      }
+
       res.status(200).json({
         success: true,
         data: quotationCallData,
-        message: "Quotation call data retrieved successfully"
+        message: "Quotation call data retrieved and saved successfully"
       } as QuotationCallResponse);
     } catch (error: any) {
       console.error("Error in get-quotation-call endpoint:", error);
@@ -150,7 +162,7 @@ quotationCallRouter.get(
 );
 
 /**
- * Alternative endpoint - Get quotation call data by work code
+ * Alternative endpoint - Get quotation call data by work code and save to database
  */
 quotationCallRouter.get(
   "/get-quotation-call-by-code/:workCode",
@@ -261,10 +273,19 @@ quotationCallRouter.get(
         materialData: materialData
       };
 
+      // Save to database
+      try {
+        await saveQuotationCallToDatabase(workDetail.id, quotationCallData);
+        console.log("Quotation call data saved to database successfully");
+      } catch (dbError: any) {
+        console.error("Error saving to database:", dbError);
+        // Continue with response even if database save fails
+      }
+
       res.status(200).json({
         success: true,
         data: quotationCallData,
-        message: "Quotation call data retrieved successfully"
+        message: "Quotation call data retrieved and saved successfully"
       } as QuotationCallResponse);
     } catch (error: any) {
       console.error("Error in get-quotation-call-by-code endpoint:", error);

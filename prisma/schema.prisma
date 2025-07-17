@@ -60,7 +60,8 @@ model WorkDetail {
   // One-to-one relation with documents
   workDocuments WorkDocuments?
 
-  vendorDetails VendorDetail?
+  vendorDetails       VendorDetail?
+  quotationCallLetter QuotationCallLetter?
 }
 
 // Work documents table (Table 2 data)
@@ -117,4 +118,34 @@ model VendorDetail {
   workDetail WorkDetail @relation(fields: [workDetailId], references: [id], onDelete: Cascade)
 
   @@map("vendor_detail")
+}
+
+model QuotationCallLetter {
+  id                     String     @id @default(uuid())
+  workDetailId           String     @unique @map("work_detail_id")
+  administrativeSanction String
+  workDetail             WorkDetail @relation(fields: [workDetailId], references: [id], onDelete: Cascade)
+  createdAt              DateTime   @default(now()) @map("created_at")
+  updatedAt              DateTime   @updatedAt @map("updated_at")
+
+  // Changed to one-to-many relation with MaterialItem
+  materialItems MaterialItem[]
+
+  @@map("quotation_call_letter")
+}
+
+model MaterialItem {
+  id                    String @id @default(uuid())
+  slNo                  Int    @map("sl_no")
+  quotationCallLetterId String @map("quotation_call_letter_id") // Removed @unique for one-to-many
+  materialName          String @map("material_name")
+  quantity              String
+  price                 String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  quotationCallLetter QuotationCallLetter @relation(fields: [quotationCallLetterId], references: [id], onDelete: Cascade)
+
+  @@map("material_item")
 }
