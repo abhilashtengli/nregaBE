@@ -5,7 +5,7 @@ import * as cheerio from "cheerio";
 import winston, { Logger } from "winston";
 import { URL } from "url";
 
-const testingVendorScrape = express.Router();
+const workingtestingVendorScrape = express.Router();
 
 // Type definitions
 interface ProcessResult {
@@ -243,7 +243,10 @@ const extractTablesWc = (
   return validTables;
 };
 
+// 🔥 COMPLETELY NEW EXTRACTION LOGIC 🔥
 const extractDataFromTable = (tableData: string[][]): ExtractedData => {
+  console.log("🚀 STARTING EXTRACTION WITH BRAND NEW LOGIC 🚀");
+
   const extractedData: ExtractedData = {
     workCode: "",
     vendorName: "",
@@ -253,109 +256,70 @@ const extractDataFromTable = (tableData: string[][]): ExtractedData => {
 
   let currentBillData: Partial<MaterialData> = {};
 
-  console.log("========== TABLE DATA DEBUG ==========");
-  console.log("Total rows in table:", tableData.length);
-  tableData.forEach((row, index) => {
-    console.log(`Row ${index}:`, row);
-  });
-  console.log("========== END TABLE DATA DEBUG ==========");
-
   for (let i = 0; i < tableData.length; i++) {
     const row = tableData[i];
+    console.log(`🔍 ROW ${i}:`, row);
 
     // Extract work code from first row
     if (i === 0 && row[0] && row[0].includes("Work Code")) {
       const workCodeMatch = row[0].match(/\(([^)]+)\)/);
       if (workCodeMatch) {
         extractedData.workCode = workCodeMatch[1];
+        console.log("✅ EXTRACTED WORK CODE:", extractedData.workCode);
       }
     }
 
     // Extract bill information
     if (row[0] && row[0].startsWith("Bill No.")) {
-      currentBillData.billNo = row[0].substring("Bill No. : ".length).trim();
-      console.log("Found Bill No:", currentBillData.billNo);
+      currentBillData.billNo = row[0].substring(10).trim();
+      console.log("💰 EXTRACTED BILL NO:", currentBillData.billNo);
     }
     if (row[1] && row[1].startsWith("Bill Amount")) {
-      currentBillData.billAmount = row[1]
-        .substring("Bill Amount : ".length)
-        .trim();
-      console.log("Found Bill Amount:", currentBillData.billAmount);
+      currentBillData.billAmount = row[1].substring(14).trim();
+      console.log("💰 EXTRACTED BILL AMOUNT:", currentBillData.billAmount);
     }
     if (row[2] && row[2].startsWith("Bill Date")) {
-      currentBillData.billDate = row[2].substring("Bill Date : ".length).trim();
-      console.log("Found Bill Date:", currentBillData.billDate);
+      currentBillData.billDate = row[2].substring(12).trim();
+      console.log("📅 EXTRACTED BILL DATE:", currentBillData.billDate);
     }
     if (row[3] && row[3].startsWith("Date of Payment")) {
-      currentBillData.dateOfPayment = row[3]
-        .substring("Date of Payment :".length)
-        .trim();
-      console.log("Found Date of Payment:", currentBillData.dateOfPayment);
+      currentBillData.dateOfPayment = row[3].substring(16).trim();
+      console.log("📅 EXTRACTED PAYMENT DATE:", currentBillData.dateOfPayment);
     }
 
-    // FIXED: Extract vendor name and financial year - Handle both formats
-    if (row[0] && row[0].startsWith("Vendor name")) {
-      extractedData.vendorName = row[0]
-        .substring("Vendor name : ".length)
-        .trim();
-      console.log(
-        "Found Vendor Name (after cleanup):",
-        extractedData.vendorName
-      );
-    } else if (row[0] && row[0].startsWith(":") && row[0].length > 2) {
-      extractedData.vendorName = row[0].substring(2).trim(); // Remove ": " prefix
-      console.log(
-        "Found Vendor Name (short format):",
-        extractedData.vendorName
-      );
+    // 🎯 NEW VENDOR EXTRACTION LOGIC BASED ON CURRENT FORMAT
+    if (row[0] && row[0].startsWith("Vendor name :")) {
+      extractedData.vendorName = row[0].substring(14).trim();
+      console.log("👤 EXTRACTED VENDOR NAME:", extractedData.vendorName);
     }
 
-    if (row[1] && row[1].startsWith("Financial Year")) {
-      extractedData.financialYear = row[1]
-        .substring("Financial Year : ".length)
-        .trim();
-      console.log(
-        "Found Financial Year (after cleanup):",
-        extractedData.financialYear
-      );
-    } else if (row[1] && row[1].startsWith(":") && row[1].length > 2) {
-      extractedData.financialYear = row[1].substring(2).trim(); // Remove ": " prefix
-      console.log(
-        "Found Financial Year (short format):",
-        extractedData.financialYear
-      );
+    if (row[1] && row[1].startsWith("Financial Year :")) {
+      extractedData.financialYear = row[1].substring(17).trim();
+      console.log("📊 EXTRACTED FINANCIAL YEAR:", extractedData.financialYear);
     }
 
-    // FIXED: Flexible header detection for both formats
-    const isHeaderRow =
-      row.length === 4 &&
-      row[0] === "Material" &&
-      row[1] === "Unit Price (In Rupees)" &&
-      row[2] === "Quantity" &&
-      (row[3] === "Amount (In Rupees)" || row[3] === "(In Rupees)");
+    // 🎯 SUPER SIMPLE MATERIAL DETECTION
+    if (row[0] === "Material") {
+      console.log(
+        `🎉 FOUND MATERIAL HEADER AT ROW ${i}! Next row should be material data...`
+      );
 
-    if (isHeaderRow) {
-      console.log("✅ Found material headers at row", i, ":", row);
-
-      // Check the next row for material data
       if (i + 1 < tableData.length) {
         const nextRow = tableData[i + 1];
-        console.log("Checking next row for material data:", nextRow);
+        console.log(`🔍 NEXT ROW ${i + 1}:`, nextRow);
 
-        // Validate this is actual material data (not bill info, headers, or GST)
-        if (
-          nextRow.length >= 4 &&
-          !nextRow[0].includes("Bill No.") &&
-          !nextRow[0].startsWith("Vendor name") &&
-          !nextRow[0].startsWith(":") && // Handle both formats
-          !nextRow[0].includes("Material") &&
-          !nextRow[0].includes("Centre GST") &&
-          !nextRow[0].includes("State GST") &&
-          !nextRow[0].includes("Total") &&
-          !nextRow[0].includes("Grand Total") &&
-          nextRow[0].trim() !== ""
-        ) {
-          console.log("✅ Processing material row:", nextRow);
+        // Simple check: if it's not a special keyword, it's material data
+        const isSpecialRow =
+          nextRow[0].includes("Bill No.") ||
+          nextRow[0].includes("Vendor name") ||
+          nextRow[0].includes("Centre GST") ||
+          nextRow[0].includes("State GST") ||
+          nextRow[0].includes("Total") ||
+          nextRow[0].includes("Material") ||
+          nextRow[0].trim() === "";
+
+        if (!isSpecialRow && nextRow.length >= 4) {
+          console.log(`🎊 PROCESSING MATERIAL ROW ${i + 1}:`, nextRow);
 
           const materialEntry: MaterialData = {
             billNo: currentBillData.billNo || "",
@@ -368,46 +332,16 @@ const extractDataFromTable = (tableData: string[][]): ExtractedData => {
             amount: nextRow[3] || ""
           };
 
-          console.log("✅ Adding material entry:", materialEntry);
+          console.log("🎊 ADDING MATERIAL ENTRY:", materialEntry);
           extractedData.materialData.push(materialEntry);
         } else {
-          console.log("❌ Next row doesn't qualify as material data:", nextRow);
-          console.log("Reasons:");
-          console.log(
-            "  - Contains Bill No.:",
-            nextRow[0].includes("Bill No.")
-          );
-          console.log(
-            "  - Starts with 'Vendor name':",
-            nextRow[0].startsWith("Vendor name")
-          );
-          console.log("  - Starts with ':':", nextRow[0].startsWith(":"));
-          console.log(
-            "  - Contains 'Material':",
-            nextRow[0].includes("Material")
-          );
-          console.log(
-            "  - Contains GST:",
-            nextRow[0].includes("Centre GST") ||
-              nextRow[0].includes("State GST")
-          );
-          console.log("  - Contains Total:", nextRow[0].includes("Total"));
-          console.log("  - Is empty:", nextRow[0].trim() === "");
+          console.log(`❌ ROW ${i + 1} IS SPECIAL, SKIPPING:`, nextRow[0]);
         }
       }
-    } else if (row.length === 4 && row[0] === "Material") {
-      console.log("❌ Header row format doesn't match. Expected format:");
-      console.log(
-        `   row[1] should be "Unit Price (In Rupees)", got: "${row[1]}"`
-      );
-      console.log(`   row[2] should be "Quantity", got: "${row[2]}"`);
-      console.log(
-        `   row[3] should be "Amount (In Rupees)" OR "(In Rupees)", got: "${row[3]}"`
-      );
     }
   }
 
-  console.log("Final extracted data:", extractedData);
+  console.log("🏁 FINAL RESULT:", extractedData);
   return extractedData;
 };
 
@@ -527,8 +461,8 @@ const mainGpwrkbilldtl = async (
 };
 
 // Express route to trigger processing
-testingVendorScrape.post(
-  "/material-mis",
+workingtestingVendorScrape.post(
+  "/material-mis-perfect",
   async (req: Request, res: Response<ApiResponse | ErrorResponse>) => {
     try {
       const totalStartTime: number = Date.now();
@@ -573,4 +507,4 @@ testingVendorScrape.post(
   }
 );
 
-export default testingVendorScrape;
+export default workingtestingVendorScrape;

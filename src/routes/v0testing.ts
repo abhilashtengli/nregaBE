@@ -28,6 +28,7 @@ interface MaterialData {
   billAmount: string;
   billDate: string;
   dateOfPayment: string;
+  financialYear: string;
   material: string;
   unitPrice: string;
   quantity: string;
@@ -207,207 +208,176 @@ const cleanTableWc =
     }
   };
 
-const tableContainsWorkcode = (
-  tableData: string[][] | null,
-  workcode: string
-): boolean => {
-  if (!tableData) return false;
-  const workcodeParts: string = workcode.split("/").pop()?.toLowerCase() || "";
-  return tableData.some((row) =>
-    row.some(
-      (cell) =>
-        cell.toLowerCase().includes(workcode.toLowerCase()) ||
-        cell.toLowerCase().includes(workcodeParts)
-    )
-  );
-};
-
-const extractTablesWc = (
+// Extract ONLY tables that contain the specific work code
+const extractTablesForWorkcode = (
   $: cheerio.CheerioAPI,
-  workcode: string,
-  url: string
-): string[][][] => {
+  workcode: string
+): string[][] => {
   const tables: any[] = $("table").get();
-  logger.info(`Found ${tables.length} tables to process`);
 
-  const cleanedTables: (string[][] | null)[] = tables.map(cleanTableWc($));
+  let combinedTableData: string[][] = [];
+  let isCollectingForWorkcode = false;
+  let foundTargetWorkcode = false;
 
-  const validTables: string[][][] = cleanedTables.filter(
-    (table): table is string[][] =>
-      table !== null && tableContainsWorkcode(table, workcode)
-  );
+  tables.forEach((table) => {
+    const cleanedTable = cleanTableWc($)(table);
+    if (!cleanedTable) return;
 
-  logger.info(
-    `Extracted ${validTables.length} tables matching workcode ${workcode}`
-  );
-  return validTables;
+    for (const row of cleanedTable) {
+      // Check if this row contains our specific work code
+      if (row.some((cell) => cell.includes(workcode))) {
+        isCollectingForWorkcode = true;
+        foundTargetWorkcode = true;
+      }
+
+      // Check if we've hit a different work code
+      if (
+        row.some((cell) => {
+          if (cell.includes("Work Code") && cell.includes("(")) {
+            const match = cell.match(/\(([^)]+)\)/);
+            return match && match[1] !== workcode;
+          }
+          // Also check for rows that start with : and contain a different work code
+          if (
+            cell.startsWith(":") &&
+            cell.includes("(") &&
+            cell.includes(")")
+          ) {
+            const match = cell.match(/\(([^)]+)\)/);
+            return match && match[1] !== workcode;
+          }
+          return false;
+        })
+      ) {
+        // If we were collecting and hit a different work code, stop
+        if (isCollectingForWorkcode) {
+          break;
+        }
+      }
+
+      // Only collect rows if we're in the right work code section
+      if (isCollectingForWorkcode) {
+        combinedTableData.push(row);
+      }
+    }
+  });
+
+  return combinedTableData;
 };
 
-const extractDataFromTable = (tableData: string[][]): ExtractedData => {
+// FIXED EXTRACTION LOGIC - Extract data ONLY for the requested work code
+const extractDataFromTable = (
+  tableData: string[][],
+  requestWorkCode: string
+): ExtractedData | null => {
+
   const extractedData: ExtractedData = {
-    workCode: "",
+    workCode: requestWorkCode,
     vendorName: "",
     financialYear: "",
     materialData: []
   };
 
   let currentBillData: Partial<MaterialData> = {};
-
-  console.log("========== TABLE DATA DEBUG ==========");
-  console.log("Total rows in table:", tableData.length);
-  tableData.forEach((row, index) => {
-    console.log(`Row ${index}:`, row);
-  });
-  console.log("========== END TABLE DATA DEBUG ==========");
+  let currentFinancialYear: string = "";
+  let isProcessingCorrectWork = false;
 
   for (let i = 0; i < tableData.length; i++) {
     const row = tableData[i];
 
-    // Extract work code from first row
-    if (i === 0 && row[0] && row[0].includes("Work Code")) {
-      const workCodeMatch = row[0].match(/\(([^)]+)\)/);
-      if (workCodeMatch) {
-        extractedData.workCode = workCodeMatch[1];
+    // Check if we're in the correct work code section
+    if (row[0] && row[0].includes(requestWorkCode)) {
+      isProcessingCorrectWork = true;
+      // Extract work code if it's in the proper format
+      if (row[0].includes("Work Code")) {
+        const workCodeMatch = row[0].match(/\(([^)]+)\)/);
+        if (workCodeMatch) {
+          extractedData.workCode = workCodeMatch[1];
+        }
       }
     }
 
+    // Only process if we're in the correct work section
+    if (!isProcessingCorrectWork) continue;
+
     // Extract bill information
     if (row[0] && row[0].startsWith("Bill No.")) {
-      currentBillData.billNo = row[0].substring("Bill No. : ".length).trim();
-      console.log("Found Bill No:", currentBillData.billNo);
+      currentBillData.billNo = row[0].substring(10).trim();
     }
-    if (row[1] && row[1].startsWith("Bill Amount")) {
-      currentBillData.billAmount = row[1]
-        .substring("Bill Amount : ".length)
-        .trim();
-      console.log("Found Bill Amount:", currentBillData.billAmount);
+
+    // Handle bill amount
+    if (row[1]) {
+      if (row[1].startsWith("Bill Amount")) {
+        currentBillData.billAmount = row[1].substring(14).trim();
+      } else if (row[1].startsWith(":") && row[1].match(/^\s*:\s*[\d.]+$/)) {
+        currentBillData.billAmount = row[1].substring(1).trim();
+      }
     }
+
     if (row[2] && row[2].startsWith("Bill Date")) {
-      currentBillData.billDate = row[2].substring("Bill Date : ".length).trim();
-      console.log("Found Bill Date:", currentBillData.billDate);
+      currentBillData.billDate = row[2].substring(12).trim();
     }
+
     if (row[3] && row[3].startsWith("Date of Payment")) {
-      currentBillData.dateOfPayment = row[3]
-        .substring("Date of Payment :".length)
-        .trim();
-      console.log("Found Date of Payment:", currentBillData.dateOfPayment);
+      currentBillData.dateOfPayment = row[3].substring(16).trim();
     }
 
-    // FIXED: Extract vendor name and financial year - Handle both formats
-    if (row[0] && row[0].startsWith("Vendor name")) {
-      extractedData.vendorName = row[0]
-        .substring("Vendor name : ".length)
-        .trim();
-      console.log(
-        "Found Vendor Name (after cleanup):",
-        extractedData.vendorName
-      );
-    } else if (row[0] && row[0].startsWith(":") && row[0].length > 2) {
-      extractedData.vendorName = row[0].substring(2).trim(); // Remove ": " prefix
-      console.log(
-        "Found Vendor Name (short format):",
-        extractedData.vendorName
-      );
+    // Extract vendor name
+    if (row[0] && row[0].includes("Vendor name :")) {
+      extractedData.vendorName = row[0].substring(14).trim();
     }
 
-    if (row[1] && row[1].startsWith("Financial Year")) {
-      extractedData.financialYear = row[1]
-        .substring("Financial Year : ".length)
-        .trim();
-      console.log(
-        "Found Financial Year (after cleanup):",
-        extractedData.financialYear
-      );
-    } else if (row[1] && row[1].startsWith(":") && row[1].length > 2) {
-      extractedData.financialYear = row[1].substring(2).trim(); // Remove ": " prefix
-      console.log(
-        "Found Financial Year (short format):",
-        extractedData.financialYear
-      );
+    // Extract financial year
+    if (row[1] && row[1].includes("Financial Year :")) {
+      currentFinancialYear = row[1].substring(17).trim();
+      if (!extractedData.financialYear) {
+        extractedData.financialYear = currentFinancialYear;
+      }
     }
 
-    // FIXED: Flexible header detection for both formats
-    const isHeaderRow =
-      row.length === 4 &&
-      row[0] === "Material" &&
-      row[1] === "Unit Price (In Rupees)" &&
-      row[2] === "Quantity" &&
-      (row[3] === "Amount (In Rupees)" || row[3] === "(In Rupees)");
-
-    if (isHeaderRow) {
-      console.log("✅ Found material headers at row", i, ":", row);
-
-      // Check the next row for material data
+    // Material detection
+    if (row[0] === "Material" && row.length >= 4) {
       if (i + 1 < tableData.length) {
         const nextRow = tableData[i + 1];
-        console.log("Checking next row for material data:", nextRow);
 
-        // Validate this is actual material data (not bill info, headers, or GST)
-        if (
-          nextRow.length >= 4 &&
-          !nextRow[0].includes("Bill No.") &&
-          !nextRow[0].startsWith("Vendor name") &&
-          !nextRow[0].startsWith(":") && // Handle both formats
-          !nextRow[0].includes("Material") &&
-          !nextRow[0].includes("Centre GST") &&
-          !nextRow[0].includes("State GST") &&
-          !nextRow[0].includes("Total") &&
-          !nextRow[0].includes("Grand Total") &&
-          nextRow[0].trim() !== ""
-        ) {
-          console.log("✅ Processing material row:", nextRow);
+        // Check if next row is material data (not special rows)
+        const isSpecialRow =
+          !nextRow[0] ||
+          nextRow[0].includes("Bill No.") ||
+          nextRow[0].includes("Vendor name") ||
+          nextRow[0].includes("Centre GST") ||
+          nextRow[0].includes("State GST") ||
+          nextRow[0].includes("Total") ||
+          nextRow[0].includes("Material") ||
+          nextRow[0].includes("Work Code") ||
+          nextRow[0].startsWith(":") ||
+          nextRow[0].trim() === "";
 
+        if (!isSpecialRow && nextRow.length >= 4) {
           const materialEntry: MaterialData = {
             billNo: currentBillData.billNo || "",
             billAmount: currentBillData.billAmount || "",
             billDate: currentBillData.billDate || "",
             dateOfPayment: currentBillData.dateOfPayment || "",
+            financialYear: currentFinancialYear || extractedData.financialYear,
             material: nextRow[0] || "",
             unitPrice: nextRow[1] || "",
             quantity: nextRow[2] || "",
             amount: nextRow[3] || ""
           };
 
-          console.log("✅ Adding material entry:", materialEntry);
           extractedData.materialData.push(materialEntry);
-        } else {
-          console.log("❌ Next row doesn't qualify as material data:", nextRow);
-          console.log("Reasons:");
-          console.log(
-            "  - Contains Bill No.:",
-            nextRow[0].includes("Bill No.")
-          );
-          console.log(
-            "  - Starts with 'Vendor name':",
-            nextRow[0].startsWith("Vendor name")
-          );
-          console.log("  - Starts with ':':", nextRow[0].startsWith(":"));
-          console.log(
-            "  - Contains 'Material':",
-            nextRow[0].includes("Material")
-          );
-          console.log(
-            "  - Contains GST:",
-            nextRow[0].includes("Centre GST") ||
-              nextRow[0].includes("State GST")
-          );
-          console.log("  - Contains Total:", nextRow[0].includes("Total"));
-          console.log("  - Is empty:", nextRow[0].trim() === "");
         }
       }
-    } else if (row.length === 4 && row[0] === "Material") {
-      console.log("❌ Header row format doesn't match. Expected format:");
-      console.log(
-        `   row[1] should be "Unit Price (In Rupees)", got: "${row[1]}"`
-      );
-      console.log(`   row[2] should be "Quantity", got: "${row[2]}"`);
-      console.log(
-        `   row[3] should be "Amount (In Rupees)" OR "(In Rupees)", got: "${row[3]}"`
-      );
     }
   }
 
-  console.log("Final extracted data:", extractedData);
+  // Only return data if we found materials for this work code
+  if (extractedData.materialData.length === 0) {
+    return null;
+  }
+
+  
   return extractedData;
 };
 
@@ -428,9 +398,6 @@ const fetchAvailableLinksWc = ($: cheerio.CheerioAPI): string[] => {
     }
   });
 
-  logger.info(
-    `Found ${orderedLinks.length} links containing gpwrkbilldtl.aspx`
-  );
   return orderedLinks;
 };
 
@@ -442,7 +409,6 @@ const initializeSession = async (mainUrl: string): Promise<SessionResult> => {
       return { success: false, links: [] };
     }
 
-    logger.info(`Session initialized successfully`);
     const $: cheerio.CheerioAPI = cheerio.load(response.data);
     const links: string[] = fetchAvailableLinksWc($);
 
@@ -455,13 +421,10 @@ const initializeSession = async (mainUrl: string): Promise<SessionResult> => {
 
 const processGpwrkbilldtlUrl = async (
   url: string,
-  linkId: string,
   financialYear: string,
   workcode: string,
   referer?: string
-): Promise<ProcessResult> => {
-  logger.info(`Processing gpwrkbilldtl URL for ${financialYear}`);
-
+): Promise<ExtractedData | null> => {
   try {
     const response: AxiosResponse | null = await retryRequest(
       url,
@@ -470,31 +433,35 @@ const processGpwrkbilldtlUrl = async (
       referer
     );
     if (!response) {
-      return { tables: null, url };
+      return null;
     }
 
     const $: cheerio.CheerioAPI = cheerio.load(response.data);
-    const tables: string[][][] = extractTablesWc($, workcode, url);
 
-    if (tables.length > 0) {
-      logger.info(`Successfully processed ${tables.length} tables for URL`);
-      return { tables: tables[0] || null, url };
+    // Extract ONLY the table data for the specific work code
+    const tableData: string[][] = extractTablesForWorkcode($, workcode);
+
+    if (tableData.length > 0) {
+      return extractDataFromTable(tableData, workcode);
     }
 
-    return { tables: null, url };
+    return null;
   } catch (error: any) {
     logger.error(`Failed to fetch gpwrkbilldtl page: ${error.message}`);
-    return { tables: null, url };
+    return null;
   }
 };
 
+// MAIN FUNCTION - Process financial years sequentially
 const mainGpwrkbilldtl = async (
   requestData: RequestData
 ): Promise<ExtractedData | null> => {
   const financialYears = generateFinancialYears(requestData.financialYear);
+  let finalResult: ExtractedData | null = null;
 
-  for (const financialYear of financialYears) {
-    logger.info(`Processing data for financial year: ${financialYear}`);
+  // Process each financial year
+  for (let i = 0; i < financialYears.length; i++) {
+    const financialYear = financialYears[i];
 
     const mainUrl = generateUrl(requestData, financialYear);
 
@@ -503,32 +470,38 @@ const mainGpwrkbilldtl = async (
 
     const { success, links }: SessionResult = await initializeSession(mainUrl);
     if (!success || !links.length) {
-      logger.info(`No links found for ${financialYear}, trying next year`);
       continue;
     }
 
-    // Process the first link only since we expect one gpwrkbilldtl link
-    const result = await processGpwrkbilldtlUrl(
+    // Process the gpwrkbilldtl link
+    const extractedData = await processGpwrkbilldtlUrl(
       links[0],
-      "gpwrkbilldtl_1",
       financialYear,
       requestData.workCode,
       mainUrl
     );
 
-    if (result.tables) {
-      logger.info(`Data found for financial year: ${financialYear}`);
-      return extractDataFromTable(result.tables);
+    if (extractedData && extractedData.materialData.length > 0) {
+      if (!finalResult) {
+        // First financial year with data
+        finalResult = extractedData;
+      } else {
+        // Merge materials from additional financial years
+        finalResult.materialData.push(...extractedData.materialData);
+      }
     }
   }
 
-  logger.info("No data found in any financial year");
+  if (finalResult) {
+    return finalResult;
+  }
+
   return null;
 };
 
 // Express route to trigger processing
 testingVendorScrape.post(
-  "/material-mis",
+  "/material-mis-v0",
   async (req: Request, res: Response<ApiResponse | ErrorResponse>) => {
     try {
       const totalStartTime: number = Date.now();
@@ -553,9 +526,6 @@ testingVendorScrape.post(
       const totalTime: number = (Date.now() - totalStartTime) / 1000;
 
       if (extractedData) {
-        logger.info(
-          `Total execution complete. Total time: ${totalTime} seconds`
-        );
         res.status(200).json({
           message: "gpwrkbilldtl processing completed successfully",
           totalTime,

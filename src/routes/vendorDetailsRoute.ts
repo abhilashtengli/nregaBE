@@ -16,91 +16,94 @@ interface VendorDetailRequest {
 }
 
 // POST endpoint to create vendor details
-vendorRouter.post("/vendor-details", async (req: Request, res: Response) => {
-  try {
-    const {
-      vendorNameOne,
-      vendorNameTwo,
-      vendorNameThree,
-      vendorGstOne,
-      vendorGstTwo,
-      vendorGstThree,
-      fromDate,
-      toDate,
-      workDetailId
-    }: VendorDetailRequest = req.body;
-
-    // Validate required fields
-    if (!workDetailId) {
-      return res.status(400).json({
-        success: false,
-        message: "workDetailId is required"
-      });
-    }
-
-    // Check if workDetail exists
-    const workDetailExists = await prisma.workDetail.findUnique({
-      where: { id: workDetailId }
-    });
-
-    if (!workDetailExists) {
-      return res.status(404).json({
-        success: false,
-        message: "Work detail not found"
-      });
-    }
-
-    // Check if vendor detail already exists for this work detail
-    const existingVendorDetail = await prisma.vendorDetail.findUnique({
-      where: { workDetailId }
-    });
-
-    if (existingVendorDetail) {
-      return res.status(400).json({
-        success: false,
-        message: "Vendor detail already exists for this work detail"
-      });
-    }
-
-    // Create vendor detail
-    const vendorDetail = await prisma.vendorDetail.create({
-      data: {
+vendorRouter.post(
+  "/add-vendor-details",
+  async (req: Request, res: Response) => {
+    try {
+      const {
         vendorNameOne,
         vendorNameTwo,
         vendorNameThree,
         vendorGstOne,
         vendorGstTwo,
         vendorGstThree,
-        fromDate: fromDate ? new Date(fromDate) : null,
-        toDate: toDate ? new Date(toDate) : null,
+        fromDate,
+        toDate,
         workDetailId
-      }
-    });
+      }: VendorDetailRequest = req.body;
 
-    return res.status(201).json({
-      success: true,
-      message: "Vendor detail created successfully",
-      data: vendorDetail
-    });
-  } catch (error) {
-    console.error("Error creating vendor detail:", error);
-
-    // Handle Prisma specific errors
-    if (error instanceof Error) {
-      if (error.message.includes("Foreign key constraint")) {
+      // Validate required fields
+      if (!workDetailId) {
         return res.status(400).json({
           success: false,
-          message: "Invalid workDetailId"
+          message: "workDetailId is required"
         });
       }
-    }
 
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error"
-    });
+      // Check if workDetail exists
+      const workDetailExists = await prisma.workDetail.findUnique({
+        where: { id: workDetailId }
+      });
+
+      if (!workDetailExists) {
+        return res.status(404).json({
+          success: false,
+          message: "Work detail not found"
+        });
+      }
+
+      // Check if vendor detail already exists for this work detail
+      const existingVendorDetail = await prisma.vendorDetail.findUnique({
+        where: { workDetailId }
+      });
+
+      if (existingVendorDetail) {
+        return res.status(400).json({
+          success: false,
+          message: "Vendor detail already exists for this work detail"
+        });
+      }
+
+      // Create vendor detail
+      const vendorDetail = await prisma.vendorDetail.create({
+        data: {
+          vendorNameOne,
+          vendorNameTwo,
+          vendorNameThree,
+          vendorGstOne,
+          vendorGstTwo,
+          vendorGstThree,
+          fromDate: fromDate ? new Date(fromDate) : null,
+          toDate: toDate ? new Date(toDate) : null,
+          workDetailId
+        }
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "Vendor detail created successfully",
+        data: vendorDetail
+      });
+    } catch (error) {
+      console.error("Error creating vendor detail:", error);
+
+      // Handle Prisma specific errors
+      if (error instanceof Error) {
+        if (error.message.includes("Foreign key constraint")) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid workDetailId"
+          });
+        }
+      }
+
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error"
+      });
+    }
   }
-});
+);
 
 // GET endpoint to retrieve vendor detail by workDetailId
 vendorRouter.get(
