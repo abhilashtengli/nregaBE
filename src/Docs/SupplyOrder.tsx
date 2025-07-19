@@ -1,17 +1,17 @@
 import React from "react";
 
-// PENDING
+// PENDING From link 2 the data comes
 const SupplyOrderPDF = ({
-  gramPanchayat = "ಕಲ್ಲಹಂಗರಗಾ",
-  district = "ಕಲಬುರಗಿ",
-  taluka = "ಕಲಬುರಗಿ",
-  year = "2023-2024",
+  gramPanchayat = "ಕಲ್ಲಹಂಗರಗಾ", //1
+  district = "ಕಲಬುರಗಿ", //1
+  taluka = "ಕಲಬುರಗಿ", //1
+  year = "2023-2024", //1
   rateListPublicationDate = "09/07/2025",
   rateQuotationSubmissionDate = "08/07/2025",
-  workName = "ಕಲ್ಲಹಂಗರಗಾ ಗ್ರಾಮದ ರೇಷ್ಮಾ ಶ್ರೀನಾಥ ಕುರಿ ದೂಡ್ಡಿ ನಿರ್ಮಾಣ",
-  workCode = "1515005034/rc/GIS/778457",
-  name = "ALLA PATEL",
-  gst = "29GGTPP6696C1ZD",
+  workName = "ಕಲ್ಲಹಂಗರಗಾ ಗ್ರಾಮದ ರೇಷ್ಮಾ ಶ್ರೀನಾಥ ಕುರಿ ದೂಡ್ಡಿ ನಿರ್ಮಾಣ", //1
+  workCode = "1515005034/rc/GIS/778457", //1
+  name = "ALLA PATEL", // contractor name 1
+  gst = "29GGTPP6696C1ZD", // contractor gst 1
   materialData = [
     {
       slNo: 1,

@@ -40,7 +40,6 @@ export const scrapeTechnicalEstimateMaterialData = async (
     console.log(`Scraping technical estimate from: ${url}`);
 
     const response = await axios.get(url, {
-      timeout: 10000,
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
@@ -207,14 +206,18 @@ export const saveQuotationCallToDatabase = async (
   try {
     console.log("=== STARTING DATABASE SAVE OPERATION ===");
     console.log(`Work Detail ID: ${workDetailId}`);
-    console.log(`Administrative Sanction: ${quotationCallData.administrativeSanction}`);
-    console.log(`Material Data Count: ${quotationCallData.materialData.length}`);
+    console.log(
+      `Administrative Sanction: ${quotationCallData.administrativeSanction}`
+    );
+    console.log(
+      `Material Data Count: ${quotationCallData.materialData.length}`
+    );
 
     // Check if the workDetail exists
     const workDetailExists = await prisma.workDetail.findUnique({
       where: { id: workDetailId }
     });
-    
+
     if (!workDetailExists) {
       console.error(`WorkDetail with ID ${workDetailId} does not exist!`);
       throw new Error(`WorkDetail with ID ${workDetailId} does not exist`);
@@ -231,8 +234,13 @@ export const saveQuotationCallToDatabase = async (
       console.log(`Existing quotation call ID: ${existingQuotationCall.id}`);
 
       // Delete existing material items if they exist
-      if (existingQuotationCall.materialItems && existingQuotationCall.materialItems.length > 0) {
-        console.log(`Deleting ${existingQuotationCall.materialItems.length} existing material items...`);
+      if (
+        existingQuotationCall.materialItems &&
+        existingQuotationCall.materialItems.length > 0
+      ) {
+        console.log(
+          `Deleting ${existingQuotationCall.materialItems.length} existing material items...`
+        );
         await prisma.materialItem.deleteMany({
           where: { quotationCallLetterId: existingQuotationCall.id }
         });
@@ -249,7 +257,9 @@ export const saveQuotationCallToDatabase = async (
       });
 
       // Create ALL new material items
-      console.log(`Creating ${quotationCallData.materialData.length} new material items...`);
+      console.log(
+        `Creating ${quotationCallData.materialData.length} new material items...`
+      );
       for (const materialItem of quotationCallData.materialData) {
         await prisma.materialItem.create({
           data: {
@@ -261,7 +271,9 @@ export const saveQuotationCallToDatabase = async (
           }
         });
       }
-      console.log(`Successfully created ${quotationCallData.materialData.length} material items`);
+      console.log(
+        `Successfully created ${quotationCallData.materialData.length} material items`
+      );
     } else {
       console.log("=== CREATING NEW QUOTATION CALL ===");
 
@@ -274,7 +286,9 @@ export const saveQuotationCallToDatabase = async (
       });
 
       // Create ALL material items
-      console.log(`Creating ${quotationCallData.materialData.length} new material items...`);
+      console.log(
+        `Creating ${quotationCallData.materialData.length} new material items...`
+      );
       for (const materialItem of quotationCallData.materialData) {
         await prisma.materialItem.create({
           data: {
@@ -286,7 +300,9 @@ export const saveQuotationCallToDatabase = async (
           }
         });
       }
-      console.log(`Successfully created ${quotationCallData.materialData.length} material items`);
+      console.log(
+        `Successfully created ${quotationCallData.materialData.length} material items`
+      );
     }
 
     // Verify the data was saved
@@ -294,8 +310,10 @@ export const saveQuotationCallToDatabase = async (
       where: { workDetailId: workDetailId },
       include: { materialItems: true }
     });
-    
-    console.log(`=== VERIFICATION: Successfully saved ${verifyQuotationCall?.materialItems?.length || 0} material items ===`);
+
+    console.log(
+      `=== VERIFICATION: Successfully saved ${verifyQuotationCall?.materialItems?.length || 0} material items ===`
+    );
     console.log("=== DATABASE SAVE OPERATION COMPLETED SUCCESSFULLY ===");
   } catch (error) {
     console.error("=== DATABASE SAVE OPERATION FAILED ===");
