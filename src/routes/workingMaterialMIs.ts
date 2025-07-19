@@ -4,6 +4,12 @@ import axios, { AxiosInstance, AxiosResponse } from "axios";
 import * as cheerio from "cheerio";
 import winston, { Logger } from "winston";
 import { URL } from "url";
+import { prisma } from "@lib/prisma";
+import { findPanchayatByCode } from "../utils/findPanchayat";
+import {
+  MaterialVoucherData,
+  scrapeMaterialVoucherData
+} from "../services/form32Service";
 
 const workingtestingVendorScrape = express.Router();
 
@@ -42,6 +48,8 @@ interface ExtractedData {
 }
 
 interface ApiResponse {
+  success?: boolean;
+  code?: string;
   message: string;
   totalTime: number;
   data?: ExtractedData;
@@ -51,7 +59,7 @@ interface ErrorResponse {
   error: string;
 }
 
-interface RequestData {
+export interface RequestData {
   workCode: string;
   financialYear: string;
   blockName: string;
@@ -228,7 +236,6 @@ const extractTablesWc = (
   url: string
 ): string[][][] => {
   const tables: any[] = $("table").get();
-  logger.info(`Found ${tables.length} tables to process`);
 
   const cleanedTables: (string[][] | null)[] = tables.map(cleanTableWc($));
 
@@ -237,16 +244,11 @@ const extractTablesWc = (
       table !== null && tableContainsWorkcode(table, workcode)
   );
 
-  logger.info(
-    `Extracted ${validTables.length} tables matching workcode ${workcode}`
-  );
   return validTables;
 };
 
 // 🔥 COMPLETELY NEW EXTRACTION LOGIC 🔥
-const extractDataFromTable = (tableData: string[][]): ExtractedData => {
-  console.log("🚀 STARTING EXTRACTION WITH BRAND NEW LOGIC 🚀");
-
+export const extractDataFromTable = (tableData: string[][]): ExtractedData => {
   const extractedData: ExtractedData = {
     workCode: "",
     vendorName: "",
@@ -258,55 +260,42 @@ const extractDataFromTable = (tableData: string[][]): ExtractedData => {
 
   for (let i = 0; i < tableData.length; i++) {
     const row = tableData[i];
-    console.log(`🔍 ROW ${i}:`, row);
 
     // Extract work code from first row
     if (i === 0 && row[0] && row[0].includes("Work Code")) {
       const workCodeMatch = row[0].match(/\(([^)]+)\)/);
       if (workCodeMatch) {
         extractedData.workCode = workCodeMatch[1];
-        console.log("✅ EXTRACTED WORK CODE:", extractedData.workCode);
       }
     }
 
     // Extract bill information
     if (row[0] && row[0].startsWith("Bill No.")) {
       currentBillData.billNo = row[0].substring(10).trim();
-      console.log("💰 EXTRACTED BILL NO:", currentBillData.billNo);
     }
     if (row[1] && row[1].startsWith("Bill Amount")) {
       currentBillData.billAmount = row[1].substring(14).trim();
-      console.log("💰 EXTRACTED BILL AMOUNT:", currentBillData.billAmount);
     }
     if (row[2] && row[2].startsWith("Bill Date")) {
       currentBillData.billDate = row[2].substring(12).trim();
-      console.log("📅 EXTRACTED BILL DATE:", currentBillData.billDate);
     }
     if (row[3] && row[3].startsWith("Date of Payment")) {
       currentBillData.dateOfPayment = row[3].substring(16).trim();
-      console.log("📅 EXTRACTED PAYMENT DATE:", currentBillData.dateOfPayment);
     }
 
     // 🎯 NEW VENDOR EXTRACTION LOGIC BASED ON CURRENT FORMAT
     if (row[0] && row[0].startsWith("Vendor name :")) {
       extractedData.vendorName = row[0].substring(14).trim();
-      console.log("👤 EXTRACTED VENDOR NAME:", extractedData.vendorName);
     }
 
     if (row[1] && row[1].startsWith("Financial Year :")) {
       extractedData.financialYear = row[1].substring(17).trim();
-      console.log("📊 EXTRACTED FINANCIAL YEAR:", extractedData.financialYear);
     }
 
     // 🎯 SUPER SIMPLE MATERIAL DETECTION
     if (row[0] === "Material") {
-      console.log(
-        `🎉 FOUND MATERIAL HEADER AT ROW ${i}! Next row should be material data...`
-      );
-
       if (i + 1 < tableData.length) {
         const nextRow = tableData[i + 1];
-        console.log(`🔍 NEXT ROW ${i + 1}:`, nextRow);
 
         // Simple check: if it's not a special keyword, it's material data
         const isSpecialRow =
@@ -319,8 +308,6 @@ const extractDataFromTable = (tableData: string[][]): ExtractedData => {
           nextRow[0].trim() === "";
 
         if (!isSpecialRow && nextRow.length >= 4) {
-          console.log(`🎊 PROCESSING MATERIAL ROW ${i + 1}:`, nextRow);
-
           const materialEntry: MaterialData = {
             billNo: currentBillData.billNo || "",
             billAmount: currentBillData.billAmount || "",
@@ -332,20 +319,16 @@ const extractDataFromTable = (tableData: string[][]): ExtractedData => {
             amount: nextRow[3] || ""
           };
 
-          console.log("🎊 ADDING MATERIAL ENTRY:", materialEntry);
           extractedData.materialData.push(materialEntry);
-        } else {
-          console.log(`❌ ROW ${i + 1} IS SPECIAL, SKIPPING:`, nextRow[0]);
         }
       }
     }
   }
 
-  console.log("🏁 FINAL RESULT:", extractedData);
   return extractedData;
 };
 
-const fetchAvailableLinksWc = ($: cheerio.CheerioAPI): string[] => {
+export const fetchAvailableLinksWc = ($: cheerio.CheerioAPI): string[] => {
   const seen: Set<string> = new Set();
   const orderedLinks: string[] = [];
   const baseUrl: string = "https://nregastrep.nic.in/netnrega/";
@@ -362,13 +345,12 @@ const fetchAvailableLinksWc = ($: cheerio.CheerioAPI): string[] => {
     }
   });
 
-  logger.info(
-    `Found ${orderedLinks.length} links containing gpwrkbilldtl.aspx`
-  );
   return orderedLinks;
 };
 
-const initializeSession = async (mainUrl: string): Promise<SessionResult> => {
+export const initializeSession = async (
+  mainUrl: string
+): Promise<SessionResult> => {
   try {
     const response: AxiosResponse | null = await retryRequest(mainUrl);
     if (!response) {
@@ -376,7 +358,6 @@ const initializeSession = async (mainUrl: string): Promise<SessionResult> => {
       return { success: false, links: [] };
     }
 
-    logger.info(`Session initialized successfully`);
     const $: cheerio.CheerioAPI = cheerio.load(response.data);
     const links: string[] = fetchAvailableLinksWc($);
 
@@ -387,15 +368,13 @@ const initializeSession = async (mainUrl: string): Promise<SessionResult> => {
   }
 };
 
-const processGpwrkbilldtlUrl = async (
+export const processGpwrkbilldtlUrl = async (
   url: string,
   linkId: string,
   financialYear: string,
   workcode: string,
   referer?: string
 ): Promise<ProcessResult> => {
-  logger.info(`Processing gpwrkbilldtl URL for ${financialYear}`);
-
   try {
     const response: AxiosResponse | null = await retryRequest(
       url,
@@ -411,7 +390,6 @@ const processGpwrkbilldtlUrl = async (
     const tables: string[][][] = extractTablesWc($, workcode, url);
 
     if (tables.length > 0) {
-      logger.info(`Successfully processed ${tables.length} tables for URL`);
       return { tables: tables[0] || null, url };
     }
 
@@ -422,14 +400,12 @@ const processGpwrkbilldtlUrl = async (
   }
 };
 
-const mainGpwrkbilldtl = async (
+export const mainGpwrkbilldtl = async (
   requestData: RequestData
 ): Promise<ExtractedData | null> => {
   const financialYears = generateFinancialYears(requestData.financialYear);
 
   for (const financialYear of financialYears) {
-    logger.info(`Processing data for financial year: ${financialYear}`);
-
     const mainUrl = generateUrl(requestData, financialYear);
 
     // Clear cookies for each financial year
@@ -437,7 +413,6 @@ const mainGpwrkbilldtl = async (
 
     const { success, links }: SessionResult = await initializeSession(mainUrl);
     if (!success || !links.length) {
-      logger.info(`No links found for ${financialYear}, trying next year`);
       continue;
     }
 
@@ -451,22 +426,70 @@ const mainGpwrkbilldtl = async (
     );
 
     if (result.tables) {
-      logger.info(`Data found for financial year: ${financialYear}`);
       return extractDataFromTable(result.tables);
     }
   }
 
-  logger.info("No data found in any financial year");
   return null;
 };
 
 // Express route to trigger processing
-workingtestingVendorScrape.post(
-  "/material-mis-perfect",
-  async (req: Request, res: Response<ApiResponse | ErrorResponse>) => {
+workingtestingVendorScrape.get(
+  "/material-mis-perfect/:id",
+  async (req: Request, res: Response) => {
     try {
       const totalStartTime: number = Date.now();
-      const requestData: RequestData = req.body;
+      const { id } = req.params;
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          error: "Work Detail ID is required",
+          code: "MISSING_ID"
+        });
+        return;
+      }
+      // Fetch work details from database
+      const workDetail = await prisma.workDetail.findUnique({
+        where: { id: id },
+        select: {
+          id: true,
+          workCode: true,
+          financialYear: true,
+          workName: true,
+          panchayat: true,
+          block: true,
+          estimatedPersonDays: true
+        }
+      });
+
+      if (!workDetail) {
+        res.status(404).json({
+          success: false,
+          error: "Work Detail not found",
+          code: "WORK_DETAIL_NOT_FOUND"
+        });
+        return;
+      }
+      const workCodeParts = workDetail.workCode.split("/");
+      const panchayatCode = workCodeParts[0];
+      const panchayatData = findPanchayatByCode(panchayatCode);
+
+      if (!panchayatData) {
+        res.status(404).json({
+          success: false,
+          error: `Panchayat data not found for code: ${panchayatCode}. Please add this panchayat to your constants file.`
+        });
+        return;
+      }
+
+      const requestData: RequestData = {
+        workCode: workDetail.workCode,
+        financialYear: workDetail.financialYear || "",
+        blockName: panchayatData.block_name_en,
+        blockCode: panchayatData.block_code,
+        panchayatName: panchayatData.panchayat_name_en || "",
+        panchayatCode: panchayatData.panchayat_code
+      };
 
       // Validate required fields
       if (
@@ -484,16 +507,59 @@ workingtestingVendorScrape.post(
       }
 
       const extractedData = await mainGpwrkbilldtl(requestData);
+      const workDocument = await prisma.workDocuments.findUnique({
+        where: { workCode: workDetail.workCode },
+        select: {
+          materialVouchers: true
+        }
+      });
+      let materialVoucherData: MaterialVoucherData | null = null;
+
+      if (workDocument && workDocument.materialVouchers) {
+        try {
+          // Scrape material voucher data
+          materialVoucherData = await scrapeMaterialVoucherData(
+            workDocument.materialVouchers
+          );
+
+          if (materialVoucherData) {
+          
+          } else {
+            console.warn("Failed to scrape material voucher data");
+          }
+        } catch (scrapeError: any) {
+          console.error(
+            "Error scraping material voucher data:",
+            scrapeError.message
+          );
+          // Continue execution even if scraping fails
+        }
+      }
+      const responseData = {
+        ...extractedData,
+        vendorName: extractedData?.vendorName
+          ? `${extractedData.vendorName} | ${materialVoucherData?.vendorName || ""}`
+          : materialVoucherData?.vendorName || "",
+
+        financialYear: extractedData?.financialYear
+          ? `${extractedData.financialYear} | ${materialVoucherData?.financialYear || ""}`
+          : materialVoucherData?.financialYear || "",
+
+        materialVoucherInfo: materialVoucherData
+          ? {
+              vendorName: materialVoucherData.vendorName,
+              financialYear: materialVoucherData.financialYear
+            }
+          : null
+      };
+
       const totalTime: number = (Date.now() - totalStartTime) / 1000;
 
       if (extractedData) {
-        logger.info(
-          `Total execution complete. Total time: ${totalTime} seconds`
-        );
         res.status(200).json({
           message: "gpwrkbilldtl processing completed successfully",
           totalTime,
-          data: extractedData
+          data: responseData
         });
       } else {
         res.status(404).json({
