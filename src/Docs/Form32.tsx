@@ -1,63 +1,22 @@
 import React from "react";
 
+type Form32Props = {
+  vendorName?: string;
+  district?: string;
+  taluka?: string;
+  materialData?: {
+    material: string;
+    quantity: string;
+    amount: string;
+  }[];
+};
+type Form32Data = {
+  form32Data: Form32Props;
+};
 // PENDING
-const Form32PDF = ({
-  contractorName = "Shivakumar",
-  district = "Gulbarga",
-  taluka = "JEVARGI",
-  workItems = [
-    {
-      itemDescription: "0367-Portland Cement",
-      qty: "1",
-      rates: "6980",
-      amount: "6980"
-    },
-    {
-      itemDescription: "0982-Coarse sand (zone III)",
-      qty: "3",
-      rates: "5025",
-      amount: "5025"
-    },
-    {
-      itemDescription: "5-GST",
-      qty: "1",
-      rates: "2500",
-      amount: "2500"
-    },
-    {
-      itemDescription: "MR9431-Broken stone aggregate 12 mm to 10 mm size",
-      qty: "1",
-      rates: "1280",
-      amount: "1280"
-    },
-    {
-      itemDescription: "MR9432-Broken stone aggregate 20 mm size",
-      qty: "1.5",
-      rates: "1920",
-      amount: "1920"
-    },
-    {
-      itemDescription: "MR9433-Broken stone aggregate 40 mm size",
-      qty: "1",
-      rates: "1150",
-      amount: "1150"
-    },
-    {
-      itemDescription: "MR9434-Burnt bricks class 35 (non modular)",
-      qty: "1200",
-      rates: "8400",
-      amount: "8400"
-    },
-    {
-      itemDescription:
-        "MR9757-Transportation/loading and unloading of material/lifting of material/centering charges wherever necessary /Over",
-      qty: "3000",
-      rates: "3000",
-      amount: "3000"
-    }
-  ]
-}) => {
-  const totalAmount = workItems.reduce(
+const Form32PDF = ({ form32Data }: Form32Data) => {
+  const { vendorName, district, taluka, materialData = [] } = form32Data;
+  const totalAmount = materialData.reduce(
     (sum, item) => sum + Number.parseFloat(item.amount || "0"),
     0
   );
@@ -98,7 +57,7 @@ const Form32PDF = ({
             <span>Date...........</span>
           </div>
 
-          <span>Name of the Contractor : {contractorName}</span>
+          <span>Name of the Contractor : {vendorName}</span>
         </div>
       </div>
 
@@ -263,20 +222,20 @@ const Form32PDF = ({
             </tr>
           </thead>
           <tbody>
-            {workItems.map((item, index) => (
+            {materialData.map((item, index) => (
               <tr key={index}>
                 <td className="border border-black px-1 py-1 text-[7px]"></td>
                 <td className="border border-black px-1 py-1 text-[7px] break-all">
-                  {item.itemDescription}
+                  {item.material}
                 </td>
                 <td className="border border-black px-1 py-1 text-[7px]"></td>
                 <td className="border border-black px-1 py-1 text-[7px]"></td>
                 <td className="border border-black px-1 py-1 text-[7px]"></td>
                 <td className="border border-black px-1 py-1 text-center text-[7px]">
-                  {item.qty}
+                  {item.quantity}
                 </td>
                 <td className="border border-black px-1 py-1 text-center text-[7px]">
-                  {item.rates}
+                  {item.amount}
                 </td>
                 <td className="border border-black px-1 py-1 text-center text-[7px]">
                   {item.amount}
