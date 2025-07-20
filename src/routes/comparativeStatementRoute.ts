@@ -78,25 +78,24 @@ comparativeStatementRouter.get(
           toDate: true
         }
       });
-     
 
-      const vendorDetailResponse ={
+      const vendorDetailResponse = {
         vendorNameOne: vendorDetails?.vendorNameOne,
         vendorGstOne: vendorDetails?.vendorGstOne,
         VendorOneQuotationSubmissiondate: vendorDetails?.fromDate
           ? addDays(vendorDetails.fromDate, 2) // Now accepts Date objects
-              : "",
-          vendorNameTwo: vendorDetails?.vendorNameTwo,
+          : "",
+        vendorNameTwo: vendorDetails?.vendorNameTwo,
         vendorGstTwo: vendorDetails?.vendorGstTwo,
         vendorTwoQuotationSubmissiondate: vendorDetails?.fromDate
           ? addDays(vendorDetails.fromDate, 1) // Now accepts Date objects
-              : "",
-         vendorNameThree: vendorDetails?.vendorNameThree,
+          : "",
+        vendorNameThree: vendorDetails?.vendorNameThree,
         vendorGstThree: vendorDetails?.vendorGstThree,
         vendorThreeQuotationSubmissiondate: vendorDetails?.fromDate
           ? addDays(vendorDetails.fromDate, 3) // Now accepts Date objects
           : ""
-      }
+      };
       if (!vendorDetails) {
         res.status(404).json({
           success: false,

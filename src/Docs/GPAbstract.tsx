@@ -1,6 +1,6 @@
 import React from "react";
 
-//PENDING
+//PENDING Need to scrape data
 const GPAbstract = ({
   workName = "(1515006040/RS/GIS/896488) ದೇಸಣ ಗ್ರಾಮದಲ್ಲಿ ಚರಂ ಕಾಮಗಾ (2023-24)", //1
   natureOfWork = "",

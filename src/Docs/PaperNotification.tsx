@@ -1,22 +1,54 @@
 import React from "react";
 
-// PENDING
+type PaperNotificationProps = {
+  district?: string; //1
+  taluka?: string; //1
+  gramPanchayat?: string; //1
+  year: string; //1
+  date?: string; // from date user input
+  workName?: string; //1
+  quotationAmount?: string;
+  emdPrice?: string;
+  eligibleContractors?: string; //_______ದಿನಗಳು
+  fromDate?: string; // from date user input
+  toDate?: string; // to date user input
+  prebidMeetingDate?: string; // to date user input
+  documentSubmissionDate?: string; // to date user input
+  envelopeOpeningDetails?: string; //to date user input
+};
+type PaperNotificationData = {
+  paperNotificationData: PaperNotificationProps;
+};
 const PaperNotificationPDF = ({
-  district = "ಕಲಬುರಗಿ", //1
-  taluka = "ಕಲಬುರಗಿ", //1
-  gramPanchayat = "ಕಲ್ಲಹಂಗರಗಾ", //1
-  year = "2023-2024", //1
-  date = "07/07/2025", // from date user input
-  workName = "ಕಲ್ಲಹಂಗರಗಾ ಗ್ರಾಮದ ರೇಷ್ಮಾ ಶ್ರೀನಾಥ ಕುರಿ ದೂಡ್ಡಿ ನಿರ್ಮಾಣ", //1
-  quotationAmount = "39096",
-  emdPrice = "500",
-  eligibleContractors = "_______ದಿನಗಳು",
-  fromDate = "07/07/2025", // from date user input
-  toDate = "12/07/2025", // from date user input
-  prebidMeetingDate = "09/07/2025", // to date user input
-  documentSubmissionDate = "16/07/2025", // to date user input
-  envelopeOpeningDetails = " 16/07/2025" //to date user input
-}) => {
+  paperNotificationData
+}: PaperNotificationData) => {
+  const {
+    district,
+    taluka,
+    gramPanchayat,
+    year,
+    date,
+    workName,
+    quotationAmount,
+    prebidMeetingDate,
+    documentSubmissionDate,
+    envelopeOpeningDetails,
+    fromDate,
+    toDate
+  } = paperNotificationData;
+
+  const emdPrice = "500";
+  const eligibleContractors = "_______ದಿನಗಳು";
+
+  const formatDate = (isoDateString?: string) => {
+    if (!isoDateString) return "";
+    const date = new Date(isoDateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   return (
     <div
       className="w-full max-w-4xl mx-auto bg-white border-2 border-black"
@@ -54,7 +86,7 @@ const PaperNotificationPDF = ({
       {/* Reference Info */}
       <div className="flex justify-between text-xs mb-4">
         <span>ಸಂಗ್ರಾಪಂಕಲ :ಉಖಾಯೋ:ಸಾ.ಪೊ:ದ.ಪ: {year}</span>
-        <span>ದಿನಾಂಕ :- {date}</span>
+        <span>ದಿನಾಂಕ :- {formatDate(date)}</span>
       </div>
 
       {/* Title */}
@@ -195,8 +227,8 @@ const PaperNotificationPDF = ({
                 ದರಪಟ್ಟಿ ಫಾರಂ ಮತ್ತು ಡಾಕುಮೇಂಟ್ ವಿತರಿಸುವ ದಿನಾಂಕ ಮತ್ತು ಸಮಯ
               </td>
               <td className="border border-black px-2 py-2 text-left">
-                {fromDate} ದಿನಾಂಕ ದಿಂದ {toDate} ರ ವರೆಗೆ ಪಂಚಾಯತ ಕಛೇರಿಯಲ್ಲಿ ಮತ್ತು
-                ಕಛೇರಿ ವೇಳೆಯಲ್ಲಿ,
+                {formatDate(fromDate)} ದಿನಾಂಕ ದಿಂದ {formatDate(toDate)} ರ ವರೆಗೆ
+                ಪಂಚಾಯತ ಕಛೇರಿಯಲ್ಲಿ ಮತ್ತು ಕಛೇರಿ ವೇಳೆಯಲ್ಲಿ,
               </td>
               <td className="border border-black px-2 py-2 text-center"></td>
             </tr>
@@ -206,8 +238,8 @@ const PaperNotificationPDF = ({
                 ದರಪಟ್ಟಿದಾರರು ಪೂರ್ವಭಾವಿ ಸಭೆ ದಿನಾಂಕ ಮತ್ತು ಸಮಯ
               </td>
               <td className="border border-black px-2 py-2 text-left">
-                {prebidMeetingDate} ರಂದು ಸಮಯ ಬೆಳ್ಳಿಗೆ 11-00 ಗಂಟೆಗೆಯಿಂದ ಅಪರಾಹ್ನ
-                2-00 ಗಂಟೆ ವರೆಗೆ ಗ್ರಾಮ ಪಂಚಾಯತ ಕಛೇರಿಯಲ್ಲಿ
+                {formatDate(prebidMeetingDate)} ರಂದು ಸಮಯ ಬೆಳ್ಳಿಗೆ 11-00
+                ಗಂಟೆಗೆಯಿಂದ ಅಪರಾಹ್ನ 2-00 ಗಂಟೆ ವರೆಗೆ ಗ್ರಾಮ ಪಂಚಾಯತ ಕಛೇರಿಯಲ್ಲಿ
               </td>
               <td className="border border-black px-2 py-2 text-center"></td>
             </tr>
@@ -218,8 +250,8 @@ const PaperNotificationPDF = ({
                 ದಿನಾಂಕ ಮತ್ತು ಸಮಯ
               </td>
               <td className="border border-black px-2 py-2 text-left">
-                {documentSubmissionDate} ರಂದು ಬೆಳ್ಳಿಗೆ 11-00 ಗಂಟೆಯಿಂದ ಅಪರಾಹ್ನ
-                2-00 ಗಂಟೆಯವರಿಗೆ ಗಾಮ ಪಂಚಾಯತ ಕಛೇರಿಯಲ್ಲಿ
+                {formatDate(documentSubmissionDate)} ರಂದು ಬೆಳ್ಳಿಗೆ 11-00
+                ಗಂಟೆಯಿಂದ ಅಪರಾಹ್ನ 2-00 ಗಂಟೆಯವರಿಗೆ ಗಾಮ ಪಂಚಾಯತ ಕಛೇರಿಯಲ್ಲಿ
               </td>
               <td className="border border-black px-2 py-2 text-center"></td>
             </tr>
@@ -229,8 +261,9 @@ const PaperNotificationPDF = ({
                 ಮೊಹರು ಮಾಡಿದ ದರಪಟ್ಟಿ ಲಕೋಟೆ ತೆರೆಯುವ ಸ್ಥಳ, ದಿನಾಂಕ ಮತ್ತು ಸಮಯ
               </td>
               <td className="border border-black px-2 py-2 text-left">
-                "ಹಾಜರಿರುವ ದರಪಟ್ಟಿದಾರರ ಸಮುಖದಲ್ಲಿ {envelopeOpeningDetails} ರಂದು
-                ಅಪರಾಹ್ನ 3-00 ಗಂಟೆ ಗ್ರಾಮ ಪಂಚಾಯತ ಕಛೇರಿಯಲ್ಲಿ"
+                "ಹಾಜರಿರುವ ದರಪಟ್ಟಿದಾರರ ಸಮುಖದಲ್ಲಿ{" "}
+                {formatDate(envelopeOpeningDetails)} ರಂದು ಅಪರಾಹ್ನ 3-00 ಗಂಟೆ
+                ಗ್ರಾಮ ಪಂಚಾಯತ ಕಛೇರಿಯಲ್ಲಿ"
               </td>
               <td className="border border-black px-2 py-2 text-center"></td>
             </tr>

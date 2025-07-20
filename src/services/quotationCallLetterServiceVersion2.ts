@@ -7,6 +7,7 @@ export interface MaterialData {
   materialName: string;
   quantity: string;
   price: string;
+  totalPrice?: string; // Optional, used for total price in some contexts
 }
 
 export interface QuotationCallData {
@@ -90,7 +91,8 @@ export const scrapeTechnicalEstimateMaterialData = async (
           slNo: slNo,
           materialName: materialName,
           quantity: quantity,
-          price: unitPrice // Using unit price as the price field
+          price: unitPrice,
+          totalPrice: total // Using unit price as the price field
         });
         console.log(
           `Added material item ${slNo}: ${materialName.substring(0, 30)}...`
@@ -184,6 +186,7 @@ export const validateAndCleanMaterialData = (
       if (!item.materialName || item.materialName.trim() === "") return false;
       if (!item.quantity || item.quantity.trim() === "") return false;
       if (!item.price || item.price.trim() === "") return false;
+      if (!item.totalPrice || item.totalPrice.trim() === "") return false;
       if (isNaN(item.slNo) || item.slNo <= 0) return false;
 
       return true;
@@ -192,7 +195,8 @@ export const validateAndCleanMaterialData = (
       slNo: item.slNo,
       materialName: item.materialName.trim(),
       quantity: item.quantity.trim(),
-      price: item.price.trim()
+      price: item.price.trim(),
+      totalPrice: item.totalPrice?.trim() // Ensure totalPrice is always a string
     }));
 };
 
