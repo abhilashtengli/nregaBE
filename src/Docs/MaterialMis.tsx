@@ -1,29 +1,27 @@
 import React from "react";
 
-//PENDING
+//COMPLETED
 interface Material {
   material: string; // from vendor link
   unitPrice: string; // from vendor link
   quantity: string; // from vendor link
   amount: string; // from vendor link
-}
-
-interface PDFData {
-  workName: string; //1
-  year: string; // from vendor link
-  workCode: string; //1
-  vendorName: string; //13
-  financialYear: string; // from vendor link
   billNo: string; // from vendor link
   billAmount: string; // from vendor link
   billDate: string; // from vendor link
   dateOfPayment: string; // from vendor link
+}
+
+interface MisDataProps {
+  workName: string; //1
+  financialYear: string; // from vendor link
+  workCode: string; //1
+  vendorName: string; //13
   materials: Material[]; // from vendor link
-  totalAmount: string; // We need to calculate this based on the sum of all material amounts
 }
 
 interface PDFTableStructureProps {
-  data?: PDFData;
+  data?: MisDataProps;
   itemsPerPage?: number;
 }
 
@@ -34,6 +32,18 @@ const PDFTableStructure = ({
   if (!data) {
     return <div>No data provided.</div>;
   }
+  const {
+    workName, //1
+    financialYear, // from vendor link
+    workCode, //1
+    vendorName, //13
+    materials // from vendor link
+  } = data;
+
+  const totalAmount = materials.reduce(
+    (sum, item) => sum + Number.parseFloat(item.amount || "0"),
+    0
+  );
 
   // Split materials into pages
   const pages = [];
@@ -56,7 +66,7 @@ const PDFTableStructure = ({
           <div className="w-full border-2 border-black">
             <div className="py-1 px-0.5 bg-purple-200 border-b border-black">
               <span className="font-bold text-[10px]">
-                Work Code: {data.workName} ({data.year}){data.workCode}
+                Work Code: {workName} ({financialYear}){workCode}
               </span>
             </div>
 
@@ -67,19 +77,19 @@ const PDFTableStructure = ({
                 <div className="grid grid-cols-4 text-[10px] bg-[#f0e3ee] border-b border-black">
                   <div className="py-1 px-0.5 border-r font-bold border-black">
                     <span className="font-bold">Bill No.:</span>
-                    {data.billNo}
+                    {material.billNo}
                   </div>
                   <div className="py-1 px-0.5 border-r font-bold border-black">
                     <span className="font-bold">Bill Amount:</span>
-                    {data.billAmount}
+                    {material.billAmount}
                   </div>
                   <div className="py-1 px-0.5 border-r font-bold border-black">
                     <span className="font-bold">Bill Date:</span>
-                    {data.billDate}
+                    {material.billDate}
                   </div>
                   <div className="py-1 px-0.5 font-bold">
                     <span className="font-bold">Date of Payment:</span>
-                    {data.dateOfPayment}
+                    {material.dateOfPayment}
                   </div>
                 </div>
 
@@ -87,11 +97,11 @@ const PDFTableStructure = ({
                 <div className="grid grid-cols-2 border-b border-black bg-[#f0e3ee] text-[10px]">
                   <div className="py-1 px-0.5 border-r font-bold border-black">
                     <span className="font-bold">Vendor name:</span>
-                    {data.vendorName}
+                    {vendorName}
                   </div>
                   <div className="py-1 px-0.5 text-right font-bold">
                     <span className="font-bold">Financial Year:</span>
-                    {data.financialYear}
+                    {financialYear}
                   </div>
                 </div>
 
@@ -134,7 +144,7 @@ const PDFTableStructure = ({
                   Total Amount
                 </div>
                 <div className="p-1 col-span-1 text-center font-bold">
-                  {data.totalAmount}
+                  {totalAmount}
                 </div>
               </div>
             )}

@@ -523,7 +523,6 @@ workingtestingVendorScrape.get(
           );
 
           if (materialVoucherData) {
-          
           } else {
             console.warn("Failed to scrape material voucher data");
           }
@@ -537,6 +536,7 @@ workingtestingVendorScrape.get(
       }
       const responseData = {
         ...extractedData,
+        workName: workDetail.workName,
         vendorName: extractedData?.vendorName
           ? `${extractedData.vendorName} | ${materialVoucherData?.vendorName || ""}`
           : materialVoucherData?.vendorName || "",
