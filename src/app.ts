@@ -19,6 +19,7 @@ import workingtestingVendorScrape from "./routes/workingMaterialMIs";
 import comparativeStatementRouter from "./routes/comparativeStatementRoute";
 import form32Router from "./routes/form32Route";
 import paperNotificationRouter from "./routes/paperNotificationRoute";
+import workCompletionRouter from "./routes/workCompletion";
 
 dotenv.config();
 
@@ -53,6 +54,7 @@ app.use("/", stageWisePhotosRouter);
 app.use("/", comparativeStatementRouter);
 app.use("/", form32Router);
 app.use("/", paperNotificationRouter);
+app.use("/", workCompletionRouter);
 
 const PORT = process.env.PORT || 3000;
 app

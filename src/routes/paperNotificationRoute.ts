@@ -151,7 +151,6 @@ paperNotificationRouter.get(
         data: responseData
       });
     } catch (error) {
-      console.error("Error in get-paper-notification endpoint:", error);
 
       // Handle specific Prisma errors
       if (error instanceof Error) {
