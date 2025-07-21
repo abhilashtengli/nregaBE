@@ -1,5 +1,5 @@
 import React from "react";
-// PENDING
+// COMPLETED
 type WorkData = {
   workCode: string; //1
   workName: string; //1
@@ -18,7 +18,7 @@ const WorkOrderPDF = ({ workOrderDate }: WorkOrderProps) => {
   const gramPanchayat = panchayat || "";
   const taluka = block || "";
   const estimatedAmount = estimatedCost || "";
-  const grama = panchayat || ""; // Assuming grama is the same as gramPanchayat
+  const grama = panchayat || "";
 
   return (
     <div

@@ -1,5 +1,6 @@
 import React from "react";
 
+// COMPLETED
 type WorkCompletion = {
   gramPanchayat: string;
   taluka: string;
@@ -17,7 +18,6 @@ type WorkCompletion = {
 type WorkCompletionData = {
   workCompletionData: WorkCompletion;
 };
-// PENDING
 const WorkCompletionPDF = ({ workCompletionData }: WorkCompletionData) => {
   const {
     gramPanchayat,
