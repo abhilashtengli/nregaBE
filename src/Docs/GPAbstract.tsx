@@ -3,17 +3,14 @@ import React from "react";
 //PENDING Need to scrape data
 const GPAbstract = ({
   workName = "(1515006040/RS/GIS/896488) ದೇಸಣ ಗ್ರಾಮದಲ್ಲಿ ಚರಂ ಕಾಮಗಾ (2023-24)", //1
-  natureOfWork = "",
   workStatus = "On Going", //1
   workPurposeStatus = "Constr of Open/Covered Grey Water Drain for Comm", //1
-  startStatus = "",
-  endStatus = "",
-  startLocation = "KAMARWADI",
   sanctionNoAndDate = "1515006040/2023-2024/480388/AS , 24/01/2024", //4
   includedInPerspectivePlan = "No", //2
   approvedInAnnualPlan = "No", //2
   estimatedCost = "1.89363", //1
   estimatedCompletionTime = "0.6",
+  workStartDate = "25/09/2023", //1
   expenditureIncurred = {
     unskilled: "21172", //3
     semiSkilled: "0", //3
@@ -23,15 +20,18 @@ const GPAbstract = ({
     total: "21172" //sum of all above
   },
   employmentGenerated = {
-    unskilled: { persondays: "67", totalPersons: "12" }, // persondays is sum of Total Attendance and totalPersons sl.no of the link
+    unskilled: { persondays: "67", totalPersons: "12" }, // persondays is sum of Total Attendance and totalPersons sl.no of the link ( link 8 )
     semiSkilled: { persondays: "0", totalPersons: "0" },
     skilled: { persondays: "0", totalPersons: "0" }
   },
-  musterRollsUsed = "42544(3160),44017(18012)", // add this from the link 8 mustrollNo (total amount) (add all the unique mustroll no with total amount)
-  workStartDate = "25/09/2023", //1
+  musterRollDetails = "42544(3160),44017(18012)", // add this from the link 8 mustrollNo (total amount) (add all the unique mustroll no with total amount)
   beforeWorkPhoto = null,
   duringWorkPhoto = null
 }) => {
+  const natureOfWork = "";
+  const startStatus = "";
+  const endStatus = "";
+  const startLocation = "KAMARWADI";
   return (
     <div className="max-w-5xl mx-auto p-4 bg-white text-sm">
       {/* Header */}
@@ -275,7 +275,7 @@ const GPAbstract = ({
             <td className="border border-black p-2 bg-gray-200 font-medium">
               Distinct Number of Muster Rolls used(Amount)
             </td>
-            <td className="border border-black p-2">{musterRollsUsed}</td>
+            <td className="border border-black p-2">{musterRollDetails}</td>
           </tr>
           <tr>
             <td className="border border-black p-2 bg-gray-200 font-medium">

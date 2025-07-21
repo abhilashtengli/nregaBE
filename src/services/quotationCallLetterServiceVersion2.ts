@@ -116,7 +116,7 @@ export const scrapeTechnicalEstimateMaterialData = async (
 export const scrapeAdministrativeSanctionNumber = async (
   url: string,
   workCode: string
-): Promise<string> => {
+) => {
   try {
     console.log(`Scraping administrative sanction from: ${url}`);
     console.log(`Looking for work code: ${workCode}`);
@@ -164,6 +164,7 @@ export const scrapeAdministrativeSanctionNumber = async (
     }
 
     const administrativeSanction = cells.eq(3).text().trim();
+
     console.log(`Found administrative sanction: ${administrativeSanction}`);
 
     return administrativeSanction;

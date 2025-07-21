@@ -21,6 +21,7 @@ import form32Router from "./routes/form32Route";
 import paperNotificationRouter from "./routes/paperNotificationRoute";
 import workCompletionRouter from "./routes/workCompletion";
 import workOrderRouter from "./routes/workOrderRoute";
+import gpAbstractRouter from "./routes/gpAbstractRoute";
 
 dotenv.config();
 
@@ -57,6 +58,7 @@ app.use("/", form32Router);
 app.use("/", paperNotificationRouter);
 app.use("/", workCompletionRouter);
 app.use("/", workOrderRouter);
+app.use("/", gpAbstractRouter);
 
 const PORT = process.env.PORT || 3000;
 app
