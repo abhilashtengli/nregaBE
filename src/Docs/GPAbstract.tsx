@@ -1,37 +1,68 @@
 import React from "react";
 
+type GPAbstractProps = {
+  workName: string;
+  workStatus: string;
+  workPurposeStatus: string;
+  sanctionNoAndDate: string;
+  includedInPerspectivePlan: string;
+  approvedInAnnualPlan: string;
+  estimatedCost: string;
+  workStartDate: string;
+  expenditureIncurred: {
+    unskilled: string;
+    semiSkilled: string;
+    skilled: string;
+    material: string;
+    contingency: string;
+    total: string;
+  };
+  employmentGenerated: {
+    unskilled: {
+      persondays: string;
+      totalPersons: string;
+    };
+    semiSkilled: {
+      persondays: string;
+      totalPersons: string;
+    };
+    skilled: {
+      persondays: string;
+      totalPersons: string;
+    };
+  };
+  musterRollDetails: string;
+  beforeWorkPhoto: string | null;
+  duringWorkPhoto: string | null;
+  afterWorkPhoto: string | null;
+};
+
+type GPAbstractData = {
+  GpAbstractData: GPAbstractProps;
+};
 //PENDING Need to scrape data
-const GPAbstract = ({
-  workName = "(1515006040/RS/GIS/896488) ದೇಸಣ ಗ್ರಾಮದಲ್ಲಿ ಚರಂ ಕಾಮಗಾ (2023-24)", //1
-  workStatus = "On Going", //1
-  workPurposeStatus = "Constr of Open/Covered Grey Water Drain for Comm", //1
-  sanctionNoAndDate = "1515006040/2023-2024/480388/AS , 24/01/2024", //4
-  includedInPerspectivePlan = "No", //2
-  approvedInAnnualPlan = "No", //2
-  estimatedCost = "1.89363", //1
-  estimatedCompletionTime = "0.6",
-  workStartDate = "25/09/2023", //1
-  expenditureIncurred = {
-    unskilled: "21172", //3
-    semiSkilled: "0", //3
-    skilled: "0", //3
-    material: "0", //3
-    contingency: "0", //3
-    total: "21172" //sum of all above
-  },
-  employmentGenerated = {
-    unskilled: { persondays: "67", totalPersons: "12" }, // persondays is sum of Total Attendance and totalPersons sl.no of the link ( link 8 )
-    semiSkilled: { persondays: "0", totalPersons: "0" },
-    skilled: { persondays: "0", totalPersons: "0" }
-  },
-  musterRollDetails = "42544(3160),44017(18012)", // add this from the link 8 mustrollNo (total amount) (add all the unique mustroll no with total amount)
-  beforeWorkPhoto = null,
-  duringWorkPhoto = null
-}) => {
+const GPAbstract = ({ GpAbstractData }: GPAbstractData) => {
+  const {
+    workName,
+    workStatus,
+    workPurposeStatus,
+    sanctionNoAndDate,
+    includedInPerspectivePlan,
+    approvedInAnnualPlan,
+    estimatedCost,
+    workStartDate,
+    expenditureIncurred,
+    employmentGenerated,
+    musterRollDetails,
+    beforeWorkPhoto,
+    duringWorkPhoto,
+    afterWorkPhoto
+  } = GpAbstractData;
+  const estimatedCompletionTime = "0.6";
   const natureOfWork = "";
   const startStatus = "";
   const endStatus = "";
-  const startLocation = "KAMARWADI";
+  const startLocation = "";
   return (
     <div className="max-w-5xl mx-auto p-4 bg-white text-sm">
       {/* Header */}

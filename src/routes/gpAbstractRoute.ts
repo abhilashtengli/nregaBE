@@ -29,7 +29,6 @@ type ResponseGpAbstractType = {
   includedInPerspectivePlan: string;
   approvedInAnnualPlan: string;
   estimatedCost: string;
-  estimatedCompletionTime: string;
   workStartDate: string;
   expenditureIncurred: ExpenditureIncurredType;
   employmentGenerated: {
@@ -147,8 +146,8 @@ gpAbstractRouter.get(
 
       // Scrape technical estimate data
       let technicalEstimateData;
-      let approvedInAnnualPlan = "No";
-      let includedInPerspectivePlan = "No";
+      let approvedInAnnualPlan = "";
+      let includedInPerspectivePlan = "";
 
       if (workDocument.technicalEstimate) {
         technicalEstimateData = await scrapeGpAbstractTechnicalEstimate(
@@ -211,12 +210,6 @@ gpAbstractRouter.get(
             persondays: formattedData.unskilledPersonDays,
             totalPersons: formattedData.totalUnskilledPersons
           };
-
-          // Log for debugging
-          console.log(
-            `Muster Roll Details for ${workDetail.workCode}:`,
-            musterRollDetailsString
-          );
         }
       }
 
@@ -252,21 +245,17 @@ gpAbstractRouter.get(
         ? new Date(workDetail.workStartDate).toLocaleDateString()
         : "";
 
-      // TODO: Add logic to determine estimated completion time
-      const estimatedCompletionTime = ""; // This could be calculated based on work type and complexity
-
       // Construct the complete response
       const responseData: ResponseGpAbstractType = {
         workName: workDetail.workName || "",
         workStatus: workDetail.workStatus || "",
         workPurposeStatus: workDetail.workType || "",
         sanctionNoAndDate: administrativeSanction
-          ? `${administrativeSanction.administrativeSanctionNo} / ${administrativeSanction.administrativeSanctionDate}`
+          ? `${administrativeSanction.administrativeSanctionNo} , ${administrativeSanction.administrativeSanctionDate}`
           : "Not Available",
         includedInPerspectivePlan: includedInPerspectivePlan,
         approvedInAnnualPlan: approvedInAnnualPlan,
         estimatedCost: workDetail.estimatedCost?.toString() || "0",
-        estimatedCompletionTime: estimatedCompletionTime,
         workStartDate: formattedWorkStartDate,
         expenditureIncurred: expenditureIncurred,
         employmentGenerated: employmentGenerated,

@@ -15,8 +15,7 @@ export const scrapeAdministrativeSanctionNumber = async (
   workCode: string
 ): Promise<AdministractionSanctionData | null> => {
   try {
-    console.log(`Scraping administrative sanction from: ${url}`);
-    console.log(`Looking for work code: ${workCode}`);
+   
 
     const response = await axios.get(url, {
       headers: {
@@ -35,7 +34,6 @@ export const scrapeAdministrativeSanctionNumber = async (
 
       if (cells.length > 1) {
         const rowWorkCode = cells.eq(1).text().trim();
-        console.log(`Row ${index}: Work Code = "${rowWorkCode}"`);
 
         if (rowWorkCode === workCode) {
           targetRowElement = element;
@@ -45,7 +43,6 @@ export const scrapeAdministrativeSanctionNumber = async (
     });
 
     if (!targetRowElement) {
-      console.log(`Work code ${workCode} not found`);
       return null;
     }
 
@@ -53,7 +50,6 @@ export const scrapeAdministrativeSanctionNumber = async (
     const cells = targetRow.find("td");
 
     if (cells.length < 5) {
-      console.log("Invalid table structure");
       return null;
     }
 
@@ -99,13 +95,7 @@ export async function scrapeGpAbstractTechnicalEstimate(
     // Extract "Perspective Plan" value
     // Looking for span with id "ctl00_ContentPlaceHolder1_lblplan_text"
     const includedInPerspectivePlan =
-      $("#ctl00_ContentPlaceHolder1_lblplan_text").text().trim() || "No";
-
-    // Log the extracted data for debugging
-    console.log(`Technical Estimate Data for ${workCode}:`, {
-      approvedInAnnualPlan,
-      includedInPerspectivePlan
-    });
+      $("#ctl00_ContentPlaceHolder1_lblplan_text").text().trim() || "No";  
 
     return {
       approvedInAnnualPlan,
@@ -211,10 +201,6 @@ export async function scrapeTechnicalEstimateWithRetry(
       approvedInAnnualPlan = approvedInAnnualPlan || "No";
       includedInPerspectivePlan = includedInPerspectivePlan || "No";
 
-      console.log(
-        `Successfully scraped technical estimate for ${workCode} on attempt ${attempt}`
-      );
-
       return {
         approvedInAnnualPlan,
         includedInPerspectivePlan
@@ -234,7 +220,6 @@ export async function scrapeTechnicalEstimateWithRetry(
 
       // Wait before retrying (exponential backoff)
       const waitTime = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
-      console.log(`Waiting ${waitTime}ms before retry...`);
       await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
   }
@@ -354,12 +339,6 @@ export async function scrapeMusterRolls(
 
       musterRollNumbers[musterRollNo] = totalAmountForMusterRoll;
     }
-
-    console.log(`Muster Rolls Data for ${workCode}:`, {
-      uniqueMusterRolls: Object.keys(musterRollNumbers).length,
-      totalPersonDays: unskilledPersonDays,
-      totalPersons: totalPersons
-    });
 
     return {
       musterRollNumbers: musterRollNumbers,
@@ -481,15 +460,6 @@ export async function scrapeMusterRollsWithPagination(
       musterRollNumbers[musterRollNo] = totalAmountForMusterRoll;
     }
 
-    console.log(
-      `Muster Rolls Data (${currentPage - 1} pages) for ${workCode}:`,
-      {
-        uniqueMusterRolls: Object.keys(musterRollNumbers).length,
-        totalPersonDays: unskilledPersonDays,
-        totalPersons: totalPersons,
-        musterRollAmounts: musterRollNumbers
-      }
-    );
 
     return {
       musterRollNumbers: musterRollNumbers,
@@ -642,12 +612,6 @@ export async function scrapeGeotaggedPhotographs(
     if (beforeLink !== "NA") {
       beforeLink = modifyBeforeLink(beforeLink);
     }
-
-    console.log(`Geotagged Photographs for ${workCode}:`, {
-      beforeLink,
-      duringLink,
-      afterLink
-    });
 
     return {
       beforeLink,
