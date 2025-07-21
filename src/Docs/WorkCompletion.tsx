@@ -1,24 +1,42 @@
 import React from "react";
 
+type WorkCompletion = {
+  gramPanchayat: string;
+  taluka: string;
+  district: string;
+  year: string;
+  workCode: string;
+  workName: string;
+  administrativeSanctionNo: string;
+  workStartDate: string;
+  wage: string;
+  material: string;
+  total: string;
+};
+
+type WorkCompletionData = {
+  workCompletionData: WorkCompletion;
+};
 // PENDING
-const WorkCompletionPDF = ({
-  gramPanchayat = "ಕಾಳಗಿ", //1
-  taluka = "ಮುದ್ದೇಬಿಹಾಳ", //1
-  district = "ವಿಜಯಪುರ", //1
-  year = "2021-2022", // financila year
-  workCode = "1507004008/AV/93393042892262348", //1
-  workName = "ಕಾಳಗಿ ಗ್ರಾಮ ಪಂಚಾಯಿತಿಯ ಘನತ್ಯಾಜ್ಯ ವಿಲೇವಾರಿ ಘಟಕ ನಿರ್ಮಾಣ", //1
-  administrativeSanctionNo = "1507004008/2021-2022/567750/AS", //4
-  workOrderNo = "25",
-  workOrderDate = "20/04/2022",
-  workStartDate = "8/7/2021", //1
-  workEndDate = "", //?
-  masterollId = "", // ?
-  expenditure = "", //?
-  wage = "", // 3
-  material = "", //3
-  total = "" // sum of wage + material + Est. Skilled Cost (in Rs.) + Est.Semi-Skilled Cost (in Rs.) + Contingency (in Rs.)
-}) => {
+const WorkCompletionPDF = ({ workCompletionData }: WorkCompletionData) => {
+  const {
+    gramPanchayat,
+    taluka,
+    district,
+    year,
+    workCode,
+    workName,
+    administrativeSanctionNo,
+    workStartDate,
+    wage,
+    material,
+    total
+  } = workCompletionData;
+  const workEndDate = "";
+  const masterollId = "";
+  const expenditure = "";
+  const workOrderNo = "25";
+  const workOrderDate = "20/04/2022";
   const grama = gramPanchayat;
   const worksite = gramPanchayat;
   return (
