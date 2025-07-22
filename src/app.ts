@@ -22,6 +22,7 @@ import paperNotificationRouter from "./routes/paperNotificationRoute";
 import workCompletionRouter from "./routes/workCompletion";
 import workOrderRouter from "./routes/workOrderRoute";
 import gpAbstractRouter from "./routes/gpAbstractRoute";
+import movementSlipRouter from "./routes/movementSlipRoute";
 
 dotenv.config();
 
@@ -59,6 +60,7 @@ app.use("/", paperNotificationRouter);
 app.use("/", workCompletionRouter);
 app.use("/", workOrderRouter);
 app.use("/", gpAbstractRouter);
+app.use("/", movementSlipRouter);
 
 const PORT = process.env.PORT || 3000;
 app

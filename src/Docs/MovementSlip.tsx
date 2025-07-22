@@ -1,16 +1,32 @@
 import React from "react";
 
-// PENDING
-const MovementSlipPDF = ({
-  workCode = "1507004008/AV/93393042892262348",
-  workName = "ಕಾಳಗಿ ಗ್ರಾಮ ಪಂಚಾಯಿತಿಯ ಘನತ್ಯಾಜ್ಯ ವಿಲೇವಾರಿ ಘಟಕ ನಿರ್ಮಾಣ",
-  grama = "ಕಾಳಗಿ",
-  gramPanchayat = "ಕಾಳಗಿ",
-  taluka = "ಮುದ್ದೇಬಿಹಾಳ",
-  district = "ವಿಜಯಪುರ",
-  date = "" // blank
-  //ಇ-ಹಾಜರಾತಿ  mustroll // from link 8
-}) => {
+type MustrollData = {
+  mustrollNo: string;
+  data: {
+    fromDate: string;
+    toDate: string;
+    ftoDate1: string;
+    ftoDate2: string;
+  };
+};
+type ResponseMovementSlipType = {
+  workCode: string;
+  workName: string;
+  gramPanchayat: string;
+  taluka: string;
+  district: string;
+  mustrollData: MustrollData[];
+};
+type MovementSlipData = {
+  movementSlipData: ResponseMovementSlipType;
+};
+// Completed Mustroll no | from date | to date |  to date | to date | to date | Payment date - 1 | Payment date ( get by mustroll no )
+//Pending is the mustrollData we need to integrate in the tabele
+const MovementSlipPDF = ({ movementSlipData }: MovementSlipData) => {
+  const { workCode, workName, gramPanchayat, taluka, district, mustrollData } =
+    movementSlipData;
+  const grama = gramPanchayat;
+  const date = ""; // blank
   return (
     <div
       className="w-full max-w-4xl mx-auto bg-white border-2 border-black"

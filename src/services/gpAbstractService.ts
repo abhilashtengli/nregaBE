@@ -15,8 +15,6 @@ export const scrapeAdministrativeSanctionNumber = async (
   workCode: string
 ): Promise<AdministractionSanctionData | null> => {
   try {
-   
-
     const response = await axios.get(url, {
       headers: {
         "User-Agent":
@@ -95,7 +93,7 @@ export async function scrapeGpAbstractTechnicalEstimate(
     // Extract "Perspective Plan" value
     // Looking for span with id "ctl00_ContentPlaceHolder1_lblplan_text"
     const includedInPerspectivePlan =
-      $("#ctl00_ContentPlaceHolder1_lblplan_text").text().trim() || "No";  
+      $("#ctl00_ContentPlaceHolder1_lblplan_text").text().trim() || "No";
 
     return {
       approvedInAnnualPlan,
@@ -459,7 +457,6 @@ export async function scrapeMusterRollsWithPagination(
 
       musterRollNumbers[musterRollNo] = totalAmountForMusterRoll;
     }
-
 
     return {
       musterRollNumbers: musterRollNumbers,
