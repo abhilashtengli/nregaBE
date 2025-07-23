@@ -19,7 +19,6 @@ export const VENDOR_INITIAL_URL = `${VENDOR_BASE_URL}/freez_vendor_rpt.aspx?lfla
 // Utility function to create axios instance with proper headers
 export const createAxiosInstance = () => {
   return axios.create({
-    timeout: 30000,
     headers: {
       "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",

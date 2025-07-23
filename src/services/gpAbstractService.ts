@@ -72,7 +72,6 @@ export async function scrapeGpAbstractTechnicalEstimate(
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
       },
-      timeout: 30000 // 30 seconds timeout
     });
 
     if (response.status !== 200) {
@@ -141,7 +140,6 @@ export async function scrapeTechnicalEstimateWithRetry(
           "Cache-Control": "no-cache",
           Pragma: "no-cache"
         },
-        timeout: 30000,
         validateStatus: (status) => status < 500 // Don't throw for 4xx errors
       });
 
@@ -258,7 +256,6 @@ export async function scrapeMusterRolls(
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
       },
-      timeout: 30000
     });
 
     if (response.status !== 200) {
@@ -375,7 +372,6 @@ export async function scrapeMusterRollsWithPagination(
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         },
-        timeout: 30000
       });
 
       if (response.status !== 200) {
@@ -540,7 +536,6 @@ export async function scrapeGeotaggedPhotographs(
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
       },
-      timeout: 30000
     });
 
     if (response.status !== 200) {

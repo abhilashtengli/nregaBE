@@ -40,7 +40,6 @@ export const scrapeTechnicalEstimateMaterialData = async (
     console.log(`Scraping technical estimate from: ${url}`);
 
     const response = await axios.get(url, {
-      timeout: 10000,
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
@@ -114,7 +113,6 @@ export const scrapeAdministrativeSanctionNumber = async (
     console.log(`Looking for work code: ${workCode}`);
 
     const response = await axios.get(url, {
-      timeout: 10000,
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
