@@ -296,7 +296,7 @@ export const scrapeFilledEMusterRollsData = async (
 export const scrapeWageListData = async (
   url: string,
   musterRollNo: string,
-  jobCardNo: string
+  applicantName: string
 ): Promise<{ wagelistNo: string; bankName: string }> => {
   const fetchData = async () => {
     const response = await axios.get(url, {
@@ -317,7 +317,9 @@ export const scrapeWageListData = async (
   try {
     const response = await retryRequest(fetchData, 2, 1000); // Less retries for individual worker data
     if (!response) {
-      console.error(`Failed to fetch wage list data for job card ${jobCardNo}`);
+      console.error(
+        `Failed to fetch wage list data for applicant ${applicantName}`
+      );
       return { wagelistNo: "", bankName: "" };
     }
 
@@ -334,13 +336,13 @@ export const scrapeWageListData = async (
         .get();
 
       if (
-        headers.some((header) => header.includes("Job Card No.")) &&
+        headers.some((header) => header.includes("Applicant Name")) &&
         headers.some((header) => header.includes("Mustroll No.")) &&
         headers.some((header) => header.includes("Wage List No.")) &&
         headers.some((header) => header.includes("Bank_Name"))
       ) {
-        const jobCardIndex = headers.findIndex((header) =>
-          header.includes("Job Card No.")
+        const applicantNameIndex = headers.findIndex((header) =>
+          header.includes("Applicant Name")
         );
         const mustrollIndex = headers.findIndex((header) =>
           header.includes("Mustroll No.")
@@ -365,13 +367,13 @@ export const scrapeWageListData = async (
             if (
               cells.length >
                 Math.max(
-                  jobCardIndex,
+                  applicantNameIndex,
                   mustrollIndex,
                   wageListIndex,
                   bankNameIndex
                 ) &&
               cells[mustrollIndex] === musterRollNo &&
-              cells[jobCardIndex] === jobCardNo
+              cells[applicantNameIndex] === applicantName
             ) {
               wagelistNo = cells[wageListIndex] || "";
               bankName = cells[bankNameIndex] || "";
@@ -385,6 +387,9 @@ export const scrapeWageListData = async (
       }
     });
 
+    console.log(
+      `Wage list data for ${applicantName} (MR: ${musterRollNo}): WL: ${wagelistNo}, Bank: ${bankName}`
+    );
     return { wagelistNo, bankName };
   } catch (error) {
     console.error("Error scraping wage list data:", error);
@@ -468,7 +473,7 @@ export const scrapeFilledNmrData = async (
         const { wagelistNo, bankName } = await scrapeWageListData(
           wageListFTOUrl,
           musterRollNo,
-          worker.jobCardNo
+          worker.name // Changed from worker.jobCardNo to worker.name
         );
 
         // Calculate wage per day
