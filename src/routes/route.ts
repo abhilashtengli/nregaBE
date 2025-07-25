@@ -121,8 +121,7 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
     if (!scrapedData.workDetail.workCode) {
       return res.status(400).json({
         success: false,
-        error:
-          "Unable to extract work data from the page. The work might not exist or the page structure might have changed."
+        error: "There is no Work Details for this workcode."
       });
     }
 

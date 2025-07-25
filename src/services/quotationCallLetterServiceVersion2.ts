@@ -1,12 +1,14 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { prisma } from "@lib/prisma";
+import { findMaterialUnit } from "../utils/findMaterialUnit";
 
 export interface MaterialData {
   slNo: number;
   materialName: string;
   quantity: string;
   price: string;
+  unit?: string; // Added unit field
   totalPrice?: string; // Optional, used for total price in some contexts
 }
 
@@ -29,6 +31,9 @@ export interface QuotationCallResponse {
   code?: string;
   debug?: any;
 }
+
+// Import the findMaterialUnit function - make sure this is imported in your actual implementation
+// import { findMaterialUnit } from "../utils/materialUtils";
 
 /**
  * Scrapes material data from technical estimate URL
@@ -87,15 +92,20 @@ export const scrapeTechnicalEstimateMaterialData = async (
 
       // Only add if we have valid data
       if (!isNaN(slNo) && slNo > 0 && materialName && quantity && unitPrice) {
+        // Find unit for the material
+        const materialInfo = findMaterialUnit(materialName);
+        const unit = materialInfo?.unit || ""; // Default to empty string if not found
+
         materialData.push({
           slNo: slNo,
           materialName: materialName,
           quantity: quantity,
           price: unitPrice,
+          unit: unit, // Add unit to material data
           totalPrice: total // Using unit price as the price field
         });
         console.log(
-          `Added material item ${slNo}: ${materialName.substring(0, 30)}...`
+          `Added material item ${slNo}: ${materialName.substring(0, 30)}... with unit: ${unit}`
         );
       }
     });
@@ -191,17 +201,24 @@ export const validateAndCleanMaterialData = (
 
       return true;
     })
-    .map((item) => ({
-      slNo: item.slNo,
-      materialName: item.materialName.trim(),
-      quantity: item.quantity.trim(),
-      price: item.price.trim(),
-      totalPrice: item.totalPrice?.trim() // Ensure totalPrice is always a string
-    }));
+    .map((item) => {
+      // Ensure unit is included during validation
+      const materialInfo = findMaterialUnit(item.materialName);
+      const unit = item.unit || materialInfo?.unit || "";
+
+      return {
+        slNo: item.slNo,
+        materialName: item.materialName.trim(),
+        quantity: item.quantity.trim(),
+        price: item.price.trim(),
+        unit: unit, // Include unit in cleaned data
+        totalPrice: item.totalPrice?.trim() // Ensure totalPrice is always a string
+      };
+    });
 };
 
 /**
- * Saves quotation call data to database - NOW SUPPORTS MULTIPLE MATERIAL ITEMS
+ * Saves quotation call data to database - NOW SUPPORTS MULTIPLE MATERIAL ITEMS WITH UNITS
  */
 export const saveQuotationCallToDatabase = async (
   workDetailId: string,
@@ -260,7 +277,7 @@ export const saveQuotationCallToDatabase = async (
         }
       });
 
-      // Create ALL new material items
+      // Create ALL new material items with units
       console.log(
         `Creating ${quotationCallData.materialData.length} new material items...`
       );
@@ -271,6 +288,7 @@ export const saveQuotationCallToDatabase = async (
             materialName: materialItem.materialName,
             quantity: materialItem.quantity,
             price: materialItem.price,
+            unit: materialItem.unit || "", // Include unit field
             quotationCallLetterId: existingQuotationCall.id
           }
         });
@@ -289,7 +307,7 @@ export const saveQuotationCallToDatabase = async (
         }
       });
 
-      // Create ALL material items
+      // Create ALL material items with units
       console.log(
         `Creating ${quotationCallData.materialData.length} new material items...`
       );
@@ -300,6 +318,7 @@ export const saveQuotationCallToDatabase = async (
             materialName: materialItem.materialName,
             quantity: materialItem.quantity,
             price: materialItem.price,
+            unit: materialItem.unit || "", // Include unit field
             quotationCallLetterId: quotationCallLetter.id
           }
         });
@@ -325,3 +344,5 @@ export const saveQuotationCallToDatabase = async (
     throw error;
   }
 };
+
+// Helper function declaration - implement this based on your materialUnit data
