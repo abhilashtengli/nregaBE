@@ -195,10 +195,12 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: "Data scraped and saved successfully",
+      // message: "Data scraped and saved successfully",
       data: {
         // ...savedData,
         metadata: {
+          id: savedData.workDetail.id,
+          workDocumentId: savedData.workDocuments.id,
           panchayatCode,
           vendorName,
           vendorGstNo,
