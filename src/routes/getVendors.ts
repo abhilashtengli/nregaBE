@@ -6,7 +6,7 @@ import {
   extractVendorDetails,
   VENDOR_BASE_URL,
   VENDOR_INITIAL_URL,
-  VendorApiResponse,
+  VendorApiResponse
 } from "../services/vendorService";
 const getVendorsRouter = express.Router();
 
@@ -31,7 +31,7 @@ getVendorsRouter.get(
       if (!gstLink) {
         return res.status(404).json({
           success: false,
-          error: "Could not find KALABURAGI GST link in the response",
+          error: "Could not find KALABURAGI GST link in the response"
         });
       }
 
@@ -52,7 +52,7 @@ getVendorsRouter.get(
       if (vendors.length === 0) {
         return res.status(404).json({
           success: false,
-          error: "No vendors found or unable to parse vendor data",
+          error: "No vendors found or unable to parse vendor data"
         });
       }
 
@@ -60,7 +60,7 @@ getVendorsRouter.get(
       res.json({
         success: true,
         data: vendors,
-        count: vendors.length,
+        count: vendors.length
       });
     } catch (error) {
       console.error("Error in /api/vendors/kalaburagi:", error);
@@ -69,24 +69,24 @@ getVendorsRouter.get(
         if (error.code === "ECONNABORTED") {
           return res.status(408).json({
             success: false,
-            error: "Request timeout. The server took too long to respond.",
+            error: "Request timeout. The server took too long to respond."
           });
         } else if (error.response) {
           return res.status(error.response.status).json({
             success: false,
-            error: `Server responded with status ${error.response.status}`,
+            error: `Server responded with status ${error.response.status}`
           });
         } else if (error.request) {
           return res.status(503).json({
             success: false,
-            error: "Unable to reach the NREGA server. Please try again later.",
+            error: "Unable to reach the NREGA server. Please try again later."
           });
         }
       }
 
       res.status(500).json({
         success: false,
-        error: "Internal server error occurred while processing the request",
+        error: "Internal server error occurred while processing the request"
       });
     }
   }

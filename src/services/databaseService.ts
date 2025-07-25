@@ -31,6 +31,7 @@ export async function saveWorkData(data: ScrapedWorkData) {
         sanctionYear: data.workDetail.sanctionYear,
         workStartDate: data.workDetail.workStartDate,
         financialYear: data.workDetail.financialYear,
+
         updatedAt: new Date() // Track when we last updated
       },
       create: {

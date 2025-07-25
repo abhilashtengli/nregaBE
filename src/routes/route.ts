@@ -8,71 +8,15 @@ import {
   saveWorkData
 } from "../services/databaseService";
 import { findPanchayatByCode } from "../utils/findPanchayat";
+import {
+  MaterialVoucherData,
+  scrapeMaterialVoucherData
+} from "../services/form32Service";
+import { prisma } from "@lib/prisma";
+import { getKalaburagiVendors } from "../services/routeService";
 
 const scrapRouter = express.Router();
 const scraperService = new MgnregaScraperService();
-
-/**
- * POST /api/mgnrega/scrape
- * Scrapes MGNREGA work data from the provided URL and saves it to database
- */
-// router.post("/scrape", async (req: Request, res: Response) => {
-//   try {
-//     const { url } = req.body;
-
-//     // Validate URL
-//     if (!url || typeof url !== "string") {
-//       return res.status(400).json({
-//         success: false,
-//         error: "URL is required"
-//       });
-//     }
-
-//     // Validate that it's an MGNREGA URL
-//     if (!url.includes("mnregaweb4.nic.in")) {
-//       return res.status(400).json({
-//         success: false,
-//         error: "Invalid URL. Please provide a valid MGNREGA work details URL"
-//       });
-//     }
-
-//     console.log(`Scraping data from: ${url}`);
-
-//     // Scrape the data
-//     const scrapedData = await scraperService.scrapeWorkData(url);
-
-//     // Validate scraped data
-//     if (!scrapedData.workDetail.workCode) {
-//       return res.status(400).json({
-//         success: false,
-//         error: "Unable to extract work code from the page"
-//       });
-//     }
-
-//     console.log(
-//       `Successfully scraped work code: ${scrapedData.workDetail.workCode}`
-//     );
-
-//     // Save to database using the function approach
-//     const savedData = await saveWorkData(scrapedData);
-
-//     console.log(
-//       `Data saved successfully for work code: ${savedData.workDetail.workCode}`
-//     );
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Data scraped and saved successfully",
-//       data: savedData
-//     });
-//   } catch (error: any) {
-//     console.error("Error in scrape endpoint:", error);
-//     return res.status(500).json({
-//       success: false,
-//       error: error.message || "Internal server error"
-//     });
-//   }
-// });
 
 /**
  * POST /api/mgnrega/scrape-by-params
@@ -185,6 +129,66 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
     // Save to database
     const savedData = await saveWorkData(scrapedData);
 
+    const workDocument = await prisma.workDocuments.findUnique({
+      where: {
+        workCode: workCode
+      },
+      select: {
+        materialVouchers: true
+      }
+    });
+    if (!workDocument) {
+      res.status(404).json({
+        success: false,
+        error: "Work Document not found",
+        code: "WORK_DOCUMENT_NOT_FOUND"
+      });
+      return;
+    }
+    //Scrape vendor name
+    let materialVoucherData: MaterialVoucherData | null = null;
+
+    // Check if WorkDocuments exists and has materialVouchers link
+    if (workDocument && workDocument.materialVouchers) {
+      try {
+        // Scrape material voucher data
+        materialVoucherData = await scrapeMaterialVoucherData(
+          workDocument.materialVouchers
+        );
+
+        if (materialVoucherData) {
+        } else {
+          console.warn("Failed to scrape material voucher data");
+        }
+      } catch (scrapeError: any) {
+        console.error(
+          "Error scraping material voucher data:",
+          scrapeError.message
+        );
+        // Continue execution even if scraping fails
+      }
+    }
+
+    const vendorName = materialVoucherData?.vendorName;
+    const { success, data: vendors } = await getKalaburagiVendors();
+
+    const vendorDetails = vendors?.find(
+      (v) =>
+        v.vendorName.toLowerCase().trim() === vendorName?.toLowerCase().trim()
+    );
+    const vendorGstNo = vendorDetails?.gstNo;
+    if (vendorGstNo && vendorName) {
+      await prisma.workDetail.update({
+        where: {
+          workCode: workCode
+        },
+        data: {
+          vendorName: vendorName,
+          vendorGstNo: vendorGstNo
+        }
+      });
+    }
+
     console.log(
       `Data saved successfully for work code: ${savedData.workDetail.workCode}`
     );
@@ -196,6 +200,8 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
         // ...savedData,
         metadata: {
           panchayatCode,
+          vendorName,
+          vendorGstNo,
           district: panchayatData.district_name_en,
           block: panchayatData.block_name_en,
           panchayat: panchayatData.panchayat_name_en,
