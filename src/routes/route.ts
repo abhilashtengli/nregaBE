@@ -226,6 +226,7 @@ scrapRouter.post("/scrape-by-workcode", async (req: Request, res: Response) => {
  * GET /api/mgnrega/work/:workCode
  * Retrieves work data by work code
  */
+
 scrapRouter.get("/work/:workCode", async (req: Request, res: Response) => {
   try {
     const { workCode } = req.params;
@@ -294,22 +295,22 @@ scrapRouter.get("/works", async (req: Request, res: Response) => {
  * DELETE /api/mgnrega/work/:workCode
  * Deletes a work and its documents
  */
-scrapRouter.delete("/work/:workCode", async (req: Request, res: Response) => {
+scrapRouter.delete("/work/:id", async (req: Request, res: Response) => {
   try {
-    const { workCode } = req.params;
+    const { id } = req.params;
 
-    if (!workCode) {
+    if (!id) {
       return res.status(400).json({
         success: false,
         error: "Work code is required"
       });
     }
 
-    await deleteWork(workCode);
+    await deleteWork(id);
 
     return res.status(200).json({
       success: true,
-      message: `Work ${workCode} deleted successfully`
+      message: `Work ${id} deleted successfully`
     });
   } catch (error: any) {
     console.error("Error in delete work endpoint:", error);

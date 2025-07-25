@@ -174,10 +174,10 @@ export async function getAllWorks(filter?: {
 /**
  * Delete work and its documents (cascades automatically)
  */
-export async function deleteWork(workCode: string) {
+export async function deleteWork(id: string) {
   try {
     const deleted = await prisma.workDetail.delete({
-      where: { workCode }
+      where: { id: id }
     });
 
     return deleted;
