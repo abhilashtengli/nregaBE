@@ -253,4 +253,68 @@ comparativeStatementRouter.get(
   }
 );
 
+comparativeStatementRouter.get(
+  "/material-vendor-data/:id",
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+
+      // Validate ID parameter
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          error: "Work Detail ID is required",
+          code: "MISSING_ID"
+        } as QuotationCallResponse);
+        return;
+      }
+
+      const materialData = await prisma.quotationCallLetter.findUnique({
+        where: {
+          workDetailId: id
+        },
+        select: {
+          materialItems: {
+            select: {
+              id: true,
+              slNo: true,
+              materialName: true,
+              quantity: true,
+              price: true,
+              unit: true
+            }
+          }
+        }
+      });
+      const vendorWithVendorQuotation: VendorQuoteData[] = [];
+      if (materialData?.materialItems) {
+        for (const material of materialData.materialItems) {
+          const vendorMaterialQuote: VendorQuoteData = {
+            slNo: material.slNo,
+            materialName: material.materialName,
+            quantity: material.quantity, // you had this field in the type but it's not from DB, so default to empty string
+            unit: material.unit || "",
+            rate: material.price,
+            contractor1Rate: material.price,
+            contractor2Rate: (Number(material.price) * 1.02).toFixed(2),
+            contractor3Rate: (Number(material.price) * 1.025).toFixed(2)
+          };
+          vendorWithVendorQuotation.push(vendorMaterialQuote);
+        }
+      }
+      res.status(200).json({
+        success: true,
+        data: vendorWithVendorQuotation,
+        message: "FETCH_MATERIAL_DATA_SUCCESSFUL"
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        error: error.message || "Internal server error",
+        code: "FETCH_MATERIAL_ERROR"
+      });
+    }
+  }
+);
+
 export default comparativeStatementRouter;
