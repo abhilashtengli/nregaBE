@@ -317,4 +317,382 @@ comparativeStatementRouter.get(
   }
 );
 
+import { z } from "zod";
+
+// Validation schemas
+const VendorSchema = z.object({
+  vendorName: z
+    .string()
+    .min(1, "Vendor name is required")
+    .max(255, "Vendor name too long"),
+  gstNo: z
+    .string()
+    .regex(
+      /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}[Z]{1}[0-9A-Z]{1}$/,
+      "Invalid GST number format"
+    )
+});
+
+const MaterialSchema = z.object({
+  slNo: z.number().int().positive("Serial number must be positive"),
+  materialName: z
+    .string()
+    .min(1, "Material name is required")
+    .max(500, "Material name too long"),
+  quantity: z.string().min(1, "Quantity is required"),
+  unit: z.string().min(1, "Unit is required").max(50, "Unit name too long"),
+  vendor1Rate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid rate format")
+});
+
+const UpdateVendorMaterialDataSchema = z
+  .object({
+    workId: z.string().uuid("Invalid work ID format"),
+    workDocumentId: z.string().uuid("Invalid work document ID format"),
+    fromDate: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
+    toDate: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
+    vendors: z.object({
+      vendor1: VendorSchema,
+      vendor2: VendorSchema,
+      vendor3: VendorSchema
+    }),
+    materials: z
+      .array(MaterialSchema)
+      .min(1, "At least one material is required")
+  })
+  .refine((data) => new Date(data.fromDate) <= new Date(data.toDate), {
+    message: "From date must be before or equal to to date",
+    path: ["toDate"]
+  });
+
+interface ApiResponse<T = any> {
+  success: boolean;
+  message: string;
+  data?: T;
+  error?: string;
+  timestamp: string;
+}
+
+class ValidationError extends Error {
+  constructor(
+    message: string,
+    public details?: any
+  ) {
+    super(message);
+    this.name = "ValidationError";
+  }
+}
+
+class NotFoundError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NotFoundError";
+  }
+}
+
+const createApiResponse = <T>(
+  success: boolean,
+  message: string,
+  data?: T,
+  error?: string
+): ApiResponse<T> => ({
+  success,
+  message,
+  data,
+  error,
+  timestamp: new Date().toISOString()
+});
+
+comparativeStatementRouter.post(
+  "/update-vendor-material-data",
+  async (req: Request, res: Response): Promise<void> => {
+    const startTime = Date.now();
+    let prismaTransaction;
+
+    try {
+      // Input validation
+      const validatedData = UpdateVendorMaterialDataSchema.parse(req.body);
+      const { fromDate, materials, toDate, vendors, workId } = validatedData;
+
+      console.log(
+        `[${new Date().toISOString()}] Starting vendor material update for workId: ${workId}`
+      );
+
+      // Start database transaction
+      prismaTransaction = await prisma.$transaction(async (tx) => {
+        // Step 1: Find and validate QuotationCallLetter exists
+        const quotationCallLetter = await tx.quotationCallLetter.findUnique({
+          where: { workDetailId: workId },
+          include: {
+            materialItems: {
+              select: {
+                id: true,
+                materialName: true,
+                slNo: true
+              }
+            }
+          }
+        });
+
+        if (!quotationCallLetter) {
+          throw new NotFoundError(
+            `Quotation call letter not found for work detail ID: ${workId}`
+          );
+        }
+
+        console.log(
+          `[${new Date().toISOString()}] Found quotation call letter: ${quotationCallLetter.id}`
+        );
+
+        // Step 2: Update vendor details
+        const vendorUpdateResult = await tx.vendorDetail.update({
+          where: { workDetailId: workId },
+          data: {
+            vendorNameOne: vendors.vendor1.vendorName.trim(),
+            vendorNameTwo: vendors.vendor2.vendorName.trim(),
+            vendorNameThree: vendors.vendor3.vendorName.trim(),
+            vendorGstOne: vendors.vendor1.gstNo.toUpperCase(),
+            vendorGstTwo: vendors.vendor2.gstNo.toUpperCase(),
+            vendorGstThree: vendors.vendor3.gstNo.toUpperCase(),
+            fromDate: new Date(fromDate),
+            toDate: new Date(toDate),
+            updatedAt: new Date()
+          }
+        });
+
+        console.log(
+          `[${new Date().toISOString()}] Updated vendor details for workId: ${workId}`
+        );
+
+        // Step 3: Get material names from request for comparison
+        const requestMaterialNames = materials.map((m) =>
+          m.materialName.trim()
+        );
+        const existingMaterialNames = quotationCallLetter.materialItems.map(
+          (m) => m.materialName
+        );
+
+        // Step 4: Identify materials to be removed
+        const materialsToRemove = existingMaterialNames.filter(
+          (name) => !requestMaterialNames.includes(name)
+        );
+
+        // Step 5: Remove materials not in the request
+        let deletedCount = 0;
+        if (materialsToRemove.length > 0) {
+          const deleteResult = await tx.materialItem.deleteMany({
+            where: {
+              quotationCallLetterId: quotationCallLetter.id,
+              materialName: { in: materialsToRemove }
+            }
+          });
+          deletedCount = deleteResult.count;
+          console.log(
+            `[${new Date().toISOString()}] Deleted ${deletedCount} materials: ${materialsToRemove.join(", ")}`
+          );
+        }
+
+        // Step 6: Update existing materials
+        let updatedCount = 0;
+        const updatePromises = materials.map(async (material) => {
+          const updateResult = await tx.materialItem.updateMany({
+            where: {
+              quotationCallLetterId: quotationCallLetter.id,
+              materialName: material.materialName.trim()
+            },
+            data: {
+              slNo: material.slNo,
+              quantity: material.quantity.trim(),
+              price: material.vendor1Rate.trim(),
+              unit: material.unit.trim(),
+              updatedAt: new Date()
+            }
+          });
+
+          if (updateResult.count > 0) {
+            updatedCount += updateResult.count;
+          }
+
+          return updateResult;
+        });
+
+        await Promise.all(updatePromises);
+
+        console.log(
+          `[${new Date().toISOString()}] Updated ${updatedCount} materials`
+        );
+
+        // Step 7: Validate that all requested materials exist
+        const finalMaterialCheck = await tx.materialItem.findMany({
+          where: {
+            quotationCallLetterId: quotationCallLetter.id,
+            materialName: { in: requestMaterialNames }
+          },
+          select: { materialName: true }
+        });
+
+        const foundMaterialNames = finalMaterialCheck.map(
+          (m) => m.materialName
+        );
+        const missingMaterials = requestMaterialNames.filter(
+          (name) => !foundMaterialNames.includes(name)
+        );
+
+        if (missingMaterials.length > 0) {
+          console.warn(
+            `[${new Date().toISOString()}] Warning: Some materials were not found for update: ${missingMaterials.join(", ")}`
+          );
+        }
+
+        return {
+          vendorUpdate: vendorUpdateResult,
+          materialsDeleted: deletedCount,
+          materialsUpdated: updatedCount,
+          missingMaterials: missingMaterials,
+          quotationCallLetterId: quotationCallLetter.id
+        };
+      });
+
+      const executionTime = Date.now() - startTime;
+      console.log(
+        `[${new Date().toISOString()}] Transaction completed successfully in ${executionTime}ms`
+      );
+
+      // Success response
+      res.status(200).json(
+        createApiResponse(
+          true,
+          "Vendor and material data updated successfully",
+          {
+            workId,
+            quotationCallLetterId: prismaTransaction.quotationCallLetterId,
+            summary: {
+              materialsDeleted: prismaTransaction.materialsDeleted,
+              materialsUpdated: prismaTransaction.materialsUpdated,
+              missingMaterials: prismaTransaction.missingMaterials,
+              executionTimeMs: executionTime
+            }
+          }
+        )
+      );
+    } catch (error: any) {
+      const executionTime = Date.now() - startTime;
+
+      // Handle different types of errors
+      if (error instanceof z.ZodError) {
+        console.error(
+          `[${new Date().toISOString()}] Validation error:`,
+          error.errors
+        );
+        res
+          .status(400)
+          .json(
+            createApiResponse(
+              false,
+              "Invalid request data",
+              null,
+              `Validation failed: ${error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ")}`
+            )
+          );
+        return;
+      }
+
+      if (error instanceof NotFoundError) {
+        console.error(
+          `[${new Date().toISOString()}] Not found error:`,
+          error.message
+        );
+        res
+          .status(404)
+          .json(
+            createApiResponse(false, error.message, null, "Resource not found")
+          );
+        return;
+      }
+
+      if (error instanceof ValidationError) {
+        console.error(
+          `[${new Date().toISOString()}] Business logic error:`,
+          error.message
+        );
+        res
+          .status(422)
+          .json(
+            createApiResponse(
+              false,
+              error.message,
+              null,
+              "Business logic validation failed"
+            )
+          );
+        return;
+      }
+
+      // Handle Prisma errors
+      if (error.code === "P2002") {
+        console.error(
+          `[${new Date().toISOString()}] Unique constraint error:`,
+          error.message
+        );
+        res
+          .status(409)
+          .json(
+            createApiResponse(
+              false,
+              "Duplicate entry conflict",
+              null,
+              "A record with this data already exists"
+            )
+          );
+        return;
+      }
+
+      if (error.code === "P2025") {
+        console.error(
+          `[${new Date().toISOString()}] Record not found error:`,
+          error.message
+        );
+        res
+          .status(404)
+          .json(
+            createApiResponse(
+              false,
+              "Required record not found",
+              null,
+              "One or more required records do not exist"
+            )
+          );
+        return;
+      }
+
+      // Generic error handling
+      console.error(
+        `[${new Date().toISOString()}] Unexpected error in update-vendor-material-data:`,
+        {
+          error: error.message,
+          stack: error.stack,
+          workId: req.body?.workId,
+          executionTime
+        }
+      );
+
+      res
+        .status(500)
+        .json(
+          createApiResponse(
+            false,
+            "Internal server error occurred while updating vendor material data",
+            null,
+            process.env.NODE_ENV === "development"
+              ? error.message
+              : "An unexpected error occurred"
+          )
+        );
+    }
+  }
+);
+
 export default comparativeStatementRouter;
