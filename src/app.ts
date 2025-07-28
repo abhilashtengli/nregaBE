@@ -24,6 +24,7 @@ import workOrderRouter from "./routes/workOrderRoute";
 import gpAbstractRouter from "./routes/gpAbstractRoute";
 import movementSlipRouter from "./routes/movementSlipRoute";
 import filledNmrRouter from "./routes/filledNmrRoute";
+import imageProxyRouter from "./routes/imageProxy";
 
 dotenv.config();
 
@@ -63,6 +64,7 @@ app.use("/", workOrderRouter);
 app.use("/", gpAbstractRouter);
 app.use("/", movementSlipRouter);
 app.use("/", filledNmrRouter);
+app.use("/", imageProxyRouter);
 
 const PORT = process.env.PORT || 3000;
 app

@@ -23,6 +23,8 @@ type ExpenditureIncurredType = {
 
 type ResponseGpAbstractType = {
   workName: string;
+  workCode: string;
+  sanctionedYear: string;
   workStatus: string;
   workPurposeStatus: string;
   sanctionNoAndDate: string;
@@ -74,6 +76,7 @@ gpAbstractRouter.get(
           workName: true,
           workStatus: true,
           workType: true,
+          financialYear: true,
           panchayat: true,
           estimatedCost: true,
           workStartDate: true
@@ -248,6 +251,8 @@ gpAbstractRouter.get(
       // Construct the complete response
       const responseData: ResponseGpAbstractType = {
         workName: workDetail.workName || "",
+        workCode: workDetail.workCode,
+        sanctionedYear: workDetail.financialYear || "",
         workStatus: workDetail.workStatus || "",
         workPurposeStatus: workDetail.workType || "",
         sanctionNoAndDate: administrativeSanction
