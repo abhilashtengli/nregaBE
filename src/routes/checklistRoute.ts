@@ -1,5 +1,6 @@
 import { prisma } from "@lib/prisma";
 import express, { Request, Response } from "express";
+import { findPanchayatByCode } from "../utils/findPanchayat";
 
 const checklistRouter = express.Router();
 
@@ -8,7 +9,6 @@ checklistRouter.get(
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      console.log("Fetching checklist for ID:", id);
 
       // Validate ID parameter
       if (!id) {
@@ -44,11 +44,22 @@ checklistRouter.get(
         });
         return;
       }
+      const workCodeParts = workDetail.workCode.split("/");
+      const panchayatCode = workCodeParts[0];
+      const panchayatData = findPanchayatByCode(panchayatCode);
+
+      const responseData = {
+        workCode: workDetail.workCode,
+        workName: workDetail.workName,
+        panchayat: panchayatData?.panchayat_name_kn,
+        sanctionYear: workDetail.sanctionYear,
+        block: panchayatData?.block_name_kn
+      };
 
       // Return successful response
       res.status(200).json({
         success: true,
-        data: workDetail,
+        data: responseData,
         message: "Work details retrieved successfully"
       });
     } catch (error: any) {

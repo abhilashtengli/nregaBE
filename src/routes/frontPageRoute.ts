@@ -6,6 +6,7 @@ import {
   scrapeTechnicalSanction,
   scrapeAdministrativeSanction
 } from "../services/frontPage";
+import { findPanchayatByCode } from "../utils/findPanchayat";
 
 const frontPageRouter = express.Router();
 
@@ -86,6 +87,9 @@ frontPageRouter.get(
         });
         return;
       }
+      const workCodeParts = workDetail.workCode.split("/");
+      const panchayatCode = workCodeParts[0];
+      const panchayatData = findPanchayatByCode(panchayatCode);
 
       console.log(`Found work detail: ${workDetail.workCode}`);
 
@@ -159,21 +163,22 @@ frontPageRouter.get(
       // Prepare the response data
       const mgnregaData = {
         // Database fields (comment //1)
-        state: workDetail.state || "",
-        district: workDetail.district || "",
-        taluka: workDetail.block || "", // mapped from block
-        gramPanchayat: workDetail.panchayat || "", // mapped from panchayat
+        state: "ಕರ್ನಾಟಕ",
+        district: panchayatData?.district_name_kn || "",
+        taluka: panchayatData?.block_name_kn || "", // mapped from block
+        gramPanchayat: panchayatData?.panchayat_name_kn || "", // mapped from panchayat
         workCategory: workDetail.workCategory || "",
+        workName: workDetail.workName || "",
         workCode: workDetail.workCode || "",
         sanctionedYear: workDetail.sanctionYear || "",
-        projectLocation: workDetail.panchayat || "", // mapped from panchayat
-        grama: workDetail.panchayat || "", // mapped from panchayat
-        gramaPanchayat: workDetail.panchayat || "", // mapped from panchayat
-        talukaDetails: workDetail.block || "", // mapped from block
-        districtDetails: workDetail.district || "", // mapped from district
-        legislativeAssemblyConstituency: workDetail.block || "", // mapped from block
-        lokSabhaConstituency: workDetail.district || "", // mapped from district
-        stateDetails: workDetail.state || "", // mapped from state
+        projectLocation: panchayatData?.panchayat_name_kn || "", // mapped from panchayat
+        grama: panchayatData?.panchayat_name_kn || "", // mapped from panchayat
+        gramaPanchayat: panchayatData?.panchayat_name_kn || "", // mapped from panchayat
+        talukaDetails: panchayatData?.block_name_kn || "", // mapped from block
+        districtDetails: panchayatData?.district_name_kn || "", // mapped from district
+        legislativeAssemblyConstituency: panchayatData?.block_name_kn || "", // mapped from block
+        lokSabhaConstituency: panchayatData?.district_name_kn || "", // mapped from district
+        stateDetails: "ಕರ್ನಾಟಕ", // mapped from state
         workStartDate: formatDate(workDetail.workStartDate),
 
         // Technical Sanction scraped data (comment //3)
