@@ -2,6 +2,7 @@ import { prisma } from "@lib/prisma";
 import express, { Request, Response } from "express";
 import { scrapeEMusterRollData } from "../services/workOrderService";
 import { subtractOneDay } from "../utils/substractOneday";
+import { findPanchayatByCode } from "../utils/findPanchayat";
 
 const workOrderRouter = express.Router();
 
@@ -44,6 +45,9 @@ workOrderRouter.get("/work-order/:id", async (req: Request, res: Response) => {
       });
       return;
     }
+    const workCodeParts = workDetail.workCode.split("/");
+    const panchayatCode = workCodeParts[0];
+    const panchayatData = findPanchayatByCode(panchayatCode);
 
     const workDocument = await prisma.workDocuments.findUnique({
       where: { workCode: workDetail.workCode },
@@ -68,9 +72,9 @@ workOrderRouter.get("/work-order/:id", async (req: Request, res: Response) => {
     const responseData = {
       workCode: workDetail.workCode,
       workName: workDetail.workName,
-      panchayat: workDetail.panchayat,
-      block: workDetail.block,
-      estimatedCost: workDetail.estimatedCost,
+      panchayat: panchayatData?.panchayat_name_kn,
+      block: panchayatData?.block_name_kn,
+      estimatedCost: workDetail.estimatedCost?.toFixed(2),
       date: safeDate ? subtractOneDay(safeDate) : ""
     };
 
