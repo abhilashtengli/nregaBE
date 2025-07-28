@@ -9,6 +9,7 @@ import {
   scrapeDemandApplicationForm
 } from "../services/form6Service";
 import { subtractOneDay } from "../utils/substractOneday";
+import { findPanchayatByCode } from "../utils/findPanchayat";
 
 const form6Router = express.Router();
 
@@ -48,6 +49,9 @@ form6Router.get("/get-form6/:id", async (req: Request, res: Response) => {
       } as Form6Response);
       return;
     }
+    const workCodeParts = workDetail.workCode.split("/");
+    const panchayatCode = workCodeParts[0];
+    const panchayatData = findPanchayatByCode(panchayatCode);
 
     // Fetch work documents to get demandApplicationForm link
     const workDocument = await prisma.workDocuments.findFirst({
@@ -95,10 +99,10 @@ form6Router.get("/get-form6/:id", async (req: Request, res: Response) => {
     const form6Data: Form6Data = {
       workCode: workDetail.workCode,
       workName: workDetail.workName || "",
-      gramPanchayat: workDetail.panchayat,
-      taluka: workDetail.block,
+      gramPanchayat: panchayatData?.panchayat_name_kn || "",
+      taluka: panchayatData?.block_name_kn || "",
       date: subtractOneDay(applicantsData[0].workFrom), // Subtract one day from first applicant's workFrom
-      district: workDetail.district,
+      district: panchayatData?.district_name_kn || "",
       applicationNumber: id.split("-")[0] || "1", // Simple application number generation
       applicantsData: applicantsData
     };

@@ -109,7 +109,7 @@ export const scrapeDemandApplicationForm = async (
                   workFrom,
                   workTo,
                   childCareRequired: "ಇಲ್", // Default value
-                  signature: "ಇಲ್" // Default value
+                  signature: "" // Default value
                 });
               }
             }
