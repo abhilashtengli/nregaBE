@@ -5,6 +5,9 @@ type MustrollData = {
   data: {
     fromDate: string;
     toDate: string;
+    attendanceUpdateMIS: string;
+    workMeasure: string;
+    misEntryMeasurement: string;
     ftoDate1: string;
     ftoDate2: string;
   };
@@ -124,28 +127,28 @@ const MovementSlipPDF = ({ movementSlipData }: MovementSlipData) => {
                 ಕ್ರ ಸಂ
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-20">
-                ಇ-ಹಾಜರಾತಿ // mustroll
+                ಇ-ಹಾಜರಾತಿ // mustrollNo
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-24">
-                ಇ-ಎನ್‌ಎಮ್‌ಆರ್ ವಿತರಣೆ // from date
+                ಇ-ಎನ್‌ಎಮ್‌ಆರ್ ವಿತರಣೆ // fromDate
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-24">
-                ಇ-ಎನ್‌ಎಮ್‌ಆರ್ ಮುಕ್ತಾಯ // to date
+                ಇ-ಎನ್‌ಎಮ್‌ಆರ್ ಮುಕ್ತಾಯ // toDate
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-32">
-                ಎಮ್‌ಐಎಸ್‌ನಲ್ಲಿ ಹಾಜರಾತಿ ಇಂದೀಕರಿಸುವಿಕೆ // to date + 1
+                ಎಮ್‌ಐಎಸ್‌ನಲ್ಲಿ ಹಾಜರಾತಿ ಇಂದೀಕರಿಸುವಿಕೆ //attendanceUpdateMIS
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-16">
-                ಕೆಲಸದ ಅಳತೆ // to date + 2
+                ಕೆಲಸದ ಅಳತೆ //workMeasure
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-32">
-                ಎಮ್‌ಐಎಸ್‌ನಲ್ಲಿ ದಾಖಲಿಸಿದ ಅಳತೆ to date + 2
+                ಎಮ್‌ಐಎಸ್‌ನಲ್ಲಿ ದಾಖಲಿಸಿದ ಅಳತೆ //misEntryMeasurement
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-20">
-                ಎಫ್‌ಟಿಒ 1ನೇ ಸಹಿ // payment date - 1 from link 8
+                ಎಫ್‌ಟಿಒ 1ನೇ ಸಹಿ // ftoDate1
               </th>
               <th className="border text-[10px] border-black px-2 py-2 text-center font-semibold w-20">
-                ಎಫ್‌ಟಿಒ 2ನೇ ಸಹಿ // payment date
+                ಎಫ್‌ಟಿಒ 2ನೇ ಸಹಿ // ftoDate2
               </th>
             </tr>
           </thead>

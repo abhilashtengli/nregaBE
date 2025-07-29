@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { prisma } from "@lib/prisma";
+import { findPanchayatByCode } from "../utils/findPanchayat";
 
 const ftoRouter = express.Router();
 
@@ -136,6 +137,9 @@ ftoRouter.get("/get-fto/:id", async (req: Request, res: Response) => {
       } as FTOResponse);
       return;
     }
+    const workCodeParts = workDetail.workCode.split("/");
+    const panchayatCode = workCodeParts[0];
+    const panchayatData = findPanchayatByCode(panchayatCode);
 
     // Fetch work documents to get wageListFTO link
     const workDocument = await prisma.workDocuments.findFirst({
@@ -181,9 +185,9 @@ ftoRouter.get("/get-fto/:id", async (req: Request, res: Response) => {
     const responseData: FTOData = {
       workCode: workDetail.workCode,
       workName: workDetail.workName || "",
-      gramPanchayat: workDetail.panchayat,
-      taluka: workDetail.block,
-      district: workDetail.district,
+      gramPanchayat: panchayatData?.panchayat_name_kn || "",
+      taluka: panchayatData?.block_name_kn || "",
+      district: panchayatData?.district_name_kn || "",
       ftoData: ftoData
     };
 

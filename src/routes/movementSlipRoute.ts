@@ -3,6 +3,7 @@ import express, { Request, Response } from "express";
 import { findPanchayatByCode } from "../utils/findPanchayat";
 import { scrapeMovementSlipData } from "../services/movementSlipService";
 import { subtractOneDay } from "../utils/substractOneday";
+import { addDays } from "../utils/addDays";
 
 const movementSlipRouter = express.Router();
 
@@ -11,6 +12,9 @@ type MustrollData = {
   data: {
     fromDate: string;
     toDate: string;
+    attendanceUpdateMIS: string;
+    workMeasure: string;
+    misEntryMeasurement: string;
     ftoDate1: string;
     ftoDate2: string;
   };
@@ -95,6 +99,9 @@ movementSlipRouter.get(
         mustrollNo: item.mustrollNo,
         data: {
           fromDate: item.fromDate,
+          attendanceUpdateMIS: addDays(item.toDate, 1),
+          workMeasure: addDays(item.toDate, 2),
+          misEntryMeasurement: addDays(item.toDate, 2),
           toDate: item.toDate,
           ftoDate1: subtractOneDay(item.paymentDate), // You can modify this as needed
           ftoDate2: item.paymentDate // You can modify this as needed
