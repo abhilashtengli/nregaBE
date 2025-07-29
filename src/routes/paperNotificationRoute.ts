@@ -5,6 +5,7 @@ import {
   scrapeTechnicalEstimateMaterialData,
   validateAndCleanMaterialData
 } from "../services/quotationCallLetterServiceVersion2";
+import { findPanchayatByCode } from "../utils/findPanchayat";
 
 const paperNotificationRouter = express.Router();
 
@@ -59,6 +60,9 @@ paperNotificationRouter.get(
           code: "WORK_DETAIL_NOT_FOUND"
         });
       }
+      const workCodeParts = workDetail.workCode.split("/");
+      const panchayatCode = workCodeParts[0];
+      const panchayatData = findPanchayatByCode(panchayatCode);
 
       // Fetch vendor details
       const vendorDetails = await prisma.vendorDetail.findUnique({
@@ -129,9 +133,9 @@ paperNotificationRouter.get(
 
       // Prepare response data
       const responseData: ResponseData = {
-        district: workDetail.district || "",
-        taluka: workDetail.block || "",
-        gramPanchayat: workDetail.panchayat || "",
+        district: panchayatData?.district_name_kn || "",
+        taluka: panchayatData?.block_name_kn || "",
+        gramPanchayat: panchayatData?.panchayat_name_kn || "",
         workName: workDetail.workName || "",
         year: workDetail.financialYear || "",
         date: vendorDetails.fromDate
@@ -151,7 +155,6 @@ paperNotificationRouter.get(
         data: responseData
       });
     } catch (error) {
-
       // Handle specific Prisma errors
       if (error instanceof Error) {
         if (error.message.includes("P2002")) {

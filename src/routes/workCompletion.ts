@@ -2,6 +2,7 @@ import { prisma } from "@lib/prisma";
 import express, { Request, Response } from "express";
 import { scrapeAdministrativeSanctionNumber } from "../services/quotationCallLetterServiceVersion2";
 import { scrapeTechnicalSanction } from "../services/frontPage";
+import { findPanchayatByCode } from "../utils/findPanchayat";
 const workCompletionRouter = express.Router();
 
 type WorkCompletionResponse = {
@@ -53,6 +54,9 @@ workCompletionRouter.get(
           code: "WORK_DETAIL_NOT_FOUND"
         });
       }
+      const workCodeParts = workDetail.workCode.split("/");
+      const panchayatCode = workCodeParts[0];
+      const panchayatData = findPanchayatByCode(panchayatCode);
       const workDocument = await prisma.workDocuments.findFirst({
         where: { workCode: workDetail.workCode },
         select: {
@@ -89,9 +93,9 @@ workCompletionRouter.get(
         Number(technicalSanctionData?.estimateLabourCharge ?? "0") +
         Number(technicalSanctionData?.estimatedMaterialCharge ?? "0");
       const responseData: WorkCompletionResponse = {
-        gramPanchayat: workDetail.panchayat,
-        taluka: workDetail.block,
-        district: workDetail.district,
+        gramPanchayat: panchayatData?.panchayat_name_kn || "",
+        taluka: panchayatData?.block_name_kn || "",
+        district: panchayatData?.district_name_kn || "",
         year: workDetail.financialYear || "",
         workCode: workDetail.workCode,
         workName: workDetail.workName || "",
