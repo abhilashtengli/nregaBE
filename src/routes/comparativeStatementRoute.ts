@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { prisma } from "@lib/prisma";
-
+import { z } from "zod";
 import {
   saveQuotationCallToDatabase,
   MaterialData,
@@ -12,6 +12,7 @@ import {
 } from "../services/quotationCallLetterServiceVersion2";
 import { addDays } from "../utils/addDays";
 import { findMaterialUnit } from "../utils/findMaterialUnit";
+import { findPanchayatByCode } from "../utils/findPanchayat";
 
 const comparativeStatementRouter = express.Router();
 
@@ -67,6 +68,10 @@ comparativeStatementRouter.get(
         } as QuotationCallResponse);
         return;
       }
+      const workCodeParts = workDetail.workCode.split("/");
+      const panchayatCode = workCodeParts[0];
+      const panchayatData = findPanchayatByCode(panchayatCode);
+
       const vendorData = await prisma.vendorDetail.findUnique({
         where: {
           workDetailId: id
@@ -74,68 +79,33 @@ comparativeStatementRouter.get(
       });
       let temporaryVendors;
       if (!vendorData) {
-        temporaryVendors = await prisma.vendorDetail.create({
-          data: {
-            vendorNameOne: "vendor1",
-            vendorGstOne: "",
-            vendorNameTwo: "vendor2",
-            vendorGstTwo: "",
-            vendorNameThree: "vendor3",
-            vendorGstThree: "",
-            fromDate: new Date(), // ✅ Direct Date object
-            toDate: new Date(),
-            workDetailId: workDetail.id
-          }
+        res.status(404).json({
+          success: false,
+          message: "No Vendor data Found please add the vendors",
+          code: "NO_VENDORS_FOUND"
         });
       }
 
       //create temporary vendor in database
 
       const vendorDetailResponse = {
-        vendorNameOne: vendorData?.vendorNameOne
-          ? vendorData.vendorNameOne
-          : temporaryVendors?.vendorNameOne,
-        vendorGstOne: vendorData?.vendorGstOne
-          ? vendorData?.vendorGstOne
-          : temporaryVendors?.vendorGstOne,
+        vendorNameOne: vendorData?.vendorNameOne,
+        vendorGstOne: vendorData?.vendorGstOne,
         VendorOneQuotationSubmissiondate: vendorData?.fromDate
-          ? addDays(vendorData.fromDate, 2)
-          : temporaryVendors?.fromDate
-            ? addDays(temporaryVendors.fromDate, 2) // Now accepts Date objects
-            : "",
-        vendorNameTwo: vendorData?.vendorNameTwo
-          ? vendorData.vendorNameTwo
-          : temporaryVendors?.vendorNameTwo,
-        vendorGstTwo: vendorData?.vendorGstTwo
-          ? vendorData.vendorGstTwo
-          : temporaryVendors?.vendorGstTwo,
+          ? addDays(vendorData.fromDate, 2) // Now accepts Date objects
+          : "",
+        vendorNameTwo: vendorData?.vendorNameTwo,
+        vendorGstTwo: vendorData?.vendorGstTwo,
         vendorTwoQuotationSubmissiondate: vendorData?.fromDate
           ? addDays(vendorData.fromDate, 1)
-          : temporaryVendors?.fromDate
-            ? addDays(temporaryVendors.fromDate, 1) // Now accepts Date objects
-            : "",
-        vendorNameThree: vendorData?.vendorNameThree
-          ? vendorData.vendorNameThree
-          : temporaryVendors?.vendorNameThree,
-        vendorGstThree: vendorData?.vendorGstThree
-          ? vendorData.vendorGstThree
-          : temporaryVendors?.vendorGstThree,
+          : "",
+        vendorNameThree: vendorData?.vendorNameThree,
+        vendorGstThree: vendorData?.vendorGstThree,
         vendorThreeQuotationSubmissiondate: vendorData?.fromDate
           ? addDays(vendorData.fromDate, 3)
-          : temporaryVendors?.fromDate
-            ? addDays(temporaryVendors.fromDate, 3) // Now accepts Date objects
-            : ""
+          : // Now accepts Date objects
+            ""
       };
-
-      // if (!temporaryVendors) {
-      //   res.status(404).json({
-      //     success: false,
-      //     error: "Vendor Details not found",
-      //     code: "VENDOR_DETAILS_NOT_FOUND",
-      //     message: "Please add vendor details first"
-      //   });
-      //   return;
-      // }
 
       // Fetch work documents to get required links
       const workDocument = await prisma.workDocuments.findFirst({
@@ -156,109 +126,45 @@ comparativeStatementRouter.get(
         } as QuotationCallResponse);
         return;
       }
-
-      // Initialize default values
-      let materialData: MaterialData[] = [];
-      let administrativeSanctionNo = "";
-
-      // Scrape material data from technical estimate
-      if (workDocument.technicalEstimate) {
-        console.log(
-          `Fetching material data from: ${workDocument.technicalEstimate}`
-        );
-        materialData = await scrapeTechnicalEstimateMaterialData(
-          workDocument.technicalEstimate
-        );
-
-        // Validate and clean material data
-        materialData = validateAndCleanMaterialData(materialData);
-      }
-
-      // Scrape administrative sanction number
-      if (workDocument.administrativeSanction) {
-        console.log(
-          `Fetching administrative sanction from: ${workDocument.administrativeSanction}`
-        );
-        administrativeSanctionNo = await scrapeAdministrativeSanctionNumber(
-          workDocument.administrativeSanction,
-          workDetail.workCode
-        );
-      }
-
-      // Check if we have material data
-      if (materialData.length === 0) {
-        console.log("No material data found. Debugging information:");
-
-        res.status(404).json({
-          success: false,
-          error:
-            "No material data found in the technical estimate. Please check the URL and try again.",
-          code: "NO_MATERIAL_DATA_FOUND",
-          debug: {
-            workCode: workDetail.workCode,
-            technicalEstimateUrl: workDocument.technicalEstimate,
-            administrativeSanctionUrl: workDocument.administrativeSanction
+      const quotationCallLetterData =
+        await prisma.quotationCallLetter.findUnique({
+          where: {
+            workDetailId: id
+          },
+          select: {
+            administrativeSanction: true,
+            materialItems: true
           }
-        } as QuotationCallResponse);
-        return;
-      }
+        });
+      let vendorWithVendorQuotation: VendorQuoteData[] = [];
 
-      // Ensure all materials have units (in case scraping didn't get them)
-      materialData = materialData.map((material) => {
-        if (!material.unit) {
-          const materialInfo = findMaterialUnit(material.materialName);
-          material.unit = materialInfo?.unit || "";
+      if (quotationCallLetterData?.materialItems) {
+        for (const material of quotationCallLetterData.materialItems) {
+          const vendorMaterialQuote: VendorQuoteData = {
+            slNo: material.slNo,
+            materialName: material.materialName,
+            quantity: material.quantity, // you had this field in the type but it's not from DB, so default to empty string
+            unit: material.unit || "",
+            rate: material.price,
+            contractor1Rate: material.price,
+            contractor2Rate: (Number(material.price) * 1.02).toFixed(2),
+            contractor3Rate: (Number(material.price) * 1.025).toFixed(2)
+          };
+          vendorWithVendorQuotation.push(vendorMaterialQuote);
         }
-        return material;
-      });
-
-      const vendorWithVendorQuotation: VendorQuoteData[] = [];
-      materialData.map((material) => {
-        const vendorMaterialQuote: VendorQuoteData = {
-          slNo: material.slNo,
-          materialName: material.materialName,
-          quantity: material.quantity,
-          unit: material.unit || "", // Include unit
-          rate: material.price,
-          contractor1Rate: material.price,
-          contractor2Rate: (Number(material.price) * 1.02).toString(), // Adds 2%
-          contractor3Rate: (Number(material.price) * 1.025).toString()
-        };
-        vendorWithVendorQuotation.push(vendorMaterialQuote);
-      });
-
-      // Prepare the response data
-      const quotationCallData: QuotationCallData = {
-        gramPanchayat: workDetail.panchayat || "",
-        taluka: workDetail.block || "",
-        district: workDetail.district || "",
-        year: workDetail.sanctionYear || "",
-        administrativeSanction: administrativeSanctionNo,
-        workCode: workDetail.workCode,
-        workName: workDetail.workName || "",
-        materialData: materialData
-      };
-
-      // Save to database
-      try {
-        await saveQuotationCallToDatabase(workDetail.id, quotationCallData);
-        console.log("Quotation call data saved to database successfully");
-      } catch (dbError: any) {
-        console.error("Error saving to database:", dbError);
-        // Continue with response even if database save fails
       }
 
       const data = {
-        gramPanchayat: workDetail.panchayat || "",
-        tenderPublishDate: temporaryVendors?.fromDate || "",
-        tenderSubmissionDate: temporaryVendors?.toDate || "",
-        taluka: workDetail.block || "",
-        district: workDetail.district || "",
+        gramPanchayat: panchayatData?.panchayat_name_kn || "",
+        tenderPublishDate: vendorData?.fromDate || "",
+        tenderSubmissionDate: vendorData?.toDate || "",
+        taluka: panchayatData?.block_name_kn || "",
+        district: panchayatData?.district_name_kn || "",
         year: workDetail.sanctionYear || "",
-        administrativeSanction: administrativeSanctionNo,
+        administrativeSanction: quotationCallLetterData?.administrativeSanction,
         workCode: workDetail.workCode,
         workName: workDetail.workName || "",
-        materialData: materialData, // Now includes unit field
+        materialData: quotationCallLetterData?.materialItems, // Now includes unit field
         vendorDetails: vendorDetailResponse,
         vendorWithVendorQuotation: vendorWithVendorQuotation // Now includes unit field
       };
@@ -522,72 +428,6 @@ comparativeStatementRouter.get(
     }
   }
 );
-
-comparativeStatementRouter.get(
-  "/material-vendor-data/:id",
-  async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-
-      // Validate ID parameter
-      if (!id) {
-        res.status(400).json({
-          success: false,
-          error: "Work Detail ID is required",
-          code: "MISSING_ID"
-        } as QuotationCallResponse);
-        return;
-      }
-
-      const materialData = await prisma.quotationCallLetter.findUnique({
-        where: {
-          workDetailId: id
-        },
-        select: {
-          materialItems: {
-            select: {
-              id: true,
-              slNo: true,
-              materialName: true,
-              quantity: true,
-              price: true,
-              unit: true
-            }
-          }
-        }
-      });
-      const vendorWithVendorQuotation: VendorQuoteData[] = [];
-      if (materialData?.materialItems) {
-        for (const material of materialData.materialItems) {
-          const vendorMaterialQuote: VendorQuoteData = {
-            slNo: material.slNo,
-            materialName: material.materialName,
-            quantity: material.quantity, // you had this field in the type but it's not from DB, so default to empty string
-            unit: material.unit || "",
-            rate: material.price,
-            contractor1Rate: material.price,
-            contractor2Rate: (Number(material.price) * 1.02).toFixed(2),
-            contractor3Rate: (Number(material.price) * 1.025).toFixed(2)
-          };
-          vendorWithVendorQuotation.push(vendorMaterialQuote);
-        }
-      }
-      res.status(200).json({
-        success: true,
-        data: vendorWithVendorQuotation,
-        message: "FETCH_MATERIAL_DATA_SUCCESSFUL"
-      });
-    } catch (error: any) {
-      res.status(500).json({
-        success: false,
-        error: error.message || "Internal server error",
-        code: "FETCH_MATERIAL_ERROR"
-      });
-    }
-  }
-);
-
-import { z } from "zod";
 
 // Validation schemas
 const VendorSchema = z.object({
