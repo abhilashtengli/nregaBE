@@ -25,6 +25,7 @@ import gpAbstractRouter from "./routes/gpAbstractRoute";
 import movementSlipRouter from "./routes/movementSlipRoute";
 import filledNmrRouter from "./routes/filledNmrRoute";
 import imageProxyRouter from "./routes/imageProxy";
+import materialSupplyRegisterRouter from "./routes/materialSupplyRegister";
 
 dotenv.config();
 
@@ -65,6 +66,7 @@ app.use("/", gpAbstractRouter);
 app.use("/", movementSlipRouter);
 app.use("/", filledNmrRouter);
 app.use("/", imageProxyRouter);
+app.use("/", materialSupplyRegisterRouter);
 
 const PORT = process.env.PORT || 3000;
 app
