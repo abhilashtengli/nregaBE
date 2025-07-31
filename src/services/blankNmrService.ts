@@ -8,6 +8,8 @@ export interface WorkerData {
   familyHeadName: string;
   requestLetterFrom: string;
   accountNo: string;
+  fromDate: string; // Added fromDate
+  toDate: string;
 }
 
 export interface MustrollGroup {
@@ -58,8 +60,8 @@ export const scrapeBlankNmrTechnicalSanction = async (
       timeout: 10000,
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-      }
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
     });
 
     const $ = cheerio.load(response.data);
@@ -103,7 +105,7 @@ export const scrapeBlankNmrTechnicalSanction = async (
               if (technicalSanctionNo && technicalSanctionDate) {
                 technicalSanctionData = {
                   technicalSanctionNo,
-                  technicalSanctionDate
+                  technicalSanctionDate,
                 };
               }
             }
@@ -127,8 +129,8 @@ export const scrapeBlankNmrAdministrativeSanction = async (
     const response = await axios.get(url, {
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-      }
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
     });
 
     const $ = cheerio.load(response.data);
@@ -176,7 +178,7 @@ export const scrapeBlankNmrAdministrativeSanction = async (
               if (financialSanctionNo && financialSanctionDate) {
                 administrativeSanctionData = {
                   financialSanctionNo,
-                  financialSanctionDate
+                  financialSanctionDate,
                 };
               }
             }
@@ -199,8 +201,8 @@ export const getUniqueMustrollNumbers = async (
     const response = await axios.get(url, {
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-      }
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
     });
 
     const $ = cheerio.load(response.data);
@@ -252,8 +254,8 @@ export const getWorkerDataByMustroll = async (
     const response = await axios.get(url, {
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-      }
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
     });
 
     const $ = cheerio.load(response.data);
@@ -271,6 +273,8 @@ export const getWorkerDataByMustroll = async (
         headers.some((header) => header.includes("Job Card No.")) &&
         headers.some((header) => header.includes("Applicant Name")) &&
         headers.some((header) => header.includes("Mustroll No.")) &&
+        headers.some((header) => header.includes("From Date")) &&
+        headers.some((header) => header.includes("To Date")) &&
         headers.some((header) => header.includes("Bank_Name")) &&
         headers.some((header) => header.includes("WG APB CR ACCOUNT"))
       ) {
@@ -282,6 +286,12 @@ export const getWorkerDataByMustroll = async (
         );
         const mustrollIndex = headers.findIndex((header) =>
           header.includes("Mustroll No.")
+        );
+        const fromDateIndex = headers.findIndex((header) =>
+          header.includes("From Date")
+        );
+        const toDateIndex = headers.findIndex((header) =>
+          header.includes("To Date")
         );
         const bankNameIndex = headers.findIndex((header) =>
           header.includes("Bank_Name")
@@ -307,6 +317,8 @@ export const getWorkerDataByMustroll = async (
                   jobCardIndex,
                   applicantNameIndex,
                   mustrollIndex,
+                  fromDateIndex,
+                  toDateIndex,
                   bankNameIndex,
                   accountIndex
                 ) &&
@@ -318,6 +330,20 @@ export const getWorkerDataByMustroll = async (
               const account = cells[accountIndex] || "";
               const accountNo =
                 bankName && account ? `${bankName} ${account}` : "";
+              const fromDateRaw = cells[fromDateIndex] || "";
+              const toDateRaw = cells[toDateIndex] || "";
+              const formattedFromDate = fromDateRaw
+                ? formatDate(fromDateRaw)
+                : "";
+              const formattedToDate = toDateRaw ? formatDate(toDateRaw) : "";
+              const fromDate =
+                typeof formattedFromDate === "string"
+                  ? formattedFromDate
+                  : (formattedFromDate as any)?.formatted || "";
+              const toDate =
+                typeof formattedToDate === "string"
+                  ? formattedToDate
+                  : (formattedToDate as any)?.formatted || "";
 
               if (jobCardNo && familyHeadName && accountNo) {
                 workers.push({
@@ -325,7 +351,9 @@ export const getWorkerDataByMustroll = async (
                   jobCardNo,
                   familyHeadName,
                   requestLetterFrom: familyHeadName, // Using same as family head name
-                  accountNo
+                  accountNo,
+                  fromDate, // Added fromDate
+                  toDate,
                 });
               }
             }
