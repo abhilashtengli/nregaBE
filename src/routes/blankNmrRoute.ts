@@ -200,20 +200,6 @@ blankNmrRouter.get("/get-blanknmr/:id", async (req: Request, res: Response) => {
             if (!fromDate && !toDate && workers[0]) {
               fromDate = workers[0].fromDate || "";
               toDate = workers[0].toDate || "";
-
-              // If dates are still empty, use current date as fallback
-              if (!fromDate || !toDate) {
-                const today = new Date();
-                const day = today.getDate().toString().padStart(2, "0");
-                const month = (today.getMonth() + 1)
-                  .toString()
-                  .padStart(2, "0");
-                const year = today.getFullYear();
-                const formattedCurrentDate = `${day}/${month}/${year}`;
-
-                fromDate = fromDate || formattedCurrentDate;
-                toDate = toDate || formattedCurrentDate;
-              }
             }
 
             // Remove fromDate and toDate from individual worker objects
