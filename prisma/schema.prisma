@@ -19,17 +19,35 @@ model User {
   name                 String    @db.VarChar(30)
   email                String    @unique
   password             String
-  isVerified           Boolean   @default(false) @map("is_verified")
+  role                 Role
+  isVerifiedEmail      Boolean   @default(false) @map("is_verified_email")
+  isAdminVerifiedUser  Boolean   @default(false) @map("is_admin_verified_user")
   verificationCode     String?   @map("verification_code")
   resetPasswordToken   String?   @map("reset_password_token")
   resetTokenExpires    DateTime? @map("reset_token_expires")
   verificationExpires  DateTime?
   verificationAttempts Int?
+  sessions             Session[]
   createdAt            DateTime  @default(now()) @map("created_at")
   updateAt             DateTime  @default(now()) @updatedAt @map("updated_at")
 
   @@index([email])
   @@map("user")
+}
+
+enum Role {
+  admin
+  viewer
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 // Main work details table (Table 1 data)
@@ -143,7 +161,7 @@ model MaterialItem {
   materialName          String @map("material_name")
   quantity              String
   price                 String
-  unit                 String
+  unit                  String
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

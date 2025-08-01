@@ -5,10 +5,9 @@ import {
   getUniqueMustrollNumbers,
   getWorkerDataByMustroll,
   scrapeBlankNmrAdministrativeSanction,
-  scrapeBlankNmrTechnicalSanction,
+  scrapeBlankNmrTechnicalSanction
 } from "../services/blankNmrService";
 import { findPanchayatByCode } from "../utils/findPanchayat";
-
 const blankNmrRouter = express.Router();
 
 // Types/Interfaces
@@ -88,7 +87,7 @@ blankNmrRouter.get("/get-blanknmr/:id", async (req: Request, res: Response) => {
       res.status(400).json({
         success: false,
         error: "Work Detail ID is required",
-        code: "MISSING_ID",
+        code: "MISSING_ID"
       } as NMRResponse);
       return;
     }
@@ -103,15 +102,15 @@ blankNmrRouter.get("/get-blanknmr/:id", async (req: Request, res: Response) => {
         block: true,
         district: true,
         financialYear: true,
-        workName: true,
-      },
+        workName: true
+      }
     });
 
     if (!workDetail) {
       res.status(404).json({
         success: false,
         error: "Work Detail not found",
-        code: "WORK_DETAIL_NOT_FOUND",
+        code: "WORK_DETAIL_NOT_FOUND"
       } as NMRResponse);
       return;
     }
@@ -127,15 +126,15 @@ blankNmrRouter.get("/get-blanknmr/:id", async (req: Request, res: Response) => {
         workCode: true,
         technicalSanction: true,
         administrativeSanction: true,
-        wageListFTO: true,
-      },
+        wageListFTO: true
+      }
     });
 
     if (!workDocument) {
       res.status(404).json({
         success: false,
         error: "Work Document not found",
-        code: "WORK_DOCUMENT_NOT_FOUND",
+        code: "WORK_DOCUMENT_NOT_FOUND"
       } as NMRResponse);
       return;
     }
@@ -143,12 +142,12 @@ blankNmrRouter.get("/get-blanknmr/:id", async (req: Request, res: Response) => {
     // Initialize default values
     let technicalSanctionData: TechnicalSanctionData = {
       technicalSanctionNo: "",
-      technicalSanctionDate: "",
+      technicalSanctionDate: ""
     };
 
     let administrativeSanctionData: AdministrativeSanctionData = {
       financialSanctionNo: "",
-      financialSanctionDate: "",
+      financialSanctionDate: ""
     };
 
     let workerData: MustrollGroup[] = [];
@@ -208,11 +207,11 @@ blankNmrRouter.get("/get-blanknmr/:id", async (req: Request, res: Response) => {
               jobCardNo: worker.jobCardNo,
               familyHeadName: worker.familyHeadName,
               requestLetterFrom: worker.requestLetterFrom,
-              accountNo: worker.accountNo,
+              accountNo: worker.accountNo
             }));
             workerData.push({
               mustrollNo,
-              workers: workersWithoutDates,
+              workers: workersWithoutDates
             });
           }
         }
@@ -224,7 +223,7 @@ blankNmrRouter.get("/get-blanknmr/:id", async (req: Request, res: Response) => {
       res.status(404).json({
         success: false,
         error: "No worker data found in the scraped content",
-        code: "NO_WORKER_DATA_FOUND",
+        code: "NO_WORKER_DATA_FOUND"
       } as NMRResponse);
       return;
     }
@@ -244,13 +243,13 @@ blankNmrRouter.get("/get-blanknmr/:id", async (req: Request, res: Response) => {
       financialSanctionNo: administrativeSanctionData.financialSanctionNo,
       financialSanctionDate: administrativeSanctionData.financialSanctionDate,
       masterRollNo: masterRollNo,
-      workerData: workerData,
+      workerData: workerData
     };
 
     res.status(200).json({
       success: true,
       data: nmrData,
-      message: "NMR data retrieved successfully",
+      message: "NMR data retrieved successfully"
     } as NMRResponse);
   } catch (error: any) {
     console.error("Error in get-nmr endpoint:", error);
@@ -260,7 +259,7 @@ blankNmrRouter.get("/get-blanknmr/:id", async (req: Request, res: Response) => {
         res.status(408).json({
           success: false,
           error: "Request timeout while fetching data",
-          code: "REQUEST_TIMEOUT",
+          code: "REQUEST_TIMEOUT"
         } as NMRResponse);
         return;
       }
@@ -268,7 +267,7 @@ blankNmrRouter.get("/get-blanknmr/:id", async (req: Request, res: Response) => {
         res.status(404).json({
           success: false,
           error: "External URL not accessible",
-          code: "EXTERNAL_URL_NOT_FOUND",
+          code: "EXTERNAL_URL_NOT_FOUND"
         } as NMRResponse);
         return;
       }
@@ -277,7 +276,7 @@ blankNmrRouter.get("/get-blanknmr/:id", async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: error.message || "Internal server error",
-      code: "FETCH_NMR_ERROR",
+      code: "FETCH_NMR_ERROR"
     } as NMRResponse);
   }
 });

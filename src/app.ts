@@ -26,6 +26,7 @@ import movementSlipRouter from "./routes/movementSlipRoute";
 import filledNmrRouter from "./routes/filledNmrRoute";
 import imageProxyRouter from "./routes/imageProxy";
 import materialSupplyRegisterRouter from "./routes/materialSupplyRegister";
+import authRouter from "./routes/auth/userAuth";
 
 dotenv.config();
 
@@ -42,6 +43,7 @@ app.use(
 
 app.use(cookieParser());
 app.use(express.json());
+app.use("/", authRouter);
 app.use("/", scrapRouter);
 app.use("/", getVendorsRouter);
 app.use("/", checklistRouter);
