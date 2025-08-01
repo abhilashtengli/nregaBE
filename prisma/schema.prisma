@@ -97,10 +97,10 @@ model WorkDocuments {
   convergenceFunds          String? // Convergence Funds/Inputs, if any
   demandApplicationForm     String? // Demand Application Form
   workAllocationForm        String? // Work Allocation Form
-  filledEMusterRolls        String? // Copy of filled e-Muster Rolls
+  filledEMusterRolls        String? // Copy of filled e-Muster Rolls // 2 financial year current and previous
   measurementBook           String? // Copy of Measurement Book
   materialProcurement       String? // Material Procurement Document and Usage
-  wageListFTO               String? // Copy of Wage List & FTO Details
+  wageListFTO               String? // Copy of Wage List & FTO Details  // 2 financial year current and previous
   skilledMusterRolls        String? // Copy of Skilled & Semi-skilled Muster Rolls
   materialVouchers          String? // Material Voucher/Bills, Material list, FTOs and Royalty Paid
   geotaggedPhotographs      String? // Geotagged Photograph of the Project/Work at three stages

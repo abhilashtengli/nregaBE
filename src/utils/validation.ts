@@ -15,10 +15,8 @@ export const signupValidation = z.object({
       {
         message: "Enter a strong password"
       }
-    ),
-  role: z.string().min(1, { message: "Please select a role" })
+    )
 });
-
 
 export const updateUserValidation = z
   .object({

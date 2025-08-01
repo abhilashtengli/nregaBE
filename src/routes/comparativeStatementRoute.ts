@@ -232,6 +232,18 @@ comparativeStatementRouter.get(
           } as QuotationCallResponse);
           return;
         }
+        const vendorAlreadyPresent = await prisma.vendorDetail.findUnique({
+          where: {
+            workDetailId: id
+          }
+        });
+        if (vendorAlreadyPresent) {
+          await prisma.vendorDetail.delete({
+            where: {
+              workDetailId: id
+            }
+          });
+        }
         const temporaryVendors = await prisma.vendorDetail.create({
           data: {
             vendorNameOne: "vendor1",

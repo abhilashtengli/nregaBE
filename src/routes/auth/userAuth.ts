@@ -38,7 +38,8 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
       });
       return;
     }
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
+    const role = "viewer";
     const existingUser = await prisma.user.findUnique({
       where: { email },
       select: { id: true }
@@ -153,7 +154,7 @@ authRouter.post("/signin", async (req: Request, res: Response) => {
       res.status(403).json({
         success: false,
         message: "Contact Admin to verify your account and Sign In",
-        code: "USER_NOT_VERIFIED"
+        code: "USER_NOT_VERIFIED_BY_ADMIN"
       });
       return;
     }
@@ -240,7 +241,8 @@ authRouter.post("/signin", async (req: Request, res: Response) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        isVerified: user.isVerifiedEmail,
+        isVerifiedEmail: user.isVerifiedEmail,
+        isAdminVerifiedUser: user.isAdminVerifiedUser,
         role: user.role,
         sessionId
       },
@@ -349,7 +351,7 @@ authRouter.post(
         res.status(403).json({
           success: false,
           message: "Contact Admin to verify your account",
-          code: "USER_NOT_VERIFIED"
+          code: "USER_NOT_VERIFIED_BY_ADMIN"
         });
         return;
       }
@@ -575,7 +577,7 @@ authRouter.post("/resend-code", async (req: Request, res: Response) => {
       res.status(403).json({
         success: false,
         message: "Contact Admin to verify your account",
-        code: "USER_NOT_VERIFIED"
+        code: "USER_NOT_VERIFIED_BY_ADMIN"
       });
       return;
     }
@@ -694,7 +696,7 @@ authRouter.post("/forgot-password", async (req: Request, res: Response) => {
       res.status(403).json({
         success: false,
         message: "Contact Admin to verify your account",
-        code: "USER_NOT_VERIFIED"
+        code: "USER_NOT_VERIFIED_BY_ADMIN"
       });
       return;
     }
@@ -755,6 +757,7 @@ authRouter.post("/forgot-password", async (req: Request, res: Response) => {
   }
 });
 
+//verify code and add new password
 authRouter.post(
   "/forget-password-verify-code",
   async (req: Request, res: Response) => {
@@ -873,6 +876,7 @@ authRouter.post(
     }
   }
 );
+
 // Admin user verification endpoint
 authRouter.post(
   "/admin/verify-user",
@@ -1122,6 +1126,7 @@ authRouter.get("/get-me", userAuth, async (req: Request, res: Response) => {
         name: true,
         email: true,
         isVerifiedEmail: true,
+        isAdminVerifiedUser: true,
         role: true
       }
     });
@@ -1142,6 +1147,7 @@ authRouter.get("/get-me", userAuth, async (req: Request, res: Response) => {
         name: loggedInuser.name,
         email: loggedInuser.email,
         isVerified: loggedInuser.isVerifiedEmail,
+        isAdminVerifiedUser: loggedInuser.isAdminVerifiedUser,
         role: loggedInuser.role
       },
       message: "User retrieved successfully",
