@@ -101,7 +101,7 @@ form6Router.get("/get-form6/:id", async (req: Request, res: Response) => {
       workName: workDetail.workName || "",
       gramPanchayat: panchayatData?.panchayat_name_kn || "",
       taluka: panchayatData?.block_name_kn || "",
-      date: subtractOneDay(applicantsData[0].workFrom), // Subtract one day from first applicant's workFrom
+      date: applicantsData[0].workFrom, // Subtract one day from first applicant's workFrom
       district: panchayatData?.district_name_kn || "",
       applicationNumber: id.split("-")[0] || "1", // Simple application number generation
       applicantsData: applicantsData

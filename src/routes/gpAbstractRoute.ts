@@ -25,6 +25,9 @@ type ResponseGpAbstractType = {
   workName: string;
   workCode: string;
   sanctionedYear: string;
+  district: string;
+  block: string; //taluka
+  panchayat: string;
   workStatus: string;
   workPurposeStatus: string;
   sanctionNoAndDate: string;
@@ -79,7 +82,9 @@ gpAbstractRouter.get(
           financialYear: true,
           panchayat: true,
           estimatedCost: true,
-          workStartDate: true
+          workStartDate: true,
+          district: true,
+          block: true
         }
       });
 
@@ -259,6 +264,9 @@ gpAbstractRouter.get(
           ? `${administrativeSanction.administrativeSanctionNo} , ${administrativeSanction.administrativeSanctionDate}`
           : "Not Available",
         includedInPerspectivePlan: includedInPerspectivePlan,
+        district: workDetail.district,
+        block: workDetail.block,
+        panchayat: workDetail.panchayat,
         approvedInAnnualPlan: approvedInAnnualPlan,
         estimatedCost: workDetail.estimatedCost?.toString() || "0",
         workStartDate: formattedWorkStartDate,

@@ -1104,6 +1104,99 @@ authRouter.post(
   }
 );
 
+//get viewers
+authRouter.get(
+  "/admin/get-all-viewers",
+  userAuth,
+  async (req: Request, res: Response) => {
+    try {
+      // The userAuth middleware should have attached the user info to req
+      const user = (req as RequestWithUser).user;
+
+      if (!user) {
+        res.status(401).json({
+          success: false,
+          message: "Authentication required",
+          code: "UNAUTHORIZED"
+        });
+        return;
+      }
+
+      // Check if the requesting user is an admin
+      if (user.role !== "admin") {
+        res.status(403).json({
+          success: false,
+          message: "Access denied. Admin privileges required",
+          code: "FORBIDDEN"
+        });
+        return;
+      }
+
+      const allViewers = await prisma.user.findMany({
+        where: {
+          role: "viewer"
+        },
+        select: {
+          name: true,
+          email: true,
+          isVerifiedEmail: true,
+          isAdminVerifiedUser: true,
+          createdAt: true
+        }
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "",
+        code: "VIEWERS_FETCH_SUCCESS",
+        data: allViewers
+      });
+    } catch (err) {
+      console.error("Admin user verification error:", err);
+
+      // Type guard for error handling
+      const error = err as any;
+
+      // Check for specific error types
+      if (error?.code === "ENOTFOUND" || error?.code === "ECONNREFUSED") {
+        res.status(503).json({
+          success: false,
+          message:
+            "Network connectivity issue. Please check your connection and try again.",
+          code: "NETWORK_ERROR"
+        });
+        return;
+      }
+
+      if (error?.code === "ETIMEDOUT") {
+        res.status(504).json({
+          success: false,
+          message: "Request timed out. Please try again later.",
+          code: "TIMEOUT_ERROR"
+        });
+        return;
+      }
+
+      // Check if it's a Prisma error
+      if (error?.code?.startsWith("P")) {
+        res.status(503).json({
+          success: false,
+          message:
+            "Database service temporarily unavailable. Please try again later.",
+          code: "DATABASE_ERROR"
+        });
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        message: "Failed to update user verification status",
+        code: "VERIFICATION_UPDATE_FAILED"
+      });
+    }
+  }
+);
+
 authRouter.get("/get-me", userAuth, async (req: Request, res: Response) => {
   try {
     // The userAuth middleware should have attached the user info to req

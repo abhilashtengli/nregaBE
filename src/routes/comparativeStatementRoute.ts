@@ -566,7 +566,9 @@ comparativeStatementRouter.post(
         }
 
         console.log(
-          `[${new Date().toISOString()}] Found quotation call letter: ${quotationCallLetter.id}`
+          `[${new Date().toISOString()}] Found quotation call letter: ${
+            quotationCallLetter.id
+          }`
         );
 
         // Step 2: Update vendor details
@@ -613,7 +615,9 @@ comparativeStatementRouter.post(
           });
           deletedCount = deleteResult.count;
           console.log(
-            `[${new Date().toISOString()}] Deleted ${deletedCount} materials: ${materialsToRemove.join(", ")}`
+            `[${new Date().toISOString()}] Deleted ${deletedCount} materials: ${materialsToRemove.join(
+              ", "
+            )}`
           );
         }
 
@@ -665,7 +669,9 @@ comparativeStatementRouter.post(
 
         if (missingMaterials.length > 0) {
           console.warn(
-            `[${new Date().toISOString()}] Warning: Some materials were not found for update: ${missingMaterials.join(", ")}`
+            `[${new Date().toISOString()}] Warning: Some materials were not found for update: ${missingMaterials.join(
+              ", "
+            )}`
           );
         }
 
@@ -716,7 +722,9 @@ comparativeStatementRouter.post(
               false,
               "Invalid request data",
               null,
-              `Validation failed: ${error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ")}`
+              `Validation failed: ${error.errors
+                .map((e) => `${e.path.join(".")}: ${e.message}`)
+                .join(", ")}`
             )
           );
         return;

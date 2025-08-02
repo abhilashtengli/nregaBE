@@ -1,36 +1,33 @@
-export const addDays = (
+export const subtractDays = (
   dateInput: string | Date,
-  daysToAdd: number
+  daysToSubtract: number
 ): string => {
   let date: Date;
 
   if (dateInput instanceof Date) {
-    // If it's already a Date object, use it directly
+    // Already a Date object
     date = new Date(dateInput);
   } else {
-    // Parse the date string (assuming DD/MM/YY or DD/MM/YYYY format)
     const parts = dateInput.split("/");
-    if (parts.length !== 3) return dateInput; // Return original if format is unexpected
+    if (parts.length !== 3) return dateInput; // Invalid format
 
     const day = parseInt(parts[0]);
     const month = parseInt(parts[1]);
     const year = parseInt(parts[2]);
 
-    // Create a Date object (month is 0-indexed in JavaScript)
     date = new Date(year < 100 ? 2000 + year : year, month - 1, day);
   }
 
-  // Add the specified number of days
-  date.setDate(date.getDate() + daysToAdd);
+  // Subtract the given number of days
+  date.setDate(date.getDate() - daysToSubtract);
 
   // Format back to DD/MM/YY or DD/MM/YYYY
   const newDay = date.getDate().toString().padStart(2, "0");
   const newMonth = (date.getMonth() + 1).toString().padStart(2, "0");
 
-  // Determine year format based on original input
   let newYear: string;
   if (dateInput instanceof Date) {
-    newYear = date.getFullYear().toString(); // Use full year for Date objects
+    newYear = date.getFullYear().toString(); // Full year
   } else {
     const originalYear = parseInt(dateInput.split("/")[2]);
     newYear =
@@ -41,8 +38,3 @@ export const addDays = (
 
   return `${newDay}/${newMonth}/${newYear}`;
 };
-
-// Example usage:
-// addDays("17/05/2025", 2) returns "19/05/2025"
-// addDays(new Date(2025, 4, 17), 2) returns "19/05/2025"
-// addDays("30/04/25", 2) returns "02/05/25"
