@@ -60,8 +60,8 @@ export const scrapeBlankNmrTechnicalSanction = async (
       timeout: 10000,
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-      },
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+      }
     });
 
     const $ = cheerio.load(response.data);
@@ -105,7 +105,7 @@ export const scrapeBlankNmrTechnicalSanction = async (
               if (technicalSanctionNo && technicalSanctionDate) {
                 technicalSanctionData = {
                   technicalSanctionNo,
-                  technicalSanctionDate,
+                  technicalSanctionDate
                 };
               }
             }
@@ -129,8 +129,8 @@ export const scrapeBlankNmrAdministrativeSanction = async (
     const response = await axios.get(url, {
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-      },
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+      }
     });
 
     const $ = cheerio.load(response.data);
@@ -178,7 +178,7 @@ export const scrapeBlankNmrAdministrativeSanction = async (
               if (financialSanctionNo && financialSanctionDate) {
                 administrativeSanctionData = {
                   financialSanctionNo,
-                  financialSanctionDate,
+                  financialSanctionDate
                 };
               }
             }
@@ -201,8 +201,8 @@ export const getUniqueMustrollNumbers = async (
     const response = await axios.get(url, {
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-      },
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+      }
     });
 
     const $ = cheerio.load(response.data);
@@ -254,8 +254,8 @@ export const getWorkerDataByMustroll = async (
     const response = await axios.get(url, {
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-      },
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+      }
     });
 
     const $ = cheerio.load(response.data);
@@ -353,7 +353,7 @@ export const getWorkerDataByMustroll = async (
                   requestLetterFrom: familyHeadName, // Using same as family head name
                   accountNo,
                   fromDate, // Added fromDate
-                  toDate,
+                  toDate
                 });
               }
             }

@@ -153,6 +153,10 @@ comparativeStatementRouter.get(
           vendorWithVendorQuotation.push(vendorMaterialQuote);
         }
       }
+      const sortedMaterialData =
+        quotationCallLetterData?.materialItems?.sort(
+          (a, b) => a.slNo - b.slNo
+        ) || [];
 
       const data = {
         gramPanchayat: panchayatData?.panchayat_name_kn || "",
@@ -164,7 +168,7 @@ comparativeStatementRouter.get(
         administrativeSanction: quotationCallLetterData?.administrativeSanction,
         workCode: workDetail.workCode,
         workName: workDetail.workName || "",
-        materialData: quotationCallLetterData?.materialItems, // Now includes unit field
+        materialData: sortedMaterialData, // Now includes unit field
         vendorDetails: vendorDetailResponse,
         vendorWithVendorQuotation: vendorWithVendorQuotation // Now includes unit field
       };
@@ -461,15 +465,15 @@ const MaterialSchema = z.object({
     .string()
     .min(1, "Material name is required")
     .max(500, "Material name too long"),
-  quantity: z.string().min(1, "Quantity is required"),
-  unit: z.string().min(1, "Unit is required").max(50, "Unit name too long"),
+  quantity: z.string().optional(),
+  unit: z.string().optional(),
   vendor1Rate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid rate format")
 });
 
 const UpdateVendorMaterialDataSchema = z
   .object({
-    workId: z.string().uuid("Invalid work ID format"),
-    workDocumentId: z.string().uuid("Invalid work document ID format"),
+    workId: z.string(),
+    workDocumentId: z.string(),
     fromDate: z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
@@ -631,9 +635,9 @@ comparativeStatementRouter.post(
             },
             data: {
               slNo: material.slNo,
-              quantity: material.quantity.trim(),
+              quantity: material?.quantity?.trim(),
               price: material.vendor1Rate.trim(),
-              unit: material.unit.trim(),
+              unit: material.unit?.trim(),
               updatedAt: new Date()
             }
           });
