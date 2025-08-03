@@ -27,6 +27,7 @@ import filledNmrRouter from "./routes/filledNmrRoute";
 import imageProxyRouter from "./routes/imageProxy";
 import materialSupplyRegisterRouter from "./routes/materialSupplyRegister";
 import authRouter from "./routes/auth/userAuth";
+import invoiceRouter from "./routes/invoice";
 
 dotenv.config();
 
@@ -69,6 +70,7 @@ app.use("/", movementSlipRouter);
 app.use("/", filledNmrRouter);
 app.use("/", imageProxyRouter);
 app.use("/", materialSupplyRegisterRouter);
+app.use("/", invoiceRouter);
 
 const PORT = process.env.PORT || 3000;
 app
