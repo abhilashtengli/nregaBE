@@ -20,6 +20,7 @@ model User {
   email                String    @unique
   password             String
   role                 Role
+  panchayatCode        String
   isVerifiedEmail      Boolean   @default(false) @map("is_verified_email")
   isAdminVerifiedUser  Boolean   @default(false) @map("is_admin_verified_user")
   verificationCode     String?   @map("verification_code")

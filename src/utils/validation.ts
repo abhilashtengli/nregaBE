@@ -15,7 +15,12 @@ export const signupValidation = z.object({
       {
         message: "Enter a strong password"
       }
-    )
+    ),
+  panchayatCode: z
+    .string()
+    .trim()
+    .length(10, { message: "Panchayat code must be exactly 10 digits" })
+    .regex(/^\d{10}$/, { message: "Panchayat code must contain only digits" })
 });
 
 export const updateUserValidation = z

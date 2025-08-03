@@ -10,6 +10,7 @@ import { sseService } from "../../services/sseService";
 import TokenService from "../../services/tokenService";
 import dotenv from "dotenv";
 import { createSessionId } from "../../utils/session";
+import { findPanchayatByCode } from "../../utils/findPanchayat";
 dotenv.config();
 
 const authRouter = express.Router();
@@ -27,7 +28,6 @@ interface RequestWithUser extends Request {
 
 authRouter.post("/signup", async (req: Request, res: Response) => {
   try {
-    // await signupValidation(req);
     const result = await signupValidation.safeParse(req.body);
     if (!result.success) {
       res.status(400).json({
@@ -38,8 +38,21 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
       });
       return;
     }
-    const { name, email, password } = req.body;
+
+    const { name, email, password, panchayatCode } = req.body;
     const role = "viewer";
+
+    // Verify panchayat code exists
+    const panchayatData = findPanchayatByCode(panchayatCode);
+    if (!panchayatData) {
+      res.status(400).json({
+        message: "Invalid panchayat code. Please enter a valid panchayat code.",
+        code: "INVALID_PANCHAYAT_CODE",
+        success: false
+      });
+      return;
+    }
+
     const existingUser = await prisma.user.findUnique({
       where: { email },
       select: { id: true }
@@ -50,7 +63,9 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
         message: `User already exists with this email : ${email}`,
         code: "INVALID"
       });
+      return;
     }
+
     const passwordHash = await bcrypt.hash(password, 10);
     const verificationCode = Math.floor(
       100000 + Math.random() * 900000
@@ -62,6 +77,7 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
         password: passwordHash,
         email: email,
         role: role,
+        panchayatCode: panchayatCode,
         verificationCode,
         verificationExpires: new Date(Date.now() + 10 * 60 * 1000)
       },
@@ -69,9 +85,11 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
         id: true,
         name: true,
         email: true,
-        role: true
+        role: true,
+        panchayatCode: true
       }
     });
+
     try {
       const serviceFor = "emailService";
       const emailResult = await RequestVerification(
@@ -1099,6 +1117,454 @@ authRouter.post(
         success: false,
         message: "Failed to update user verification status",
         code: "VERIFICATION_UPDATE_FAILED"
+      });
+    }
+  }
+);
+
+// Admin delete the viewer
+authRouter.delete(
+  "/admin/delete-user",
+  userAuth,
+  async (req: Request, res: Response) => {
+    try {
+      // The userAuth middleware should have attached the user info to req
+      const user = (req as RequestWithUser).user;
+
+      if (!user) {
+        res.status(401).json({
+          success: false,
+          message: "Authentication required",
+          code: "UNAUTHORIZED"
+        });
+        return;
+      }
+
+      // Check if the requesting user is an admin
+      if (user.role !== "admin") {
+        res.status(403).json({
+          success: false,
+          message: "Access denied. Admin privileges required",
+          code: "FORBIDDEN"
+        });
+        return;
+      }
+
+      const { email } = req.body;
+
+      // Validate required fields
+      if (!email) {
+        res.status(400).json({
+          success: false,
+          message: "Email is required",
+          code: "VALIDATION_ERROR"
+        });
+        return;
+      }
+
+      // Validate email format
+      if (!validator.isEmail(email)) {
+        res.status(400).json({
+          success: false,
+          message: "Invalid email format",
+          code: "INVALID_EMAIL"
+        });
+        return;
+      }
+
+      // Find the user to be deleted
+      const targetUser = await prisma.user.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          isVerifiedEmail: true,
+          isAdminVerifiedUser: true,
+          createdAt: true
+        }
+      });
+
+      if (!targetUser) {
+        res.status(404).json({
+          success: false,
+          message: `User not found with email: ${email}`,
+          code: "USER_NOT_FOUND"
+        });
+        return;
+      }
+
+      // Prevent admin from deleting themselves
+      if (targetUser.email === user.email) {
+        res.status(400).json({
+          success: false,
+          message: "Cannot delete your own account",
+          code: "SELF_DELETION_DENIED"
+        });
+        return;
+      }
+
+      // Prevent deleting another admin (optional business rule)
+      if (targetUser.role === "admin") {
+        res.status(400).json({
+          success: false,
+          message: "Cannot delete another admin user",
+          code: "CANNOT_DELETE_ADMIN"
+        });
+        return;
+      }
+
+      // First, handle active sessions - terminate all their sessions
+      const activeSessions = await prisma.session.findMany({
+        where: {
+          userId: targetUser.id,
+          expiresAt: { gt: new Date() }
+        }
+      });
+
+      if (activeSessions.length > 0) {
+        // Send logout message to all active sessions
+        activeSessions.forEach((session) => {
+          const logoutMessage = {
+            type: "force-logout" as const,
+            reason: "admin-deleted",
+            sessionId: session.id,
+            message: "Your account has been deleted by an administrator.",
+            timestamp: new Date().toISOString()
+          };
+          try {
+            sseService.sendToUserExceptSession(
+              targetUser.id,
+              session.id,
+              logoutMessage
+            );
+          } catch (sseError) {
+            console.error("Failed to send SSE logout message:", sseError);
+          }
+        });
+
+        // Small delay to ensure message is sent before deleting sessions
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // Delete all active sessions
+        await prisma.session.deleteMany({
+          where: { userId: targetUser.id }
+        });
+      }
+
+      // Delete the user from database
+      await prisma.user.delete({
+        where: { email }
+      });
+
+      res.status(200).json({
+        success: true,
+        message: `User ${targetUser.name} (${targetUser.email}) has been deleted successfully`,
+        code: "USER_DELETION_SUCCESS",
+        data: {
+          deletedUser: {
+            id: targetUser.id,
+            name: targetUser.name,
+            email: targetUser.email,
+            role: targetUser.role,
+            isVerifiedEmail: targetUser.isVerifiedEmail,
+            isAdminVerifiedUser: targetUser.isAdminVerifiedUser,
+            createdAt: targetUser.createdAt
+          },
+          deletedBy: {
+            id: user.id,
+            email: user.email,
+            name: user.name
+          },
+          timestamp: new Date().toISOString(),
+          sessionsTerminated: activeSessions.length
+        }
+      });
+    } catch (err) {
+      console.error("Admin user deletion error:", err);
+
+      // Type guard for error handling
+      const error = err as any;
+
+      // Check for specific Prisma errors
+      if (error?.code === "P2025") {
+        res.status(404).json({
+          success: false,
+          message: "User not found",
+          code: "USER_NOT_FOUND"
+        });
+        return;
+      }
+
+      // Handle foreign key constraint errors (if user has related data)
+      if (error?.code === "P2003") {
+        res.status(400).json({
+          success: false,
+          message:
+            "Cannot delete user with existing data. Please remove associated records first",
+          code: "USER_HAS_DEPENDENCIES"
+        });
+        return;
+      }
+
+      // Check for network connectivity issues
+      if (error?.code === "ENOTFOUND" || error?.code === "ECONNREFUSED") {
+        res.status(503).json({
+          success: false,
+          message:
+            "Network connectivity issue. Please check your connection and try again.",
+          code: "NETWORK_ERROR"
+        });
+        return;
+      }
+
+      if (error?.code === "ETIMEDOUT") {
+        res.status(504).json({
+          success: false,
+          message: "Request timed out. Please try again later.",
+          code: "TIMEOUT_ERROR"
+        });
+        return;
+      }
+
+      // Check if it's a Prisma error
+      if (error?.code?.startsWith("P")) {
+        res.status(503).json({
+          success: false,
+          message:
+            "Database service temporarily unavailable. Please try again later.",
+          code: "DATABASE_ERROR"
+        });
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        message: "Failed to delete user",
+        code: "USER_DELETION_FAILED"
+      });
+    }
+  }
+);
+
+//Admin update the panchayat code of the viewer
+authRouter.put(
+  "/admin/update-panchayat",
+  userAuth,
+  async (req: Request, res: Response) => {
+    try {
+      // The userAuth middleware should have attached the user info to req
+      const user = (req as RequestWithUser).user;
+
+      if (!user) {
+        res.status(401).json({
+          success: false,
+          message: "Authentication required",
+          code: "UNAUTHORIZED"
+        });
+        return;
+      }
+
+      // Check if the requesting user is an admin
+      if (user.role !== "admin") {
+        res.status(403).json({
+          success: false,
+          message: "Access denied. Admin privileges required",
+          code: "FORBIDDEN"
+        });
+        return;
+      }
+
+      const { email, panchayatCode } = req.body;
+
+      // Validate required fields
+      if (!email || !panchayatCode) {
+        res.status(400).json({
+          success: false,
+          message: "Email and panchayatCode are required",
+          code: "VALIDATION_ERROR"
+        });
+        return;
+      }
+
+      // Validate email format
+      if (!validator.isEmail(email)) {
+        res.status(400).json({
+          success: false,
+          message: "Invalid email format",
+          code: "INVALID_EMAIL"
+        });
+        return;
+      }
+
+      // Validate panchayat code format (assuming it should be a string)
+      if (
+        typeof panchayatCode !== "string" ||
+        panchayatCode.trim().length === 0
+      ) {
+        res.status(400).json({
+          success: false,
+          message: "Panchayat code must be a valid non-empty string",
+          code: "INVALID_PANCHAYAT_CODE"
+        });
+        return;
+      }
+
+      // Find the target user
+      const targetUser = await prisma.user.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          panchayatCode: true,
+          isVerifiedEmail: true,
+          isAdminVerifiedUser: true
+        }
+      });
+
+      if (!targetUser) {
+        res.status(404).json({
+          success: false,
+          message: `User not found with email: ${email}`,
+          code: "USER_NOT_FOUND"
+        });
+        return;
+      }
+
+      // Check if the target user is a viewer (only viewers should have panchayat codes)
+      if (targetUser.role !== "viewer") {
+        res.status(400).json({
+          success: false,
+          message:
+            "Panchayat code can only be updated for users with 'viewer' role",
+          code: "INVALID_USER_ROLE"
+        });
+        return;
+      }
+
+      // Prevent admin from modifying their own panchayat code
+      if (targetUser.email === user.email) {
+        res.status(400).json({
+          success: false,
+          message: "Cannot modify your own panchayat code",
+          code: "SELF_MODIFICATION_DENIED"
+        });
+        return;
+      }
+
+      // Check if the panchayat code is already the same
+      if (targetUser.panchayatCode === panchayatCode.trim()) {
+        res.status(400).json({
+          success: false,
+          message: "User already has the same panchayat code",
+          code: "NO_CHANGE_REQUIRED"
+        });
+        return;
+      }
+
+      // Validate if panchayat code exists in your constants (optional)
+      // Uncomment and modify based on your panchayat validation function
+
+      const panchayatData = findPanchayatByCode(panchayatCode.trim());
+      if (!panchayatData) {
+        res.status(400).json({
+          success: false,
+          message: `Invalid panchayat code: ${panchayatCode}. Panchayat not found in system`,
+          code: "PANCHAYAT_NOT_FOUND"
+        });
+        return;
+      }
+
+      // Update the user's panchayat code
+      const updatedUser = await prisma.user.update({
+        where: { email },
+        data: {
+          panchayatCode: panchayatCode.trim(),
+          updateAt: new Date()
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          panchayatCode: true,
+          isVerifiedEmail: true,
+          isAdminVerifiedUser: true,
+          createdAt: true,
+          updateAt: true
+        }
+      });
+
+      res.status(200).json({
+        success: true,
+        message: `Panchayat code for ${updatedUser.name} (${updatedUser.email}) has been updated successfully`,
+        code: "PANCHAYAT_UPDATE_SUCCESS",
+        data: {
+          user: updatedUser,
+          previousPanchayatCode: targetUser.panchayatCode,
+          newPanchayatCode: panchayatCode.trim(),
+          updatedBy: {
+            id: user.id,
+            email: user.email,
+            name: user.name
+          },
+          timestamp: new Date().toISOString()
+        }
+      });
+    } catch (err) {
+      console.error("Admin panchayat code update error:", err);
+
+      // Type guard for error handling
+      const error = err as any;
+
+      // Check for specific Prisma errors
+      if (error?.code === "P2025") {
+        res.status(404).json({
+          success: false,
+          message: "User not found",
+          code: "USER_NOT_FOUND"
+        });
+        return;
+      }
+
+      // Check for network connectivity issues
+      if (error?.code === "ENOTFOUND" || error?.code === "ECONNREFUSED") {
+        res.status(503).json({
+          success: false,
+          message:
+            "Network connectivity issue. Please check your connection and try again.",
+          code: "NETWORK_ERROR"
+        });
+        return;
+      }
+
+      if (error?.code === "ETIMEDOUT") {
+        res.status(504).json({
+          success: false,
+          message: "Request timed out. Please try again later.",
+          code: "TIMEOUT_ERROR"
+        });
+        return;
+      }
+
+      // Check if it's a Prisma error
+      if (error?.code?.startsWith("P")) {
+        res.status(503).json({
+          success: false,
+          message:
+            "Database service temporarily unavailable. Please try again later.",
+          code: "DATABASE_ERROR"
+        });
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        message: "Failed to update panchayat code",
+        code: "PANCHAYAT_UPDATE_FAILED"
       });
     }
   }
