@@ -64,125 +64,125 @@ const extractPanchayatCode = (workCode: string): string => {
   return parts[0];
 };
 
-// Helper function to modify Before stage image URL
-const modifyBeforeImageUrl = (url: string): string => {
-  if (!url || url === "NA" || url === "#") return "";
+// // Helper function to modify Before stage image URL
+// const modifyBeforeImageUrl = (url: string): string => {
+//   if (!url || url === "NA" || url === "#") return "";
 
-  try {
-    // Replace fdc1.nrsc.gov.in with fdc1.nrsc.gov.in/object
-    // Replace nrega_fdcs2 with nrega_fdc
-    const modifiedUrl = url.replace(
-      "fdc1.nrsc.gov.in/nrega_fdcs2",
-      "fdc1.nrsc.gov.in/object/nrega_fdc"
-    );
+//   try {
+//     // Replace fdc1.nrsc.gov.in with fdc1.nrsc.gov.in/object
+//     // Replace nrega_fdcs2 with nrega_fdc
+//     const modifiedUrl = url.replace(
+//       "fdc1.nrsc.gov.in/nrega_fdcs2",
+//       "fdc1.nrsc.gov.in/object/nrega_fdc"
+//     );
 
-    return modifiedUrl;
-  } catch (error) {
-    console.error("Error modifying before image URL:", error);
-    return "";
-  }
-};
+//     return modifiedUrl;
+//   } catch (error) {
+//     console.error("Error modifying before image URL:", error);
+//     return "";
+//   }
+// };
 
-// Helper function to scrape geotagged photographs
-const scrapeGeotaggedPhotographs = async (
-  url: string,
-  workCode: string
-): Promise<ImageUrls | null> => {
-  try {
-    if (!url || !workCode) {
-      throw new Error("URL and work code are required for scraping");
-    }
+// // Helper function to scrape geotagged photographs
+// const scrapeGeotaggedPhotographs = async (
+//   url: string,
+//   workCode: string
+// ): Promise<ImageUrls | null> => {
+//   try {
+//     if (!url || !workCode) {
+//       throw new Error("URL and work code are required for scraping");
+//     }
 
-    const response = await axios.get(url, {
-      timeout: 15000,
-      maxRedirects: 5,
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate",
-        Connection: "keep-alive"
-      }
-    });
+//     const response = await axios.get(url, {
+//       timeout: 15000,
+//       maxRedirects: 5,
+//       headers: {
+//         "User-Agent":
+//           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+//         Accept:
+//           "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+//         "Accept-Language": "en-US,en;q=0.5",
+//         "Accept-Encoding": "gzip, deflate",
+//         Connection: "keep-alive"
+//       }
+//     });
 
-    if (!response.data) {
-      throw new Error("No data received from the geotagged photographs URL");
-    }
+//     if (!response.data) {
+//       throw new Error("No data received from the geotagged photographs URL");
+//     }
 
-    const $ = cheerio.load(response.data);
+//     const $ = cheerio.load(response.data);
 
-    // Find the table row that matches the work code
-    let targetRow: any = null;
+//     // Find the table row that matches the work code
+//     let targetRow: any = null;
 
-    $("table tr").each((index, element) => {
-      const row = $(element);
-      const cells = row.find("td");
+//     $("table tr").each((index, element) => {
+//       const row = $(element);
+//       const cells = row.find("td");
 
-      if (cells.length > 1) {
-        const rowWorkCode = cells.eq(1).text().trim();
-        if (rowWorkCode === workCode) {
-          targetRow = row;
-          return false; // Break the loop
-        }
-      }
-    });
+//       if (cells.length > 1) {
+//         const rowWorkCode = cells.eq(1).text().trim();
+//         if (rowWorkCode === workCode) {
+//           targetRow = row;
+//           return false; // Break the loop
+//         }
+//       }
+//     });
 
-    if (!targetRow) {
-      console.warn(
-        `Work code ${workCode} not found in geotagged photographs data`
-      );
-      return {
-        beforeStageImageUrl: "",
-        duringStageImageUrl: "",
-        afterStageImageUrl: ""
-      };
-    }
+//     if (!targetRow) {
+//       console.warn(
+//         `Work code ${workCode} not found in geotagged photographs data`
+//       );
+//       return {
+//         beforeStageImageUrl: "",
+//         duringStageImageUrl: "",
+//         afterStageImageUrl: ""
+//       };
+//     }
 
-    const cells = targetRow.find("td");
+//     const cells = targetRow.find("td");
 
-    if (cells.length < 7) {
-      throw new Error("Invalid table structure in geotagged photographs data");
-    }
+//     if (cells.length < 7) {
+//       throw new Error("Invalid table structure in geotagged photographs data");
+//     }
 
-    // Extract URLs from the Before, During, and After columns
-    const beforeCell = cells.eq(4); // Before column
-    const duringCell = cells.eq(5); // During column
-    const afterCell = cells.eq(6); // After column
+//     // Extract URLs from the Before, During, and After columns
+//     const beforeCell = cells.eq(4); // Before column
+//     const duringCell = cells.eq(5); // During column
+//     const afterCell = cells.eq(6); // After column
 
-    // Extract href attributes from anchor tags
-    const beforeLink = beforeCell.find("a").attr("href")?.trim() || "";
-    const duringLink = duringCell.find("a").attr("href")?.trim() || "";
-    const afterLink = afterCell.find("a").attr("href")?.trim() || "";
+//     // Extract href attributes from anchor tags
+//     const beforeLink = beforeCell.find("a").attr("href")?.trim() || "";
+//     const duringLink = duringCell.find("a").attr("href")?.trim() || "";
+//     const afterLink = afterCell.find("a").attr("href")?.trim() || "";
 
-    // Check if links are "NA" or empty and process accordingly
-    const beforeStageImageUrl =
-      beforeLink && beforeLink !== "NA" && beforeLink !== "#"
-        ? modifyBeforeImageUrl(beforeLink)
-        : "";
+//     // Check if links are "NA" or empty and process accordingly
+//     const beforeStageImageUrl =
+//       beforeLink && beforeLink !== "NA" && beforeLink !== "#"
+//         ? modifyBeforeImageUrl(beforeLink)
+//         : "";
 
-    const duringStageImageUrl =
-      duringLink && duringLink !== "NA" && duringLink !== "#" ? duringLink : "";
+//     const duringStageImageUrl =
+//       duringLink && duringLink !== "NA" && duringLink !== "#" ? duringLink : "";
 
-    const afterStageImageUrl =
-      afterLink && afterLink !== "NA" && afterLink !== "#" ? afterLink : "";
+//     const afterStageImageUrl =
+//       afterLink && afterLink !== "NA" && afterLink !== "#" ? afterLink : "";
 
-    return {
-      beforeStageImageUrl,
-      duringStageImageUrl,
-      afterStageImageUrl
-    };
-  } catch (error) {
-    console.error("Error scraping geotagged photographs:", {
-      error: error instanceof Error ? error.message : "Unknown error",
-      url,
-      workCode,
-      timestamp: new Date().toISOString()
-    });
-    return null;
-  }
-};
+//     return {
+//       beforeStageImageUrl,
+//       duringStageImageUrl,
+//       afterStageImageUrl
+//     };
+//   } catch (error) {
+//     console.error("Error scraping geotagged photographs:", {
+//       error: error instanceof Error ? error.message : "Unknown error",
+//       url,
+//       workCode,
+//       timestamp: new Date().toISOString()
+//     });
+//     return null;
+//   }
+// };
 
 // Import your actual findPanchayatByCode function
 // import { findPanchayatByCode } from "../utils/panchayatHelper"; // Adjust import path as needed
@@ -332,3 +332,223 @@ stageWisePhotosRouter.get(
 );
 
 export default stageWisePhotosRouter;
+
+//---------------------------------------------
+
+const extractFinancialYear = (url: string): string | null => {
+  const match = url.match(/(\d{4}-\d{4})/);
+  return match ? match[1] : null;
+};
+
+const modifyBeforeImageUrl = (url: string): string => {
+  if (!url || url === "NA" || url === "#") return "";
+
+  try {
+    const financialYear = extractFinancialYear(url);
+
+    if (!financialYear) {
+      console.error("Could not extract financial year from URL");
+      return "";
+    }
+
+    let modifiedUrl = url;
+
+    switch (financialYear) {
+      case "2021-2022":
+        // Remove _comp2 and change photo1 to photo2
+        modifiedUrl = modifiedUrl.replace("_comp2", "");
+        modifiedUrl = modifiedUrl.replace("photo1", "photo2");
+        break;
+
+      case "2022-2023":
+        // Add / after photos and before 1
+        modifiedUrl = modifiedUrl.replace("/photos1/", "/photos/1/");
+        break;
+
+      case "2023-2024":
+        // Remove s2 from fdcs2 and add / after photos and before 1
+        modifiedUrl = modifiedUrl.replace("fdcs2", "fdc");
+        modifiedUrl = modifiedUrl.replace("/photos1/", "/photos/1/");
+        // Also replace domain with object path
+        modifiedUrl = modifiedUrl.replace(
+          "bhuvan-fdc1.nrsc.gov.in/nrega_fdc",
+          "bhuvan-fdc1.nrsc.gov.in/object/nrega_fdc"
+        );
+        break;
+
+      case "2024-2025":
+        // Current logic - Replace domain and path
+        modifiedUrl = modifiedUrl.replace(
+          "fdc1.nrsc.gov.in/nrega_fdcs2",
+          "fdc1.nrsc.gov.in/object/nrega_fdc"
+        );
+        break;
+
+      default:
+        console.warn(
+          `Unknown financial year: ${financialYear}. Applying default transformation.`
+        );
+        // Apply default transformation for unknown years
+        modifiedUrl = modifiedUrl.replace(
+          "fdc1.nrsc.gov.in/nrega_fdcs2",
+          "fdc1.nrsc.gov.in/object/nrega_fdc"
+        );
+    }
+
+    return modifiedUrl;
+  } catch (error) {
+    console.error("Error modifying before image URL:", error);
+    return "";
+  }
+};
+
+const modifyDuringImageUrl = (url: string): string => {
+  if (!url || url === "NA" || url === "#") return "";
+
+  try {
+    const financialYear = extractFinancialYear(url);
+
+    if (!financialYear) {
+      console.error("Could not extract financial year from URL");
+      return "";
+    }
+
+    let modifiedUrl = url;
+
+    switch (financialYear) {
+      case "2021-2022":
+        // Remove s2 from fdcs2 and add / after photos and before 2
+        modifiedUrl = modifiedUrl.replace("nrega_fdcs2", "object/nrega_fdc");
+        modifiedUrl = modifiedUrl.replace("/photos2/", "/photos/2/");
+        break;
+
+      case "2022-2023":
+        // Remove s2 from fdcs2 and add / after photos and before 2
+        modifiedUrl = modifiedUrl.replace("fdcs2", "fdc");
+        modifiedUrl = modifiedUrl.replace("/photos2/", "/photos/2/");
+        break;
+
+      case "2023-2024":
+        // Add s2 to fdc (making it fdcs2)
+        modifiedUrl = modifiedUrl.replace("/nrega_fdc/", "/nrega_fdcs2/");
+        break;
+
+      case "2024-2025":
+        // Keep as is - no modifications needed for during stage in 2024-2025
+        break;
+
+      default:
+        console.warn(
+          `Unknown financial year: ${financialYear}. No transformation applied.`
+        );
+    }
+
+    return modifiedUrl;
+  } catch (error) {
+    console.error("Error modifying during image URL:", error);
+    return "";
+  }
+};
+
+// Updated scrapeGeotaggedPhotographs function
+const scrapeGeotaggedPhotographs = async (
+  url: string,
+  workCode: string
+): Promise<ImageUrls | null> => {
+  try {
+    if (!url || !workCode) {
+      throw new Error("URL and work code are required for scraping");
+    }
+
+    const response = await axios.get(url, {
+      timeout: 15000,
+      maxRedirects: 5,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate",
+        Connection: "keep-alive"
+      }
+    });
+
+    if (!response.data) {
+      throw new Error("No data received from the geotagged photographs URL");
+    }
+
+    const $ = cheerio.load(response.data);
+
+    // Find the table row that matches the work code
+    let targetRow: any = null;
+
+    $("table tr").each((index, element) => {
+      const row = $(element);
+      const cells = row.find("td");
+
+      if (cells.length > 1) {
+        const rowWorkCode = cells.eq(1).text().trim();
+        if (rowWorkCode === workCode) {
+          targetRow = row;
+          return false; // Break the loop
+        }
+      }
+    });
+
+    if (!targetRow) {
+      console.warn(
+        `Work code ${workCode} not found in geotagged photographs data`
+      );
+      return {
+        beforeStageImageUrl: "",
+        duringStageImageUrl: "",
+        afterStageImageUrl: ""
+      };
+    }
+
+    const cells = targetRow.find("td");
+
+    if (cells.length < 7) {
+      throw new Error("Invalid table structure in geotagged photographs data");
+    }
+
+    // Extract URLs from the Before, During, and After columns
+    const beforeCell = cells.eq(4); // Before column
+    const duringCell = cells.eq(5); // During column
+    const afterCell = cells.eq(6); // After column
+
+    // Extract href attributes from anchor tags
+    const beforeLink = beforeCell.find("a").attr("href")?.trim() || "";
+    const duringLink = duringCell.find("a").attr("href")?.trim() || "";
+    const afterLink = afterCell.find("a").attr("href")?.trim() || "";
+
+    // Check if links are "NA" or empty and process accordingly
+    const beforeStageImageUrl =
+      beforeLink && beforeLink !== "NA" && beforeLink !== "#"
+        ? modifyBeforeImageUrl(beforeLink)
+        : "";
+
+    const duringStageImageUrl =
+      duringLink && duringLink !== "NA" && duringLink !== "#"
+        ? modifyDuringImageUrl(duringLink)
+        : "";
+
+    const afterStageImageUrl =
+      afterLink && afterLink !== "NA" && afterLink !== "#" ? afterLink : "";
+
+    return {
+      beforeStageImageUrl,
+      duringStageImageUrl,
+      afterStageImageUrl
+    };
+  } catch (error) {
+    console.error("Error scraping geotagged photographs:", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      url,
+      workCode,
+      timestamp: new Date().toISOString()
+    });
+    return null;
+  }
+};
