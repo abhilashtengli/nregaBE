@@ -6,6 +6,7 @@ import {
   validateAndCleanMaterialData
 } from "../services/quotationCallLetterServiceVersion2";
 import { findPanchayatByCode } from "../utils/findPanchayat";
+import { userAuth } from "../middleware/auth";
 
 const paperNotificationRouter = express.Router();
 
@@ -26,6 +27,7 @@ type ResponseData = {
 
 paperNotificationRouter.get(
   "/get-paper-notification/:id",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;

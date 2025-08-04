@@ -3,6 +3,7 @@ import express, { Request, Response } from "express";
 import { scrapeAdministrativeSanctionNumber } from "../services/quotationCallLetterServiceVersion2";
 import { scrapeTechnicalSanction } from "../services/frontPage";
 import { findPanchayatByCode } from "../utils/findPanchayat";
+import { userAuth } from "../middleware/auth";
 const workCompletionRouter = express.Router();
 
 type WorkCompletionResponse = {
@@ -20,6 +21,7 @@ type WorkCompletionResponse = {
 };
 workCompletionRouter.get(
   "/work-completion/:id",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;

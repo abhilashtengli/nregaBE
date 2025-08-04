@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 const vendorRouter = express.Router();
 import { prisma } from "@lib/prisma";
+import { userAuth } from "../middleware/auth";
 
 // Interface for the request body
 interface VendorDetailRequest {
@@ -18,6 +19,7 @@ interface VendorDetailRequest {
 // POST endpoint to create vendor details
 vendorRouter.post(
   "/add-vendor-details",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const {
@@ -108,6 +110,7 @@ vendorRouter.post(
 // GET endpoint to retrieve vendor detail by workDetailId
 vendorRouter.get(
   "/vendor-details/:workDetailId",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { workDetailId } = req.params;
@@ -148,108 +151,117 @@ vendorRouter.get(
 );
 
 // GET endpoint to retrieve all vendor details
-vendorRouter.get("/vendor-details", async (req: Request, res: Response) => {
-  try {
-    const { page = 1, limit = 10 } = req.query;
-    const skip = (Number(page) - 1) * Number(limit);
+vendorRouter.get(
+  "/vendor-details",
+  userAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const { page = 1, limit = 10 } = req.query;
+      const skip = (Number(page) - 1) * Number(limit);
 
-    const [vendorDetails, total] = await Promise.all([
-      prisma.vendorDetail.findMany({
-        skip,
-        take: Number(limit),
-        include: {
-          workDetail: {
-            select: {
-              workCode: true,
-              workName: true,
-              state: true,
-              district: true
+      const [vendorDetails, total] = await Promise.all([
+        prisma.vendorDetail.findMany({
+          skip,
+          take: Number(limit),
+          include: {
+            workDetail: {
+              select: {
+                workCode: true,
+                workName: true,
+                state: true,
+                district: true
+              }
             }
-          }
-        },
-        orderBy: { createdAt: "desc" }
-      }),
-      prisma.vendorDetail.count()
-    ]);
+          },
+          orderBy: { createdAt: "desc" }
+        }),
+        prisma.vendorDetail.count()
+      ]);
 
-    return res.status(200).json({
-      success: true,
-      data: vendorDetails,
-      pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total,
-        pages: Math.ceil(total / Number(limit))
-      }
-    });
-  } catch (error) {
-    console.error("Error fetching vendor details:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error"
-    });
-  }
-});
-
-// PUT endpoint to update vendor details
-vendorRouter.put("/vendor-details/:id", async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const {
-      vendorNameOne,
-      vendorNameTwo,
-      vendorNameThree,
-      vendorGstOne,
-      vendorGstTwo,
-      vendorGstThree,
-      fromDate,
-      toDate
-    }: Partial<VendorDetailRequest> = req.body;
-
-    // Check if vendor detail exists
-    const existingVendorDetail = await prisma.vendorDetail.findUnique({
-      where: { id }
-    });
-
-    if (!existingVendorDetail) {
-      return res.status(404).json({
+      return res.status(200).json({
+        success: true,
+        data: vendorDetails,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit))
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching vendor details:", error);
+      return res.status(500).json({
         success: false,
-        message: "Vendor detail not found"
+        message: "Internal server error"
       });
     }
+  }
+);
 
-    // Update vendor detail
-    const updatedVendorDetail = await prisma.vendorDetail.update({
-      where: { id },
-      data: {
+// PUT endpoint to update vendor details
+vendorRouter.put(
+  "/vendor-details/:id",
+  userAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const {
         vendorNameOne,
         vendorNameTwo,
         vendorNameThree,
         vendorGstOne,
         vendorGstTwo,
         vendorGstThree,
-        fromDate: fromDate ? new Date(fromDate) : undefined,
-        toDate: toDate ? new Date(toDate) : undefined
-      }
-    });
+        fromDate,
+        toDate
+      }: Partial<VendorDetailRequest> = req.body;
 
-    return res.status(200).json({
-      success: true,
-      message: "Vendor detail updated successfully",
-      data: updatedVendorDetail
-    });
-  } catch (error) {
-    console.error("Error updating vendor detail:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error"
-    });
+      // Check if vendor detail exists
+      const existingVendorDetail = await prisma.vendorDetail.findUnique({
+        where: { id }
+      });
+
+      if (!existingVendorDetail) {
+        return res.status(404).json({
+          success: false,
+          message: "Vendor detail not found"
+        });
+      }
+
+      // Update vendor detail
+      const updatedVendorDetail = await prisma.vendorDetail.update({
+        where: { id },
+        data: {
+          vendorNameOne,
+          vendorNameTwo,
+          vendorNameThree,
+          vendorGstOne,
+          vendorGstTwo,
+          vendorGstThree,
+          fromDate: fromDate ? new Date(fromDate) : undefined,
+          toDate: toDate ? new Date(toDate) : undefined
+        }
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Vendor detail updated successfully",
+        data: updatedVendorDetail
+      });
+    } catch (error) {
+      console.error("Error updating vendor detail:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error"
+      });
+    }
   }
-});
+);
 
 // DELETE endpoint to delete vendor details
 vendorRouter.delete(
   "/vendor-details/:id",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;

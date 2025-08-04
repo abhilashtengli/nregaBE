@@ -259,44 +259,48 @@ scrapRouter.post(
  * Retrieves work data by work code
  */
 
-scrapRouter.get("/work/:workCode", async (req: Request, res: Response) => {
-  try {
-    const { workCode } = req.params;
+scrapRouter.get(
+  "/work/:workCode",
+  userAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const { workCode } = req.params;
 
-    if (!workCode) {
-      return res.status(400).json({
+      if (!workCode) {
+        return res.status(400).json({
+          success: false,
+          error: "Work code is required"
+        });
+      }
+
+      const workData = await getWorkByCode(workCode);
+
+      if (!workData) {
+        return res.status(404).json({
+          success: false,
+          error: "Work not found"
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: workData
+      });
+    } catch (error: any) {
+      console.error("Error in get work endpoint:", error);
+      return res.status(500).json({
         success: false,
-        error: "Work code is required"
+        error: error.message || "Internal server error"
       });
     }
-
-    const workData = await getWorkByCode(workCode);
-
-    if (!workData) {
-      return res.status(404).json({
-        success: false,
-        error: "Work not found"
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      data: workData
-    });
-  } catch (error: any) {
-    console.error("Error in get work endpoint:", error);
-    return res.status(500).json({
-      success: false,
-      error: error.message || "Internal server error"
-    });
   }
-});
+);
 
 /**
  * GET /api/mgnrega/works
  * Retrieves all works with optional filtering
  */
-scrapRouter.get("/works", async (req: Request, res: Response) => {
+scrapRouter.get("/works", userAuth, async (req: Request, res: Response) => {
   try {
     const { workStatus, financialYear, limit, offset } = req.query;
 
@@ -327,30 +331,34 @@ scrapRouter.get("/works", async (req: Request, res: Response) => {
  * DELETE /api/mgnrega/work/:workCode
  * Deletes a work and its documents
  */
-scrapRouter.delete("/work/:id", async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
+scrapRouter.delete(
+  "/work/:id",
+  userAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
 
-    if (!id) {
-      return res.status(400).json({
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          error: "Work code is required"
+        });
+      }
+
+      await deleteWork(id);
+
+      return res.status(200).json({
+        success: true,
+        message: `Work ${id} deleted successfully`
+      });
+    } catch (error: any) {
+      console.error("Error in delete work endpoint:", error);
+      return res.status(500).json({
         success: false,
-        error: "Work code is required"
+        error: error.message || "Internal server error"
       });
     }
-
-    await deleteWork(id);
-
-    return res.status(200).json({
-      success: true,
-      message: `Work ${id} deleted successfully`
-    });
-  } catch (error: any) {
-    console.error("Error in delete work endpoint:", error);
-    return res.status(500).json({
-      success: false,
-      error: error.message || "Internal server error"
-    });
   }
-});
+);
 
 export default scrapRouter;

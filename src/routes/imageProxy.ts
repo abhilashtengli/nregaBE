@@ -1,10 +1,10 @@
-// Add this to your routes (create a new file: imageProxyRouter.ts)
 import express, { Request, Response } from "express";
 import axios from "axios";
+import { userAuth } from "../middleware/auth";
 
 const imageProxyRouter = express.Router();
 
-imageProxyRouter.get("/proxy-image", async (req: Request, res: Response) => {
+imageProxyRouter.get("/proxy-image",userAuth, async (req: Request, res: Response) => {
   try {
     const { url } = req.query;
 

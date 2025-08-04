@@ -8,6 +8,7 @@ import {
   scrapeTechnicalEstimateMaterialData,
   validateAndCleanMaterialData
 } from "../services/quotationCallLetterService";
+import { userAuth } from "../middleware/auth";
 
 const quotationCallRouter = express.Router();
 /**
@@ -15,6 +16,7 @@ const quotationCallRouter = express.Router();
  */
 quotationCallRouter.get(
   "/get-quotation-call/:id",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -154,6 +156,7 @@ quotationCallRouter.get(
  */
 quotationCallRouter.get(
   "/get-quotation-call-by-code/:workCode",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { workCode } = req.params;

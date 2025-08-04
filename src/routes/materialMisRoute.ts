@@ -4,6 +4,7 @@ import axios, { AxiosInstance, AxiosResponse } from "axios";
 import * as cheerio from "cheerio";
 import winston, { Logger } from "winston";
 import { URL } from "url";
+import { userAuth } from "../middleware/auth";
 
 const testingVendorScrape = express.Router();
 
@@ -529,6 +530,7 @@ const mainGpwrkbilldtl = async (
 // Express route to trigger processing
 testingVendorScrape.post(
   "/material-mis",
+  userAuth,
   async (req: Request, res: Response<ApiResponse | ErrorResponse>) => {
     try {
       const totalStartTime: number = Date.now();

@@ -1,11 +1,13 @@
 import { prisma } from "@lib/prisma";
 import express, { Request, Response } from "express";
 import { findPanchayatByCode } from "../utils/findPanchayat";
+import { userAuth } from "../middleware/auth";
 
 const checklistRouter = express.Router();
 
 checklistRouter.get(
   "/get-checklist/:id",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;

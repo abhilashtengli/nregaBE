@@ -9,6 +9,7 @@ import {
   scrapeMusterRolls,
   scrapeAdministrativeSanctionNumber
 } from "../services/gpAbstractService";
+import { userAuth } from "../middleware/auth";
 
 const gpAbstractRouter = express.Router();
 
@@ -58,6 +59,7 @@ type ResponseGpAbstractType = {
 
 gpAbstractRouter.get(
   "/gp-abstract/:id",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;

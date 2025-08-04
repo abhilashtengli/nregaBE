@@ -8,6 +8,7 @@ import {
   scrapeBlankNmrTechnicalSanction
 } from "../services/blankNmrService";
 import { findPanchayatByCode } from "../utils/findPanchayat";
+import { userAuth } from "../middleware/auth";
 const blankNmrRouter = express.Router();
 
 // Types/Interfaces
@@ -78,7 +79,7 @@ interface AdministrativeSanctionData {
 // Scraping function for technical sanction
 
 // Main API endpoint
-blankNmrRouter.get("/get-blanknmr/:id", async (req: Request, res: Response) => {
+blankNmrRouter.get("/get-blanknmr/:id", userAuth, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 

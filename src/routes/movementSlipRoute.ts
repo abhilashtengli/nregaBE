@@ -4,6 +4,7 @@ import { findPanchayatByCode } from "../utils/findPanchayat";
 import { scrapeMovementSlipData } from "../services/movementSlipService";
 import { subtractOneDay } from "../utils/substractOneday";
 import { addDays } from "../utils/addDays";
+import { userAuth } from "../middleware/auth";
 
 const movementSlipRouter = express.Router();
 
@@ -29,6 +30,7 @@ type ResponseMovementSlipType = {
 };
 movementSlipRouter.get(
   "/movement-slip/:id",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;

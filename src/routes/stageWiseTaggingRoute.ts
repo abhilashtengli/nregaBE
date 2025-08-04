@@ -3,6 +3,7 @@ import express, { Request, Response } from "express";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { findPanchayatByCode } from "../utils/findPanchayat";
+import { userAuth } from "../middleware/auth";
 
 // Types
 interface PanchayatData {
@@ -190,6 +191,7 @@ const extractPanchayatCode = (workCode: string): string => {
 // Main API endpoint
 stageWisePhotosRouter.get(
   "/get-stage-wise-photos/:id",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;

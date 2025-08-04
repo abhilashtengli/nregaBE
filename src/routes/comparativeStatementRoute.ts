@@ -13,6 +13,7 @@ import {
 import { addDays } from "../utils/addDays";
 import { findMaterialUnit } from "../utils/findMaterialUnit";
 import { findPanchayatByCode } from "../utils/findPanchayat";
+import { userAuth } from "../middleware/auth";
 
 const comparativeStatementRouter = express.Router();
 
@@ -32,6 +33,7 @@ type VendorQuoteData = {
  */
 comparativeStatementRouter.get(
   "/comparative-statement/:id",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -191,6 +193,7 @@ comparativeStatementRouter.get(
 
 comparativeStatementRouter.get(
   "/material-vendor-data-version2/:id",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -534,6 +537,7 @@ const createApiResponse = <T>(
 
 comparativeStatementRouter.post(
   "/update-vendor-material-data",
+  userAuth,
   async (req: Request, res: Response): Promise<void> => {
     const startTime = Date.now();
     let prismaTransaction;

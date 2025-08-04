@@ -23,74 +23,215 @@ const calculateFinancialYear = (billDate: string): string => {
   }
 };
 
+// export const scrapeMaterialVoucherData = async (
+//   url: string
+// ): Promise<MaterialVoucherData | null> => {
+//   try {
+//     const response = await axios.get(url, {
+//       headers: {
+//         "User-Agent":
+//           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+//       }
+//     });
+
+//     const $ = cheerio.load(response.data);
+
+//     // Find the first data row (skip header row)
+//     let firstDataRow: any = null;
+
+//     $("table tr").each((index, element) => {
+//       const row = $(element);
+//       const cells = row.find("td");
+
+//       // Skip header rows and empty rows
+//       // Look for the first row with actual data (should have td elements)
+//       if (cells.length > 0) {
+//         // Check if this is a data row (not header)
+//         const firstCell = cells.eq(0).text().trim();
+//         if (firstCell && !isNaN(Number(firstCell))) {
+//           // This appears to be a data row (starts with serial number)
+//           firstDataRow = row;
+//           return false; // Break the loop
+//         }
+//       }
+//     });
+
+//     if (!firstDataRow) {
+//       throw new Error("No data rows found in material voucher table");
+//     }
+
+//     const cells = firstDataRow.find("td");
+
+//     if (cells.length < 7) {
+//       throw new Error("Invalid table structure - insufficient columns");
+//     }
+
+//     // Based on the HTML structure provided:
+//     // Column 5 (index 5) = Bill Date
+//     // Column 6 (index 6) = Vender Name and TIN-material wise
+//     const billDate = cells.eq(5).text().trim();
+//     const vendorName = cells.eq(6).text().trim();
+
+//     if (!billDate || !vendorName) {
+//       throw new Error("Required data (bill date or vendor name) not found");
+//     }
+
+//     // Calculate financial year from bill date
+//     const financialYear = calculateFinancialYear(billDate);
+
+//     return {
+//       vendorName,
+//       billDate,
+//       financialYear
+//     };
+//   } catch (error: any) {
+//     console.error(`Error scraping material voucher data: ${error.message}`);
+//     return null;
+//   }
+// };
+
+// Alternative scraper if you need to get data from a specific work code row
+
 export const scrapeMaterialVoucherData = async (
   url: string
 ): Promise<MaterialVoucherData | null> => {
-  try {
-    const response = await axios.get(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-      }
-    });
+  // Helper function to modify financial year in URL
+  const modifyFinancialYear = (
+    url: string,
+    forward: boolean = true
+  ): string => {
+    const urlObj = new URL(url);
+    const currentFinYear = urlObj.searchParams.get("Fin_Year");
 
-    const $ = cheerio.load(response.data);
+    if (!currentFinYear) {
+      throw new Error("Financial year not found in URL");
+    }
 
-    // Find the first data row (skip header row)
-    let firstDataRow: any = null;
+    // Parse the financial year (e.g., "2024-2025")
+    const [startYear, endYear] = currentFinYear.split("-").map(Number);
 
-    $("table tr").each((index, element) => {
-      const row = $(element);
-      const cells = row.find("td");
+    let newStartYear, newEndYear;
+    if (forward) {
+      // Move forward by one year
+      newStartYear = startYear + 1;
+      newEndYear = endYear + 1;
+    } else {
+      // Move backward by one year (if needed in future)
+      newStartYear = startYear - 1;
+      newEndYear = endYear - 1;
+    }
 
-      // Skip header rows and empty rows
-      // Look for the first row with actual data (should have td elements)
-      if (cells.length > 0) {
-        // Check if this is a data row (not header)
-        const firstCell = cells.eq(0).text().trim();
-        if (firstCell && !isNaN(Number(firstCell))) {
-          // This appears to be a data row (starts with serial number)
-          firstDataRow = row;
-          return false; // Break the loop
+    const newFinYear = `${newStartYear}-${newEndYear}`;
+    urlObj.searchParams.set("Fin_Year", newFinYear);
+
+    // Remove the Digest parameter when changing financial year
+    urlObj.searchParams.delete("Digest");
+
+    return urlObj.toString();
+  };
+
+  // Helper function to attempt scraping
+  const attemptScraping = async (
+    scrapeUrl: string
+  ): Promise<MaterialVoucherData | null> => {
+    try {
+      const response = await axios.get(scrapeUrl, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         }
+      });
+
+      const $ = cheerio.load(response.data);
+
+      // Find the first data row (skip header row)
+      let firstDataRow: any = null;
+
+      $("table tr").each((index, element) => {
+        const row = $(element);
+        const cells = row.find("td");
+
+        // Skip header rows and empty rows
+        // Look for the first row with actual data (should have td elements)
+        if (cells.length > 0) {
+          // Check if this is a data row (not header)
+          const firstCell = cells.eq(0).text().trim();
+          if (firstCell && !isNaN(Number(firstCell))) {
+            // This appears to be a data row (starts with serial number)
+            firstDataRow = row;
+            return false; // Break the loop
+          }
+        }
+      });
+
+      if (!firstDataRow) {
+        return null; // No data found, will try next year
       }
-    });
 
-    if (!firstDataRow) {
-      throw new Error("No data rows found in material voucher table");
+      const cells = firstDataRow.find("td");
+
+      if (cells.length < 7) {
+        throw new Error("Invalid table structure - insufficient columns");
+      }
+
+      // Based on the HTML structure provided:
+      // Column 5 (index 5) = Bill Date
+      // Column 6 (index 6) = Vender Name and TIN-material wise
+      const billDate = cells.eq(5).text().trim();
+      const vendorName = cells.eq(6).text().trim();
+
+      if (!billDate || !vendorName) {
+        throw new Error("Required data (bill date or vendor name) not found");
+      }
+
+      // Calculate financial year from bill date
+      const financialYear = calculateFinancialYear(billDate);
+
+      return {
+        vendorName,
+        billDate,
+        financialYear
+      };
+    } catch (error: any) {
+      console.error(`Error during scraping attempt: ${error.message}`);
+      return null;
+    }
+  };
+
+  try {
+    // First attempt with the original URL
+    console.log(`Attempting to scrape data from original URL: ${url}`);
+    let result = await attemptScraping(url);
+
+    if (result) {
+      console.log("Data found with original financial year");
+      return result;
     }
 
-    const cells = firstDataRow.find("td");
+    // If no data found, try with next financial year
+    console.log(
+      "No data found with original financial year, trying next year..."
+    );
+    const modifiedUrl = modifyFinancialYear(url, true);
+    console.log(`Attempting to scrape data from modified URL: ${modifiedUrl}`);
 
-    if (cells.length < 7) {
-      throw new Error("Invalid table structure - insufficient columns");
+    result = await attemptScraping(modifiedUrl);
+
+    if (result) {
+      console.log("Data found with next financial year");
+      return result;
     }
 
-    // Based on the HTML structure provided:
-    // Column 5 (index 5) = Bill Date
-    // Column 6 (index 6) = Vender Name and TIN-material wise
-    const billDate = cells.eq(5).text().trim();
-    const vendorName = cells.eq(6).text().trim();
-
-    if (!billDate || !vendorName) {
-      throw new Error("Required data (bill date or vendor name) not found");
-    }
-
-    // Calculate financial year from bill date
-    const financialYear = calculateFinancialYear(billDate);
-
-    return {
-      vendorName,
-      billDate,
-      financialYear
-    };
+    // If still no data found, throw error
+    throw new Error(
+      "No data found in material voucher table for current or next financial year"
+    );
   } catch (error: any) {
     console.error(`Error scraping material voucher data: ${error.message}`);
     return null;
   }
 };
 
-// Alternative scraper if you need to get data from a specific work code row
 export const scrapeMaterialVoucherDataByWorkCode = async (
   url: string,
   workCode: string

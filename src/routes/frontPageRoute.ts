@@ -7,6 +7,7 @@ import {
   scrapeAdministrativeSanction
 } from "../services/frontPage";
 import { findPanchayatByCode } from "../utils/findPanchayat";
+import { userAuth } from "../middleware/auth";
 
 const frontPageRouter = express.Router();
 
@@ -52,6 +53,7 @@ function cleanNumericValue(value: string): string {
 // Main API endpoint
 frontPageRouter.get(
   "/get-frontpage-data/:id",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;

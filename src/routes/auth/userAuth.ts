@@ -1607,6 +1607,7 @@ authRouter.get(
           email: true,
           isVerifiedEmail: true,
           isAdminVerifiedUser: true,
+          panchayatCode: true,
           createdAt: true
         }
       });

@@ -10,6 +10,7 @@ import {
   MaterialVoucherData,
   scrapeMaterialVoucherData
 } from "../services/form32Service";
+import { userAuth } from "../middleware/auth";
 
 const workingtestingVendorScrape = express.Router();
 
@@ -436,6 +437,7 @@ export const mainGpwrkbilldtl = async (
 // Express route to trigger processing
 workingtestingVendorScrape.get(
   "/material-mis-perfect/:id",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const totalStartTime: number = Date.now();

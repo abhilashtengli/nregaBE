@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { prisma } from "@lib/prisma";
 import { scrapeBlankNmrAdministrativeSanction } from "../services/blankNmrService";
 import { scrapeFilledNmrData } from "../services/filledNmrService";
+import { userAuth } from "../middleware/auth";
 
 const filledNmrRouter = express.Router();
 
@@ -54,6 +55,7 @@ interface AdministrativeSanctionData {
 
 filledNmrRouter.get(
   "/filled-e-nmr/:id",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;

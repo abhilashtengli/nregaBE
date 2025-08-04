@@ -3,6 +3,7 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { prisma } from "@lib/prisma";
 import { findPanchayatByCode } from "../utils/findPanchayat";
+import { userAuth } from "../middleware/auth";
 
 const ftoRouter = express.Router();
 
@@ -102,7 +103,7 @@ async function scrapeWageListFTO(url: string): Promise<FTOItem[]> {
 }
 
 // Main API endpoint to get FTO data
-ftoRouter.get("/get-fto/:id", async (req: Request, res: Response) => {
+ftoRouter.get("/get-fto/:id", userAuth, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -229,6 +230,7 @@ ftoRouter.get("/get-fto/:id", async (req: Request, res: Response) => {
 // Additional endpoint to get FTO data by work code directly
 ftoRouter.get(
   "/get-fto-by-workcode/:workCode",
+  userAuth,
   async (req: Request, res: Response) => {
     try {
       const { workCode } = req.params;

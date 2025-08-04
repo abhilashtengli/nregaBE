@@ -8,10 +8,12 @@ import {
   VENDOR_INITIAL_URL,
   VendorApiResponse
 } from "../services/vendorService";
+import { userAuth } from "../middleware/auth";
 const getVendorsRouter = express.Router();
 
 getVendorsRouter.get(
   "/vendors/kalaburagi",
+  userAuth,
   async (req: Request, res: Response<VendorApiResponse>) => {
     try {
       const axiosInstance = createAxiosInstance();
