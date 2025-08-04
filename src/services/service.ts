@@ -1,5 +1,8 @@
 import * as cheerio from "cheerio";
 import axios from "axios";
+import dotenv from "dotenv";
+dotenv.config();
+
 import {
   ScrapedWorkData,
   WorkDetailData,
@@ -17,11 +20,25 @@ export class MgnregaScraperService {
   async scrapeWorkData(url: string): Promise<ScrapedWorkData> {
     try {
       // Fetch the HTML content
-      const response = await axios.get(url, {
+      // const response = await axios.get(url, {
+      //   headers: {
+      //     "User-Agent":
+      //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+      //     Accept: "text/html,application/xhtml+xml"
+      //   }
+      // });
+      const response = await axios.get("http://api.scraperapi.com", {
+        params: {
+          api_key: process.env.SCRAPER_API_KEY,
+          url: url,
+          keep_headers: "true"
+        },
         headers: {
           "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-        }
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml"
+        },
+        timeout: 15000
       });
 
       const $ = cheerio.load(response.data);

@@ -1,5 +1,7 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
+import dotenv from "dotenv";
+dotenv.config();
 
 export interface MaterialVoucherData {
   vendorName: string;
@@ -135,11 +137,24 @@ export const scrapeMaterialVoucherData = async (
     scrapeUrl: string
   ): Promise<MaterialVoucherData | null> => {
     try {
-      const response = await axios.get(scrapeUrl, {
+      // const response = await axios.get(scrapeUrl, {
+      //   headers: {
+      //     "User-Agent":
+      //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      //   }
+      // });
+      const response = await axios.get("http://api.scraperapi.com", {
+        params: {
+          api_key: process.env.SCRAPER_API_KEY,
+          url: scrapeUrl,
+          keep_headers: "true"
+        },
         headers: {
           "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-        }
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml"
+        },
+        timeout: 15000
       });
 
       const $ = cheerio.load(response.data);
@@ -237,11 +252,24 @@ export const scrapeMaterialVoucherDataByWorkCode = async (
   workCode: string
 ): Promise<MaterialVoucherData | null> => {
   try {
-    const response = await axios.get(url, {
+    // const response = await axios.get(url, {
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    //   }
+    // });
+    const response = await axios.get("http://api.scraperapi.com", {
+      params: {
+        api_key: process.env.SCRAPER_API_KEY,
+        url: url,
+        keep_headers: "true"
+      },
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-      }
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
+      },
+      timeout: 15000
     });
 
     const $ = cheerio.load(response.data);
