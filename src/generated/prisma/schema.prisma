@@ -1,0 +1,173 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String    @id @default(uuid())
+  name                 String    @db.VarChar(30)
+  email                String    @unique
+  password             String
+  role                 Role
+  panchayatCode        String
+  isVerifiedEmail      Boolean   @default(false) @map("is_verified_email")
+  isAdminVerifiedUser  Boolean   @default(false) @map("is_admin_verified_user")
+  verificationCode     String?   @map("verification_code")
+  resetPasswordToken   String?   @map("reset_password_token")
+  resetTokenExpires    DateTime? @map("reset_token_expires")
+  verificationExpires  DateTime?
+  verificationAttempts Int?
+  sessions             Session[]
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updateAt             DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@map("user")
+}
+
+enum Role {
+  admin
+  viewer
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+// Main work details table (Table 1 data)
+model WorkDetail {
+  id                  String    @id @default(uuid())
+  state               String
+  district            String
+  panchayat           String
+  block               String
+  workCode            String    @unique // This will be our reference key
+  workName            String?
+  workCategory        String?
+  workType            String? // Work Type/Proposed Status
+  workStatus          String?
+  implementingAgency  String?
+  estimatedCost       Decimal?  @db.Decimal(12, 2)
+  actualExpenditure   Decimal?  @db.Decimal(12, 2)
+  sanctionYear        String?
+  workStartDate       DateTime?
+  financialYear       String? // Financial Year (Work Created)
+  estimatedPersonDays String?
+  actualPersonDays    String?
+  vendorName          String?
+  vendorGstNo         String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // One-to-one relation with documents
+  workDocuments WorkDocuments?
+
+  vendorDetails       VendorDetail?
+  quotationCallLetter QuotationCallLetter?
+}
+
+// Work documents table (Table 2 data)
+model WorkDocuments {
+  id       String @id @default(uuid())
+  workCode String @unique
+
+  // Document links (will be null if "Not Available")
+  annualActionPlan          String? // Copy of the Annual Action Plan/ Shelf of Projects
+  technicalEstimate         String? // Copy of Technical Estimate and Design
+  technicalSanction         String? // Technical Sanction
+  administrativeSanction    String? // Administrative/ Financial Sanction
+  convergenceFunds          String? // Convergence Funds/Inputs, if any
+  demandApplicationForm     String? // Demand Application Form
+  workAllocationForm        String? // Work Allocation Form
+  filledEMusterRolls        String? // Copy of filled e-Muster Rolls // 2 financial year current and previous
+  measurementBook           String? // Copy of Measurement Book
+  materialProcurement       String? // Material Procurement Document and Usage
+  wageListFTO               String? // Copy of Wage List & FTO Details  // 2 financial year current and previous
+  skilledMusterRolls        String? // Copy of Skilled & Semi-skilled Muster Rolls
+  materialVouchers          String? // Material Voucher/Bills, Material list, FTOs and Royalty Paid
+  geotaggedPhotographs      String? // Geotagged Photograph of the Project/Work at three stages
+  workCompletionCertificate String? // Work Completion Certificate
+  musterRollMovementSlip    String? // Muster Roll Movement Slip
+  socialAuditReport         String? // Copy of Social Audit Report of the work
+  otherStateDocuments       String? // Other State Specific Documents
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation to WorkDetail
+  workDetail WorkDetail @relation(fields: [workCode], references: [workCode], onDelete: Cascade)
+}
+
+// Vendor details table
+model VendorDetail {
+  id              String    @id @default(uuid())
+  vendorNameOne   String?
+  vendorNameTwo   String?
+  vendorNameThree String?
+  vendorGstOne    String?
+  vendorGstTwo    String?
+  vendorGstThree  String?
+  fromDate        DateTime?
+  toDate          DateTime?
+  workDetailId    String    @unique @map("work_detail_id")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // One-to-one relation to WorkDetail
+  workDetail WorkDetail @relation(fields: [workDetailId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_detail")
+}
+
+model QuotationCallLetter {
+  id                     String     @id @default(uuid())
+  workDetailId           String     @unique @map("work_detail_id")
+  administrativeSanction String
+  workDetail             WorkDetail @relation(fields: [workDetailId], references: [id], onDelete: Cascade)
+  createdAt              DateTime   @default(now()) @map("created_at")
+  updatedAt              DateTime   @updatedAt @map("updated_at")
+
+  // Changed to one-to-many relation with MaterialItem
+  materialItems MaterialItem[]
+
+  @@map("quotation_call_letter")
+}
+
+model MaterialItem {
+  id                    String @id @default(uuid())
+  slNo                  Int    @map("sl_no")
+  quotationCallLetterId String @map("quotation_call_letter_id") // Removed @unique for one-to-many
+  materialName          String @map("material_name")
+  quantity              String
+  price                 String
+  unit                  String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  quotationCallLetter QuotationCallLetter @relation(fields: [quotationCallLetterId], references: [id], onDelete: Cascade)
+
+  @@map("material_item")
+}
