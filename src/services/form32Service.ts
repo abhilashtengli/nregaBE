@@ -154,7 +154,6 @@ export const scrapeMaterialVoucherData = async (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
           Accept: "text/html,application/xhtml+xml"
         },
-        timeout: 15000
       });
 
       const $ = cheerio.load(response.data);
@@ -269,7 +268,6 @@ export const scrapeMaterialVoucherDataByWorkCode = async (
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
         Accept: "text/html,application/xhtml+xml"
       },
-      timeout: 15000
     });
 
     const $ = cheerio.load(response.data);
