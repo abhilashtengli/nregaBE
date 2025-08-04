@@ -14,9 +14,18 @@ import { addDays } from "../utils/addDays";
 import { findMaterialUnit } from "../utils/findMaterialUnit";
 import { findPanchayatByCode } from "../utils/findPanchayat";
 import { userAuth } from "../middleware/auth";
+import { Prisma } from "../generated/prisma";
 
 const comparativeStatementRouter = express.Router();
 
+type MaterialItems = {
+  slNo: number;
+  materialName: string;
+  id: string;
+};
+type MaterialFinalCheck = {
+  materialName: string;
+};
 type VendorQuoteData = {
   slNo: number;
   materialName: string;
@@ -155,10 +164,6 @@ comparativeStatementRouter.get(
           vendorWithVendorQuotation.push(vendorMaterialQuote);
         }
       }
-      const sortedMaterialData =
-        quotationCallLetterData?.materialItems?.sort(
-          (a, b) => a.slNo - b.slNo
-        ) || [];
 
       const data = {
         gramPanchayat: panchayatData?.panchayat_name_kn || "",
@@ -170,7 +175,7 @@ comparativeStatementRouter.get(
         administrativeSanction: quotationCallLetterData?.administrativeSanction,
         workCode: workDetail.workCode,
         workName: workDetail.workName || "",
-        materialData: sortedMaterialData, // Now includes unit field
+        materialData: quotationCallLetterData?.materialItems, // Now includes unit field
         vendorDetails: vendorDetailResponse,
         vendorWithVendorQuotation: vendorWithVendorQuotation // Now includes unit field
       };
@@ -552,145 +557,147 @@ comparativeStatementRouter.post(
       );
 
       // Start database transaction
-      prismaTransaction = await prisma.$transaction(async (tx) => {
-        // Step 1: Find and validate QuotationCallLetter exists
-        const quotationCallLetter = await tx.quotationCallLetter.findUnique({
-          where: { workDetailId: workId },
-          include: {
-            materialItems: {
-              select: {
-                id: true,
-                materialName: true,
-                slNo: true
+      prismaTransaction = await prisma.$transaction(
+        async (tx: Prisma.TransactionClient) => {
+          // Step 1: Find and validate QuotationCallLetter exists
+          const quotationCallLetter = await tx.quotationCallLetter.findUnique({
+            where: { workDetailId: workId },
+            include: {
+              materialItems: {
+                select: {
+                  id: true,
+                  materialName: true,
+                  slNo: true
+                }
               }
             }
-          }
-        });
-
-        if (!quotationCallLetter) {
-          throw new NotFoundError(
-            `Quotation call letter not found for work detail ID: ${workId}`
-          );
-        }
-
-        console.log(
-          `[${new Date().toISOString()}] Found quotation call letter: ${
-            quotationCallLetter.id
-          }`
-        );
-
-        // Step 2: Update vendor details
-        const vendorUpdateResult = await tx.vendorDetail.update({
-          where: { workDetailId: workId },
-          data: {
-            vendorNameOne: vendors.vendor1.vendorName.trim(),
-            vendorNameTwo: vendors.vendor2.vendorName.trim(),
-            vendorNameThree: vendors.vendor3.vendorName.trim(),
-            vendorGstOne: vendors.vendor1.gstNo.toUpperCase(),
-            vendorGstTwo: vendors.vendor2.gstNo.toUpperCase(),
-            vendorGstThree: vendors.vendor3.gstNo.toUpperCase(),
-            fromDate: new Date(fromDate),
-            toDate: new Date(toDate),
-            updatedAt: new Date()
-          }
-        });
-
-        console.log(
-          `[${new Date().toISOString()}] Updated vendor details for workId: ${workId}`
-        );
-
-        // Step 3: Get material names from request for comparison
-        const requestMaterialNames = materials.map((m) =>
-          m.materialName.trim()
-        );
-        const existingMaterialNames = quotationCallLetter.materialItems.map(
-          (m) => m.materialName
-        );
-
-        // Step 4: Identify materials to be removed
-        const materialsToRemove = existingMaterialNames.filter(
-          (name) => !requestMaterialNames.includes(name)
-        );
-
-        // Step 5: Remove materials not in the request
-        let deletedCount = 0;
-        if (materialsToRemove.length > 0) {
-          const deleteResult = await tx.materialItem.deleteMany({
-            where: {
-              quotationCallLetterId: quotationCallLetter.id,
-              materialName: { in: materialsToRemove }
-            }
           });
-          deletedCount = deleteResult.count;
-          console.log(
-            `[${new Date().toISOString()}] Deleted ${deletedCount} materials: ${materialsToRemove.join(
-              ", "
-            )}`
-          );
-        }
 
-        // Step 6: Update existing materials
-        let updatedCount = 0;
-        const updatePromises = materials.map(async (material) => {
-          const updateResult = await tx.materialItem.updateMany({
-            where: {
-              quotationCallLetterId: quotationCallLetter.id,
-              materialName: material.materialName.trim()
-            },
+          if (!quotationCallLetter) {
+            throw new NotFoundError(
+              `Quotation call letter not found for work detail ID: ${workId}`
+            );
+          }
+
+          console.log(
+            `[${new Date().toISOString()}] Found quotation call letter: ${
+              quotationCallLetter.id
+            }`
+          );
+
+          // Step 2: Update vendor details
+          const vendorUpdateResult = await tx.vendorDetail.update({
+            where: { workDetailId: workId },
             data: {
-              slNo: material.slNo,
-              quantity: material?.quantity?.trim(),
-              price: material.vendor1Rate.trim(),
-              unit: material.unit?.trim(),
+              vendorNameOne: vendors.vendor1.vendorName.trim(),
+              vendorNameTwo: vendors.vendor2.vendorName.trim(),
+              vendorNameThree: vendors.vendor3.vendorName.trim(),
+              vendorGstOne: vendors.vendor1.gstNo.toUpperCase(),
+              vendorGstTwo: vendors.vendor2.gstNo.toUpperCase(),
+              vendorGstThree: vendors.vendor3.gstNo.toUpperCase(),
+              fromDate: new Date(fromDate),
+              toDate: new Date(toDate),
               updatedAt: new Date()
             }
           });
 
-          if (updateResult.count > 0) {
-            updatedCount += updateResult.count;
+          console.log(
+            `[${new Date().toISOString()}] Updated vendor details for workId: ${workId}`
+          );
+
+          // Step 3: Get material names from request for comparison
+          const requestMaterialNames = materials.map((m) =>
+            m.materialName.trim()
+          );
+          const existingMaterialNames = quotationCallLetter.materialItems.map(
+            (m: MaterialItems) => m.materialName
+          );
+
+          // Step 4: Identify materials to be removed
+          const materialsToRemove = existingMaterialNames.filter(
+            (name: string) => !requestMaterialNames.includes(name)
+          );
+
+          // Step 5: Remove materials not in the request
+          let deletedCount = 0;
+          if (materialsToRemove.length > 0) {
+            const deleteResult = await tx.materialItem.deleteMany({
+              where: {
+                quotationCallLetterId: quotationCallLetter.id,
+                materialName: { in: materialsToRemove }
+              }
+            });
+            deletedCount = deleteResult.count;
+            console.log(
+              `[${new Date().toISOString()}] Deleted ${deletedCount} materials: ${materialsToRemove.join(
+                ", "
+              )}`
+            );
           }
 
-          return updateResult;
-        });
+          // Step 6: Update existing materials
+          let updatedCount = 0;
+          const updatePromises = materials.map(async (material) => {
+            const updateResult = await tx.materialItem.updateMany({
+              where: {
+                quotationCallLetterId: quotationCallLetter.id,
+                materialName: material.materialName.trim()
+              },
+              data: {
+                slNo: material.slNo,
+                quantity: material?.quantity?.trim(),
+                price: material.vendor1Rate.trim(),
+                unit: material.unit?.trim(),
+                updatedAt: new Date()
+              }
+            });
 
-        await Promise.all(updatePromises);
+            if (updateResult.count > 0) {
+              updatedCount += updateResult.count;
+            }
 
-        console.log(
-          `[${new Date().toISOString()}] Updated ${updatedCount} materials`
-        );
+            return updateResult;
+          });
 
-        // Step 7: Validate that all requested materials exist
-        const finalMaterialCheck = await tx.materialItem.findMany({
-          where: {
-            quotationCallLetterId: quotationCallLetter.id,
-            materialName: { in: requestMaterialNames }
-          },
-          select: { materialName: true }
-        });
+          await Promise.all(updatePromises);
 
-        const foundMaterialNames = finalMaterialCheck.map(
-          (m) => m.materialName
-        );
-        const missingMaterials = requestMaterialNames.filter(
-          (name) => !foundMaterialNames.includes(name)
-        );
-
-        if (missingMaterials.length > 0) {
-          console.warn(
-            `[${new Date().toISOString()}] Warning: Some materials were not found for update: ${missingMaterials.join(
-              ", "
-            )}`
+          console.log(
+            `[${new Date().toISOString()}] Updated ${updatedCount} materials`
           );
-        }
 
-        return {
-          vendorUpdate: vendorUpdateResult,
-          materialsDeleted: deletedCount,
-          materialsUpdated: updatedCount,
-          missingMaterials: missingMaterials,
-          quotationCallLetterId: quotationCallLetter.id
-        };
-      });
+          // Step 7: Validate that all requested materials exist
+          const finalMaterialCheck = await tx.materialItem.findMany({
+            where: {
+              quotationCallLetterId: quotationCallLetter.id,
+              materialName: { in: requestMaterialNames }
+            },
+            select: { materialName: true }
+          });
+
+          const foundMaterialNames = finalMaterialCheck.map(
+            (m: MaterialFinalCheck) => m.materialName
+          );
+          const missingMaterials = requestMaterialNames.filter(
+            (name) => !foundMaterialNames.includes(name)
+          );
+
+          if (missingMaterials.length > 0) {
+            console.warn(
+              `[${new Date().toISOString()}] Warning: Some materials were not found for update: ${missingMaterials.join(
+                ", "
+              )}`
+            );
+          }
+
+          return {
+            vendorUpdate: vendorUpdateResult,
+            materialsDeleted: deletedCount,
+            materialsUpdated: updatedCount,
+            missingMaterials: missingMaterials,
+            quotationCallLetterId: quotationCallLetter.id
+          };
+        }
+      );
 
       const executionTime = Date.now() - startTime;
       console.log(

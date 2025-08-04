@@ -11,6 +11,7 @@ import TokenService from "../../services/tokenService";
 import dotenv from "dotenv";
 import { createSessionId } from "../../utils/session";
 import { findPanchayatByCode } from "../../utils/findPanchayat";
+import { Session } from "../../generated/prisma";
 dotenv.config();
 
 const authRouter = express.Router();
@@ -200,7 +201,7 @@ authRouter.post("/signin", async (req: Request, res: Response) => {
       // IMPORTANT: Send logout message to other devices BEFORE deleting sessions
 
       // Send logout message to all existing sessions
-      existingSessions.forEach((session) => {
+      existingSessions.forEach((session: Session) => {
         const logoutMessage = {
           type: "force-logout" as const,
           reason: "new-device-login",
@@ -1028,7 +1029,7 @@ authRouter.post(
 
         if (activeSessions.length > 0) {
           // Send logout message to all active sessions
-          activeSessions.forEach((session) => {
+          activeSessions.forEach((session: Session) => {
             const logoutMessage = {
               type: "force-logout" as const,
               reason: "admin-unverified",
@@ -1225,7 +1226,7 @@ authRouter.delete(
 
       if (activeSessions.length > 0) {
         // Send logout message to all active sessions
-        activeSessions.forEach((session) => {
+        activeSessions.forEach((session: Session) => {
           const logoutMessage = {
             type: "force-logout" as const,
             reason: "admin-deleted",
