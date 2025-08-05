@@ -2,7 +2,8 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { formatDate } from "../utils/formatDate";
-
+import dotenv from "dotenv";
+dotenv.config();
 export interface ApplicantData {
   slNo: number;
   applicantName: string;
@@ -37,13 +38,25 @@ export const scrapeDemandApplicationForm = async (
   url: string
 ): Promise<ApplicantData[]> => {
   try {
-    const response = await axios.get(url, {
+    // const response = await axios.get(url, {
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    //   }
+    // });
+
+    const response = await axios.get("http://api.scraperapi.com", {
+      params: {
+        api_key: process.env.SCRAPER_API_KEY,
+        url: url,
+        keep_headers: "true",
+      },
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
       }
     });
-
     const $ = cheerio.load(response.data);
     const applicantsData: ApplicantData[] = [];
 

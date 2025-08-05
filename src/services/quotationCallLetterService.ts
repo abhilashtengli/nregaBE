@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-
+import dotenv from "dotenv";
+dotenv.config();
 export interface MaterialData {
   slNo: number;
   materialName: string;
@@ -39,10 +40,22 @@ export const scrapeTechnicalEstimateMaterialData = async (
   try {
     console.log(`Scraping technical estimate from: ${url}`);
 
-    const response = await axios.get(url, {
+    // const response = await axios.get(url, {
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    //   }
+    // });
+    const response = await axios.get("http://api.scraperapi.com", {
+      params: {
+        api_key: process.env.SCRAPER_API_KEY,
+        url: url,
+        keep_headers: "true",
+      },
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
       }
     });
 
@@ -112,10 +125,22 @@ export const scrapeAdministrativeSanctionNumber = async (
     console.log(`Scraping administrative sanction from: ${url}`);
     console.log(`Looking for work code: ${workCode}`);
 
-    const response = await axios.get(url, {
+    // const response = await axios.get(url, {
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    //   }
+    // });
+    const response = await axios.get("http://api.scraperapi.com", {
+      params: {
+        api_key: process.env.SCRAPER_API_KEY,
+        url: url,
+        keep_headers: "true",
+      },
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
       }
     });
 

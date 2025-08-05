@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 import axios from "axios";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 import {
@@ -39,6 +40,8 @@ export class MgnregaScraperService {
           Accept: "text/html,application/xhtml+xml"
         }
       });
+      
+      console.log("Response : ", response);
 
       const $ = cheerio.load(response.data);
 

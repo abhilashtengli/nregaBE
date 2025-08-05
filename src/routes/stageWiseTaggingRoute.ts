@@ -4,7 +4,8 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { findPanchayatByCode } from "../utils/findPanchayat";
 import { userAuth } from "../middleware/auth";
-
+import dotenv from "dotenv";
+dotenv.config();
 // Types
 interface PanchayatData {
   district_name_kn: string;
@@ -462,17 +463,30 @@ const scrapeGeotaggedPhotographs = async (
       throw new Error("URL and work code are required for scraping");
     }
 
-    const response = await axios.get(url, {
-      timeout: 15000,
-      maxRedirects: 5,
+    // const response = await axios.get(url, {
+    //   timeout: 15000,
+    //   maxRedirects: 5,
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    //     Accept:
+    //       "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    //     "Accept-Language": "en-US,en;q=0.5",
+    //     "Accept-Encoding": "gzip, deflate",
+    //     Connection: "keep-alive"
+    //   }
+    // });
+
+    const response = await axios.get("http://api.scraperapi.com", {
+      params: {
+        api_key: process.env.SCRAPER_API_KEY,
+        url: url,
+        keep_headers: "true",
+      },
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate",
-        Connection: "keep-alive"
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
       }
     });
 

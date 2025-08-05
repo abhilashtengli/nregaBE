@@ -9,17 +9,19 @@ import {
   VendorApiResponse
 } from "../services/vendorService";
 import { userAuth } from "../middleware/auth";
+import dotenv from "dotenv";
+dotenv.config();
 const getVendorsRouter = express.Router();
 
 getVendorsRouter.get(
   "/vendors/kalaburagi",
-  userAuth,
+  // userAuth,
   async (req: Request, res: Response<VendorApiResponse>) => {
     try {
       const axiosInstance = createAxiosInstance();
-
-      // Step 1: Fetch the initial page to get the KALABURAGI GST link
       const initialResponse = await axiosInstance.get(VENDOR_INITIAL_URL);
+
+      console.log("API : ", VENDOR_INITIAL_URL);
 
       if (initialResponse.status !== 200) {
         throw new Error(
@@ -39,7 +41,7 @@ getVendorsRouter.get(
 
       // Step 3: Construct the full URL and fetch vendor details
       const fullGstUrl = `${VENDOR_BASE_URL}/${gstLink}`;
-
+      console.log("API : ", fullGstUrl);
       const vendorResponse = await axiosInstance.get(fullGstUrl);
 
       if (vendorResponse.status !== 200) {

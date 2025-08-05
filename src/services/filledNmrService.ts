@@ -1,7 +1,8 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { formatDate } from "../utils/formatDate";
-
+import dotenv from "dotenv";
+dotenv.config();
 export interface FilledNmrWorkerData {
   slNo: number;
   name: string;
@@ -59,16 +60,28 @@ export const getUniqueMusterRollNumbers = async (
   url: string
 ): Promise<string[]> => {
   const fetchData = async () => {
-    const response = await axios.get(url, {
-      timeout: 30000, // Increased timeout to 30 seconds
+    // const response = await axios.get(url, {
+    //   timeout: 30000, // Increased timeout to 30 seconds
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    //     Accept:
+    //       "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    //     "Accept-Language": "en-US,en;q=0.5",
+    //     "Cache-Control": "no-cache",
+    //     Pragma: "no-cache"
+    //   }
+    // });
+    const response = await axios.get("http://api.scraperapi.com", {
+      params: {
+        api_key: process.env.SCRAPER_API_KEY,
+        url: url,
+        keep_headers: "true",
+      },
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Cache-Control": "no-cache",
-        Pragma: "no-cache"
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
       }
     });
     return response;
@@ -138,16 +151,28 @@ export const scrapeFilledEMusterRollsData = async (
   toDate: string;
 }> => {
   const fetchData = async () => {
-    const response = await axios.get(url, {
-      timeout: 30000, // Increased timeout
+    // const response = await axios.get(url, {
+    //   timeout: 30000, // Increased timeout
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    //     Accept:
+    //       "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    //     "Accept-Language": "en-US,en;q=0.5",
+    //     "Cache-Control": "no-cache",
+    //     Pragma: "no-cache"
+    //   }
+    // });
+      const response = await axios.get("http://api.scraperapi.com", {
+      params: {
+        api_key: process.env.SCRAPER_API_KEY,
+        url: url,
+        keep_headers: "true",
+      },
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Cache-Control": "no-cache",
-        Pragma: "no-cache"
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
       }
     });
     return response;

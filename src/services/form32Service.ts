@@ -153,8 +153,10 @@ export const scrapeMaterialVoucherData = async (
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
           Accept: "text/html,application/xhtml+xml"
-        },
+        }
       });
+
+      console.log("Form 32 Response : ", response);
 
       const $ = cheerio.load(response.data);
 
@@ -267,7 +269,7 @@ export const scrapeMaterialVoucherDataByWorkCode = async (
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
         Accept: "text/html,application/xhtml+xml"
-      },
+      }
     });
 
     const $ = cheerio.load(response.data);

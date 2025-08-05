@@ -27,8 +27,8 @@ export const createAxiosInstance = () => {
       "Accept-Language": "en-US,en;q=0.5",
       "Accept-Encoding": "gzip, deflate",
       Connection: "keep-alive",
-      "Upgrade-Insecure-Requests": "1",
-    },
+      "Upgrade-Insecure-Requests": "1"
+    }
   });
 };
 
@@ -82,7 +82,7 @@ export const extractVendorDetails = (html: string): Vendor[] => {
         if (vendorName && gstNo && vendorName !== "Vendor Name") {
           vendors.push({
             vendorName: vendorName.toUpperCase(),
-            gstNo: gstNo.toUpperCase(),
+            gstNo: gstNo.toUpperCase()
           });
         }
       }

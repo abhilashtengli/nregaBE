@@ -15,7 +15,6 @@ export async function getKalaburagiVendors(): Promise<VendorApiResponse> {
   try {
     const axiosInstance = createAxiosInstance();
 
-    // Step 1: Fetch the initial page to get the GST link
     const initialResponse = await axiosInstance.get(VENDOR_INITIAL_URL);
     if (initialResponse.status !== 200) {
       throw new Error(

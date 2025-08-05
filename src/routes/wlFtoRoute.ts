@@ -4,7 +4,8 @@ import * as cheerio from "cheerio";
 import { prisma } from "@lib/prisma";
 import { findPanchayatByCode } from "../utils/findPanchayat";
 import { userAuth } from "../middleware/auth";
-
+import dotenv from "dotenv";
+dotenv.config();
 const ftoRouter = express.Router();
 
 // Types for the FTO data structure
@@ -45,17 +46,29 @@ interface FTOResponse {
 async function scrapeWageListFTO(url: string): Promise<FTOItem[]> {
   try {
     // Set up axios with timeout and proper headers
-    const response = await axios.get(url, {
-      timeout: 30000,
+    // const response = await axios.get(url, {
+    //   timeout: 30000,
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    //     Accept:
+    //       "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    //     "Accept-Language": "en-US,en;q=0.5",
+    //     "Accept-Encoding": "gzip, deflate",
+    //     Connection: "keep-alive",
+    //     "Upgrade-Insecure-Requests": "1"
+    //   }
+    // });
+    const response = await axios.get("http://api.scraperapi.com", {
+      params: {
+        api_key: process.env.SCRAPER_API_KEY,
+        url: url,
+        keep_headers: "true"
+      },
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate",
-        Connection: "keep-alive",
-        "Upgrade-Insecure-Requests": "1"
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
       }
     });
 

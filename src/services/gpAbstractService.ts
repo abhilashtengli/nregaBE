@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-
+import dotenv from "dotenv";
+dotenv.config();
 interface TechnicalEstimateData {
   approvedInAnnualPlan: string;
   includedInPerspectivePlan: string;
@@ -67,11 +68,23 @@ export async function scrapeGpAbstractTechnicalEstimate(
 ): Promise<TechnicalEstimateData | null> {
   try {
     // Fetch the HTML content
-    const response = await axios.get(technicalEstimateUrl, {
+    // const response = await axios.get(technicalEstimateUrl, {
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    //   },
+    // });
+    const response = await axios.get("http://api.scraperapi.com", {
+      params: {
+        api_key: process.env.SCRAPER_API_KEY,
+        url: technicalEstimateUrl,
+        keep_headers: "true",
+      },
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-      },
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
+      }
     });
 
     if (response.status !== 200) {
@@ -130,15 +143,28 @@ export async function scrapeTechnicalEstimateWithRetry(
     try {
       attempt++;
 
-      const response = await axios.get(technicalEstimateUrl, {
+      // const response = await axios.get(technicalEstimateUrl, {
+      //   headers: {
+      //     "User-Agent":
+      //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      //     Accept:
+      //       "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      //     "Accept-Language": "en-US,en;q=0.5",
+      //     "Cache-Control": "no-cache",
+      //     Pragma: "no-cache"
+      //   },
+      //   validateStatus: (status) => status < 500 // Don't throw for 4xx errors
+      // });
+      const response = await axios.get("http://api.scraperapi.com", {
+        params: {
+          api_key: process.env.SCRAPER_API_KEY,
+          url: technicalEstimateUrl,
+          keep_headers: "true",
+        },
         headers: {
           "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-          Accept:
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-          "Accept-Language": "en-US,en;q=0.5",
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml"
         },
         validateStatus: (status) => status < 500 // Don't throw for 4xx errors
       });
@@ -251,11 +277,23 @@ export async function scrapeMusterRolls(
 ): Promise<MusterRollData | null> {
   try {
     // Fetch the HTML content
-    const response = await axios.get(filledEMusterRollsUrl, {
+    // const response = await axios.get(filledEMusterRollsUrl, {
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    //   }
+    // });
+    const response = await axios.get("http://api.scraperapi.com", {
+      params: {
+        api_key: process.env.SCRAPER_API_KEY,
+        url: filledEMusterRollsUrl,
+        keep_headers: "true",
+      },
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-      },
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
+      }
     });
 
     if (response.status !== 200) {
@@ -367,11 +405,23 @@ export async function scrapeMusterRollsWithPagination(
       // Construct URL with page parameter (adjust based on actual pagination structure)
       const url = `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}page=${currentPage}`;
 
-      const response = await axios.get(url, {
+      // const response = await axios.get(url, {
+      //   headers: {
+      //     "User-Agent":
+      //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+      //   }
+      // });
+      const response = await axios.get("http://api.scraperapi.com", {
+        params: {
+          api_key: process.env.SCRAPER_API_KEY,
+          url: url,
+          keep_headers: "true",
+        },
         headers: {
           "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        },
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml"
+        }
       });
 
       if (response.status !== 200) {
@@ -531,11 +581,23 @@ export async function scrapeGeotaggedPhotographs(
 ): Promise<GeotaggedPhotographsData | null> {
   try {
     // Fetch the HTML content
-    const response = await axios.get(geotaggedPhotographsUrl, {
+    // const response = await axios.get(geotaggedPhotographsUrl, {
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    //   }
+    // });
+      const response = await axios.get("http://api.scraperapi.com", {
+      params: {
+        api_key: process.env.SCRAPER_API_KEY,
+        url: geotaggedPhotographsUrl,
+        keep_headers: "true",
+      },
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-      },
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
+      }
     });
 
     if (response.status !== 200) {

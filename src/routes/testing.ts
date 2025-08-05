@@ -121,7 +121,32 @@ const retryRequest = async (
       };
 
       logger.info(`Attempting to fetch ${url} (attempt ${attempt})`);
-      const response: AxiosResponse = await axiosInstance.get(url, config);
+      // const response: AxiosResponse = await axiosInstance.get(url, config);
+
+      const response = await axios.get("http://api.scraperapi.com", {
+        params: {
+          api_key: process.env.SCRAPER_API_KEY!,
+          url,
+          keep_headers: "true"
+        },
+        timeout: config.timeout ?? 20000,
+        maxRedirects: config.maxRedirects ?? 5,
+        validateStatus: (status: number): boolean =>
+          (status >= 200 && status < 300) ||
+          [429, 500, 502, 503, 504].includes(status),
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/91.0.4472.124 Safari/537.36",
+          Accept:
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.5",
+          "Accept-Encoding": "gzip, deflate",
+          Connection: "keep-alive",
+          "Upgrade-Insecure-Requests": "1",
+          ...(cookieStore && { Cookie: cookieStore }),
+          ...config.headers
+        }
+      });
 
       if (response.status >= 200 && response.status < 300) {
         logger.info(`Successfully fetched ${url} on attempt ${attempt}`);
