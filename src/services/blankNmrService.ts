@@ -2,6 +2,7 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { formatDate } from "../utils/formatDate";
 import dotenv from "dotenv";
+import { proxyAgent } from "./ProxyService/proxyServiceAgent";
 dotenv.config();
 export interface WorkerData {
   slNo: number;
@@ -64,17 +65,20 @@ export const scrapeBlankNmrTechnicalSanction = async (
     //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     //   }
     // });
-    const response = await axios.get("http://api.scraperapi.com", {
-      params: {
-        api_key: process.env.SCRAPER_API_KEY,
-        url: url,
-        keep_headers: "true"
-      },
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml"
-      }
+    // const response = await axios.get("http://api.scraperapi.com", {
+    //   params: {
+    //     api_key: process.env.SCRAPER_API_KEY,
+    //     url: url,
+    //     keep_headers: "true"
+    //   },
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+    //     Accept: "text/html,application/xhtml+xml"
+    //   }
+    // });
+    const response = await axios.get(url, {
+      httpsAgent: proxyAgent
     });
 
     const $ = cheerio.load(response.data);
@@ -145,17 +149,20 @@ export const scrapeBlankNmrAdministrativeSanction = async (
     //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     //   }
     // });
-    const response = await axios.get("http://api.scraperapi.com", {
-      params: {
-        api_key: process.env.SCRAPER_API_KEY,
-        url: url,
-        keep_headers: "true"
-      },
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml"
-      }
+    // const response = await axios.get("http://api.scraperapi.com", {
+    //   params: {
+    //     api_key: process.env.SCRAPER_API_KEY,
+    //     url: url,
+    //     keep_headers: "true"
+    //   },
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+    //     Accept: "text/html,application/xhtml+xml"
+    //   }
+    // });
+    const response = await axios.get(url, {
+      httpsAgent: proxyAgent
     });
 
     const $ = cheerio.load(response.data);
@@ -229,17 +236,20 @@ export const getUniqueMustrollNumbers = async (
     //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     //   }
     // });
-    const response = await axios.get("http://api.scraperapi.com", {
-      params: {
-        api_key: process.env.SCRAPER_API_KEY,
-        url: url,
-        keep_headers: "true"
-      },
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml"
-      }
+    // const response = await axios.get("http://api.scraperapi.com", {
+    //   params: {
+    //     api_key: process.env.SCRAPER_API_KEY,
+    //     url: url,
+    //     keep_headers: "true"
+    //   },
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+    //     Accept: "text/html,application/xhtml+xml"
+    //   }
+    // });
+    const response = await axios.get(url, {
+      httpsAgent: proxyAgent
     });
 
     const $ = cheerio.load(response.data);
@@ -294,17 +304,20 @@ export const getWorkerDataByMustroll = async (
     //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     //   }
     // });
-    const response = await axios.get("http://api.scraperapi.com", {
-      params: {
-        api_key: process.env.SCRAPER_API_KEY,
-        url: url,
-        keep_headers: "true"
-      },
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml"
-      }
+    // const response = await axios.get("http://api.scraperapi.com", {
+    //   params: {
+    //     api_key: process.env.SCRAPER_API_KEY,
+    //     url: url,
+    //     keep_headers: "true"
+    //   },
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+    //     Accept: "text/html,application/xhtml+xml"
+    //   }
+    // });
+    const response = await axios.get(url, {
+      httpsAgent: proxyAgent
     });
 
     const $ = cheerio.load(response.data);

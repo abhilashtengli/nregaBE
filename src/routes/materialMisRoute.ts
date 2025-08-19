@@ -5,6 +5,7 @@ import * as cheerio from "cheerio";
 import winston, { Logger } from "winston";
 import { URL } from "url";
 import { userAuth } from "../middleware/auth";
+import { proxyAgent } from "../services/ProxyService/proxyServiceAgent";
 
 const testingVendorScrape = express.Router();
 
@@ -95,32 +96,32 @@ const MAX_CONCURRENT_REQUESTS: number = 2;
 let cookieStore: string = "";
 
 // Create axios instance with manual cookie handling
-const axiosInstance: AxiosInstance = axios.create({
-  timeout: 20000,
-  maxRedirects: 5,
-  validateStatus: (status: number): boolean =>
-    (status >= 200 && status < 300) ||
-    [429, 500, 502, 503, 504].includes(status)
-});
+// const axiosInstance: AxiosInstance = axios.create({
+//   timeout: 20000,
+//   maxRedirects: 5,
+//   validateStatus: (status: number): boolean =>
+//     (status >= 200 && status < 300) ||
+//     [429, 500, 502, 503, 504].includes(status)
+// });
 
 // Add request interceptor to include cookies
-axiosInstance.interceptors.request.use((config) => {
-  if (cookieStore) {
-    config.headers["Cookie"] = cookieStore;
-  }
-  return config;
-});
+// axiosInstance.interceptors.request.use((config) => {
+//   if (cookieStore) {
+//     config.headers["Cookie"] = cookieStore;
+//   }
+//   return config;
+// });
 
-// Add response interceptor to store cookies
-axiosInstance.interceptors.response.use((response) => {
-  const setCookieHeader = response.headers["set-cookie"];
-  if (setCookieHeader) {
-    cookieStore = setCookieHeader
-      .map((cookie) => cookie.split(";")[0])
-      .join("; ");
-  }
-  return response;
-});
+// // Add response interceptor to store cookies
+// axiosInstance.interceptors.response.use((response) => {
+//   const setCookieHeader = response.headers["set-cookie"];
+//   if (setCookieHeader) {
+//     cookieStore = setCookieHeader
+//       .map((cookie) => cookie.split(";")[0])
+//       .join("; ");
+//   }
+//   return response;
+// });
 
 // Generate financial years based on user input
 const generateFinancialYears = (userFinancialYear: string): string[] => {
@@ -157,7 +158,10 @@ const retryRequest = async (
         }
       };
 
-      const response: AxiosResponse = await axiosInstance.get(url, config);
+      // const response: AxiosResponse = await axiosInstance.get(url, config);
+      const response = await axios.get(url, {
+        httpsAgent: proxyAgent
+      });
 
       if (response.status >= 200 && response.status < 300) {
         return response;

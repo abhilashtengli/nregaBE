@@ -3,6 +3,7 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { formatDate } from "../utils/formatDate";
 import dotenv from "dotenv";
+import { proxyAgent } from "./ProxyService/proxyServiceAgent";
 dotenv.config();
 export interface ApplicantData {
   slNo: number;
@@ -45,17 +46,20 @@ export const scrapeDemandApplicationForm = async (
     //   }
     // });
 
-    const response = await axios.get("http://api.scraperapi.com", {
-      params: {
-        api_key: process.env.SCRAPER_API_KEY,
-        url: url,
-        keep_headers: "true",
-      },
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml"
-      }
+    // const response = await axios.get("http://api.scraperapi.com", {
+    //   params: {
+    //     api_key: process.env.SCRAPER_API_KEY,
+    //     url: url,
+    //     keep_headers: "true",
+    //   },
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+    //     Accept: "text/html,application/xhtml+xml"
+    //   }
+    // });
+    const response = await axios.get(url, {
+      httpsAgent: proxyAgent
     });
     const $ = cheerio.load(response.data);
     const applicantsData: ApplicantData[] = [];

@@ -5,6 +5,7 @@ import * as cheerio from "cheerio";
 import winston, { Logger } from "winston";
 import { URL } from "url";
 import { userAuth } from "../middleware/auth";
+import { proxyAgent } from "../services/ProxyService/proxyServiceAgent";
 
 const testingVendorScrape = express.Router();
 
@@ -74,33 +75,33 @@ const MAX_CONCURRENT_REQUESTS: number = 2;
 let cookieStore: string = "";
 
 // Create axios instance with manual cookie handling
-const axiosInstance: AxiosInstance = axios.create({
-  timeout: 20000,
-  maxRedirects: 5,
-  validateStatus: (status: number): boolean =>
-    (status >= 200 && status < 300) ||
-    [429, 500, 502, 503, 504].includes(status)
-});
+// const axiosInstance: AxiosInstance = axios.create({
+//   timeout: 20000,
+//   maxRedirects: 5,
+//   validateStatus: (status: number): boolean =>
+//     (status >= 200 && status < 300) ||
+//     [429, 500, 502, 503, 504].includes(status)
+// });
 
-// Add request interceptor to include cookies
-axiosInstance.interceptors.request.use((config) => {
-  if (cookieStore) {
-    config.headers["Cookie"] = cookieStore;
-  }
-  return config;
-});
+// // Add request interceptor to include cookies
+// axiosInstance.interceptors.request.use((config) => {
+//   if (cookieStore) {
+//     config.headers["Cookie"] = cookieStore;
+//   }
+//   return config;
+// });
 
-// Add response interceptor to store cookies
-axiosInstance.interceptors.response.use((response) => {
-  const setCookieHeader = response.headers["set-cookie"];
-  if (setCookieHeader) {
-    cookieStore = setCookieHeader
-      .map((cookie) => cookie.split(";")[0])
-      .join("; ");
-    logger.info(`Stored cookies: ${cookieStore}`);
-  }
-  return response;
-});
+// // Add response interceptor to store cookies
+// axiosInstance.interceptors.response.use((response) => {
+//   const setCookieHeader = response.headers["set-cookie"];
+//   if (setCookieHeader) {
+//     cookieStore = setCookieHeader
+//       .map((cookie) => cookie.split(";")[0])
+//       .join("; ");
+//     logger.info(`Stored cookies: ${cookieStore}`);
+//   }
+//   return response;
+// });
 
 // Improved retry request with better session handling
 const retryRequest = async (
@@ -123,29 +124,37 @@ const retryRequest = async (
       logger.info(`Attempting to fetch ${url} (attempt ${attempt})`);
       // const response: AxiosResponse = await axiosInstance.get(url, config);
 
-      const response = await axios.get("http://api.scraperapi.com", {
-        params: {
-          api_key: process.env.SCRAPER_API_KEY!,
-          url,
-          keep_headers: "true"
-        },
+      // const response = await axios.get("http://api.scraperapi.com", {
+      //   params: {
+      //     api_key: process.env.SCRAPER_API_KEY!,
+      //     url,
+      //     keep_headers: "true"
+      //   },
+      //   timeout: config.timeout ?? 20000,
+      //   maxRedirects: config.maxRedirects ?? 5,
+      //   validateStatus: (status: number): boolean =>
+      //     (status >= 200 && status < 300) ||
+      //     [429, 500, 502, 503, 504].includes(status),
+      //   headers: {
+      //     "User-Agent":
+      //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/91.0.4472.124 Safari/537.36",
+      //     Accept:
+      //       "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      //     "Accept-Language": "en-US,en;q=0.5",
+      //     "Accept-Encoding": "gzip, deflate",
+      //     Connection: "keep-alive",
+      //     "Upgrade-Insecure-Requests": "1",
+      //     ...(cookieStore && { Cookie: cookieStore }),
+      //     ...config.headers
+      //   }
+      // });
+      const response = await axios.get(url, {
+        httpsAgent: proxyAgent,
         timeout: config.timeout ?? 20000,
         maxRedirects: config.maxRedirects ?? 5,
         validateStatus: (status: number): boolean =>
           (status >= 200 && status < 300) ||
-          [429, 500, 502, 503, 504].includes(status),
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/91.0.4472.124 Safari/537.36",
-          Accept:
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-          "Accept-Language": "en-US,en;q=0.5",
-          "Accept-Encoding": "gzip, deflate",
-          Connection: "keep-alive",
-          "Upgrade-Insecure-Requests": "1",
-          ...(cookieStore && { Cookie: cookieStore }),
-          ...config.headers
-        }
+          [429, 500, 502, 503, 504].includes(status)
       });
 
       if (response.status >= 200 && response.status < 300) {

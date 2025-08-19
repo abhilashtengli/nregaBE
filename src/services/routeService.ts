@@ -7,15 +7,21 @@ import {
   VENDOR_INITIAL_URL,
   VendorApiResponse
 } from "../services/vendorService";
+import { HttpsProxyAgent } from "https-proxy-agent";
+import { proxyAgent } from "./ProxyService/proxyServiceAgent";
 
 /**
  * Fetches and returns vendor details for Kalaburagi
  */
 export async function getKalaburagiVendors(): Promise<VendorApiResponse> {
   try {
-    const axiosInstance = createAxiosInstance();
+    // const axiosInstance = createAxiosInstance();
 
-    const initialResponse = await axiosInstance.get(VENDOR_INITIAL_URL);
+    // const initialResponse = await axiosInstance.get(VENDOR_INITIAL_URL);
+
+    const initialResponse = await axios.get(VENDOR_INITIAL_URL, {
+      httpsAgent: proxyAgent
+    });
     if (initialResponse.status !== 200) {
       throw new Error(
         `Failed to fetch initial page. Status: ${initialResponse.status}`
@@ -33,7 +39,11 @@ export async function getKalaburagiVendors(): Promise<VendorApiResponse> {
 
     // Step 3: Construct the full GST URL and fetch vendor data
     const fullGstUrl = `${VENDOR_BASE_URL}/${gstLink}`;
-    const vendorResponse = await axiosInstance.get(fullGstUrl);
+    // const vendorResponse = await axiosInstance.get(fullGstUrl);
+    const vendorResponse = await axios.get(fullGstUrl, {
+      httpsAgent: proxyAgent
+    });
+
     if (vendorResponse.status !== 200) {
       throw new Error(
         `Failed to fetch vendor details. Status: ${vendorResponse.status}`

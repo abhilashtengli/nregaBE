@@ -202,6 +202,8 @@ scrapRouter.post(
 
       const vendorName = materialVoucherData?.vendorName;
       const { success, data: vendors } = await getKalaburagiVendors();
+      console.log("Vendors fetched:", vendors);
+      console.log("Vendors name:", vendorName);
 
       const vendorDetails = vendors?.find(
         (v) =>

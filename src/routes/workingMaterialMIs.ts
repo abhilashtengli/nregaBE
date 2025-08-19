@@ -11,6 +11,7 @@ import {
   scrapeMaterialVoucherData
 } from "../services/form32Service";
 import { userAuth } from "../middleware/auth";
+import { proxyAgent } from "../services/ProxyService/proxyServiceAgent";
 
 const workingtestingVendorScrape = express.Router();
 
@@ -102,10 +103,11 @@ const MAX_CONCURRENT_REQUESTS: number = 2;
 // Simple cookie storage
 let cookieStore: string = "";
 
-// Create axios instance with manual cookie handling
+// Create axios instance with proxy agent and manual cookie handling
 const axiosInstance: AxiosInstance = axios.create({
   timeout: 20000,
   maxRedirects: 5,
+  httpsAgent: proxyAgent,
   validateStatus: (status: number): boolean =>
     (status >= 200 && status < 300) ||
     [429, 500, 502, 503, 504].includes(status)
@@ -120,15 +122,21 @@ axiosInstance.interceptors.request.use((config) => {
 });
 
 // Add response interceptor to store cookies
-axiosInstance.interceptors.response.use((response) => {
-  const setCookieHeader = response.headers["set-cookie"];
-  if (setCookieHeader) {
-    cookieStore = setCookieHeader
-      .map((cookie) => cookie.split(";")[0])
-      .join("; ");
+axiosInstance.interceptors.response.use(
+  (response) => {
+    const setCookieHeader = response.headers["set-cookie"];
+    if (setCookieHeader) {
+      cookieStore = setCookieHeader
+        .map((cookie) => cookie.split(";")[0])
+        .join("; ");
+    }
+    return response;
+  },
+  (error) => {
+    // Handle errors but still return the promise rejection
+    return Promise.reject(error);
   }
-  return response;
-});
+);
 
 // Generate financial years based on user input
 const generateFinancialYears = (userFinancialYear: string): string[] => {
@@ -165,21 +173,43 @@ const retryRequest = async (
         }
       };
 
+      logger.info(`Attempting to fetch ${url} (attempt ${attempt})`);
       const response: AxiosResponse = await axiosInstance.get(url, config);
 
       if (response.status >= 200 && response.status < 300) {
+        logger.info(
+          `Successfully fetched ${url} with status ${response.status}`
+        );
         return response;
+      } else {
+        logger.warn(`Received status ${response.status} for ${url}`);
       }
     } catch (error: any) {
       logger.error(
         `Error fetching ${url} (attempt ${attempt}): ${error.message}`
       );
+
+      // Enhanced error logging
+      if (error.response) {
+        logger.error(`Response status: ${error.response.status}`);
+        logger.error(
+          `Response data preview: ${JSON.stringify(error.response.data).substring(0, 200)}`
+        );
+      } else if (error.request) {
+        logger.error(`Request failed - no response received`);
+      } else {
+        logger.error(`Request setup error: ${error.message}`);
+      }
     }
+
     if (attempt < retries) {
       const delay = backoff * Math.pow(2, attempt - 1);
+      logger.info(`Retrying after ${delay}ms...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
+
+  logger.error(`Failed to fetch ${url} after ${retries} attempts`);
   return null;
 };
 
@@ -245,6 +275,9 @@ const extractTablesWc = (
       table !== null && tableContainsWorkcode(table, workcode)
   );
 
+  logger.info(
+    `Found ${validTables.length} valid tables containing workcode ${workcode}`
+  );
   return validTables;
 };
 
@@ -259,6 +292,8 @@ export const extractDataFromTable = (tableData: string[][]): ExtractedData => {
 
   let currentBillData: Partial<MaterialData> = {};
 
+  logger.info(`Extracting data from table with ${tableData.length} rows`);
+
   for (let i = 0; i < tableData.length; i++) {
     const row = tableData[i];
 
@@ -267,6 +302,7 @@ export const extractDataFromTable = (tableData: string[][]): ExtractedData => {
       const workCodeMatch = row[0].match(/\(([^)]+)\)/);
       if (workCodeMatch) {
         extractedData.workCode = workCodeMatch[1];
+        logger.info(`Extracted work code: ${extractedData.workCode}`);
       }
     }
 
@@ -287,10 +323,12 @@ export const extractDataFromTable = (tableData: string[][]): ExtractedData => {
     // 🎯 NEW VENDOR EXTRACTION LOGIC BASED ON CURRENT FORMAT
     if (row[0] && row[0].startsWith("Vendor name :")) {
       extractedData.vendorName = row[0].substring(14).trim();
+      logger.info(`Extracted vendor name: ${extractedData.vendorName}`);
     }
 
     if (row[1] && row[1].startsWith("Financial Year :")) {
       extractedData.financialYear = row[1].substring(17).trim();
+      logger.info(`Extracted financial year: ${extractedData.financialYear}`);
     }
 
     // 🎯 SUPER SIMPLE MATERIAL DETECTION
@@ -321,11 +359,15 @@ export const extractDataFromTable = (tableData: string[][]): ExtractedData => {
           };
 
           extractedData.materialData.push(materialEntry);
+          logger.info(`Added material entry: ${materialEntry.material}`);
         }
       }
     }
   }
 
+  logger.info(
+    `Extraction completed. Found ${extractedData.materialData.length} material entries`
+  );
   return extractedData;
 };
 
@@ -346,6 +388,7 @@ export const fetchAvailableLinksWc = ($: cheerio.CheerioAPI): string[] => {
     }
   });
 
+  logger.info(`Found ${orderedLinks.length} gpwrkbilldtl links`);
   return orderedLinks;
 };
 
@@ -353,6 +396,7 @@ export const initializeSession = async (
   mainUrl: string
 ): Promise<SessionResult> => {
   try {
+    logger.info(`Initializing session with URL: ${mainUrl}`);
     const response: AxiosResponse | null = await retryRequest(mainUrl);
     if (!response) {
       logger.error(`Failed to initialize session with main URL: ${mainUrl}`);
@@ -362,6 +406,9 @@ export const initializeSession = async (
     const $: cheerio.CheerioAPI = cheerio.load(response.data);
     const links: string[] = fetchAvailableLinksWc($);
 
+    logger.info(
+      `Session initialized successfully. Found ${links.length} links`
+    );
     return { success: true, links };
   } catch (error: any) {
     logger.error(`Failed to initialize session: ${error.message}`);
@@ -377,6 +424,7 @@ export const processGpwrkbilldtlUrl = async (
   referer?: string
 ): Promise<ProcessResult> => {
   try {
+    logger.info(`Processing gpwrkbilldtl URL: ${url}`);
     const response: AxiosResponse | null = await retryRequest(
       url,
       3,
@@ -384,6 +432,7 @@ export const processGpwrkbilldtlUrl = async (
       referer
     );
     if (!response) {
+      logger.warn(`No response received for URL: ${url}`);
       return { tables: null, url };
     }
 
@@ -391,9 +440,11 @@ export const processGpwrkbilldtlUrl = async (
     const tables: string[][][] = extractTablesWc($, workcode, url);
 
     if (tables.length > 0) {
+      logger.info(`Successfully extracted ${tables.length} tables from ${url}`);
       return { tables: tables[0] || null, url };
     }
 
+    logger.warn(`No tables found containing workcode ${workcode} in ${url}`);
     return { tables: null, url };
   } catch (error: any) {
     logger.error(`Failed to fetch gpwrkbilldtl page: ${error.message}`);
@@ -406,14 +457,18 @@ export const mainGpwrkbilldtl = async (
 ): Promise<ExtractedData | null> => {
   const financialYears = generateFinancialYears(requestData.financialYear);
 
+  logger.info(`Processing financial years: ${financialYears.join(", ")}`);
+
   for (const financialYear of financialYears) {
     const mainUrl = generateUrl(requestData, financialYear);
 
     // Clear cookies for each financial year
     cookieStore = "";
+    logger.info(`Cleared cookies for financial year: ${financialYear}`);
 
     const { success, links }: SessionResult = await initializeSession(mainUrl);
     if (!success || !links.length) {
+      logger.warn(`No links found for financial year: ${financialYear}`);
       continue;
     }
 
@@ -427,10 +482,14 @@ export const mainGpwrkbilldtl = async (
     );
 
     if (result.tables) {
+      logger.info(
+        `Successfully found data for financial year: ${financialYear}`
+      );
       return extractDataFromTable(result.tables);
     }
   }
 
+  logger.warn(`No data found for any financial year`);
   return null;
 };
 
@@ -442,6 +501,9 @@ workingtestingVendorScrape.get(
     try {
       const totalStartTime: number = Date.now();
       const { id } = req.params;
+
+      logger.info(`Processing request for work detail ID: ${id}`);
+
       if (!id) {
         res.status(400).json({
           success: false,
@@ -450,6 +512,7 @@ workingtestingVendorScrape.get(
         });
         return;
       }
+
       // Fetch work details from database
       const workDetail = await prisma.workDetail.findUnique({
         where: { id: id },
@@ -465,6 +528,7 @@ workingtestingVendorScrape.get(
       });
 
       if (!workDetail) {
+        logger.error(`Work Detail not found for ID: ${id}`);
         res.status(404).json({
           success: false,
           error: "Work Detail not found",
@@ -472,11 +536,13 @@ workingtestingVendorScrape.get(
         });
         return;
       }
+
       const workCodeParts = workDetail.workCode.split("/");
       const panchayatCode = workCodeParts[0];
       const panchayatData = findPanchayatByCode(panchayatCode);
 
       if (!panchayatData) {
+        logger.error(`Panchayat data not found for code: ${panchayatCode}`);
         res.status(404).json({
           success: false,
           error: `Panchayat data not found for code: ${panchayatCode}. Please add this panchayat to your constants file.`
@@ -502,40 +568,49 @@ workingtestingVendorScrape.get(
         !requestData.panchayatName ||
         !requestData.panchayatCode
       ) {
+        logger.error("Missing required fields in request data");
         return res.status(400).json({
           error:
             "Missing required fields: workCode, financialYear, blockName, blockCode, panchayatName, panchayatCode"
         });
       }
 
+      logger.info(
+        `Starting data extraction for work code: ${requestData.workCode}`
+      );
       const extractedData = await mainGpwrkbilldtl(requestData);
+
       const workDocument = await prisma.workDocuments.findUnique({
         where: { workCode: workDetail.workCode },
         select: {
           materialVouchers: true
         }
       });
+
       let materialVoucherData: MaterialVoucherData | null = null;
 
       if (workDocument && workDocument.materialVouchers) {
         try {
+          logger.info("Scraping material voucher data");
           // Scrape material voucher data
           materialVoucherData = await scrapeMaterialVoucherData(
             workDocument.materialVouchers
           );
 
           if (materialVoucherData) {
+            logger.info("Successfully scraped material voucher data");
           } else {
-            console.warn("Failed to scrape material voucher data");
+            logger.warn("Failed to scrape material voucher data");
           }
         } catch (scrapeError: any) {
-          console.error(
+          logger.error(
             "Error scraping material voucher data:",
             scrapeError.message
           );
           // Continue execution even if scraping fails
         }
       }
+
       const responseData = {
         ...extractedData,
         workName: workDetail.workName,
@@ -558,18 +633,25 @@ workingtestingVendorScrape.get(
       const totalTime: number = (Date.now() - totalStartTime) / 1000;
 
       if (extractedData) {
+        logger.info(
+          `Processing completed successfully in ${totalTime} seconds`
+        );
         res.status(200).json({
           message: "gpwrkbilldtl processing completed successfully",
           totalTime,
           data: responseData
         });
       } else {
+        logger.warn(
+          "No data found for the specified work code and financial year"
+        );
         res.status(404).json({
           error: "No data found for the specified work code and financial year"
         });
       }
     } catch (error: any) {
       logger.error(`Error in processing: ${error.message}`);
+      logger.error(`Error stack: ${error.stack}`);
       res.status(500).json({ error: "Internal server error" });
     }
   }

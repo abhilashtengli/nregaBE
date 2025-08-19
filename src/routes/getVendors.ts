@@ -1,7 +1,6 @@
 import axios from "axios";
 import express, { Request, Response } from "express";
 import {
-  createAxiosInstance,
   extractKalaburagiGstLink,
   extractVendorDetails,
   VENDOR_BASE_URL,
@@ -10,16 +9,18 @@ import {
 } from "../services/vendorService";
 import { userAuth } from "../middleware/auth";
 import dotenv from "dotenv";
+import { proxyAgent } from "../services/ProxyService/proxyServiceAgent";
 dotenv.config();
 const getVendorsRouter = express.Router();
 
 getVendorsRouter.get(
   "/vendors/kalaburagi",
-  // userAuth,
+  userAuth,
   async (req: Request, res: Response<VendorApiResponse>) => {
     try {
-      const axiosInstance = createAxiosInstance();
-      const initialResponse = await axiosInstance.get(VENDOR_INITIAL_URL);
+      const initialResponse = await axios.get(VENDOR_INITIAL_URL, {
+        httpsAgent: proxyAgent
+      });
 
       console.log("API : ", VENDOR_INITIAL_URL);
 
@@ -42,7 +43,9 @@ getVendorsRouter.get(
       // Step 3: Construct the full URL and fetch vendor details
       const fullGstUrl = `${VENDOR_BASE_URL}/${gstLink}`;
       console.log("API : ", fullGstUrl);
-      const vendorResponse = await axiosInstance.get(fullGstUrl);
+      const vendorResponse = await axios.get(fullGstUrl, {
+        httpsAgent: proxyAgent
+      });
 
       if (vendorResponse.status !== 200) {
         throw new Error(

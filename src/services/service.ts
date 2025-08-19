@@ -9,6 +9,7 @@ import {
   WorkDetailData,
   WorkDocumentsData
 } from "../types/nrega";
+import { proxyAgent } from "./ProxyService/proxyServiceAgent";
 
 export class MgnregaScraperService {
   private baseUrl = "https://mnregaweb4.nic.in/netnrega";
@@ -28,19 +29,22 @@ export class MgnregaScraperService {
       //     Accept: "text/html,application/xhtml+xml"
       //   }
       // });
-      const response = await axios.get("http://api.scraperapi.com", {
-        params: {
-          api_key: process.env.SCRAPER_API_KEY,
-          url: url,
-          keep_headers: "true"
-        },
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
-          Accept: "text/html,application/xhtml+xml"
-        }
+      // const response = await axios.get("http://api.scraperapi.com", {
+      //   params: {
+      //     api_key: process.env.SCRAPER_API_KEY,
+      //     url: url,
+      //     keep_headers: "true"
+      //   },
+      //   headers: {
+      //     "User-Agent":
+      //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+      //     Accept: "text/html,application/xhtml+xml"
+      //   }
+      // });
+      const response = await axios.get(url, {
+        httpsAgent: proxyAgent
       });
-      
+
       console.log("Response : ", response);
 
       const $ = cheerio.load(response.data);

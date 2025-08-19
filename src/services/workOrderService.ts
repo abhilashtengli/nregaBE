@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
+import { proxyAgent } from "./ProxyService/proxyServiceAgent";
 
 interface EMusterRollData {
   dateFrom: string;
@@ -19,17 +20,20 @@ export async function scrapeEMusterRollData(
     //   }
     // });
 
-    const response = await axios.get("http://api.scraperapi.com", {
-      params: {
-        api_key: process.env.SCRAPER_API_KEY,
-        url: url,
-        keep_headers: "true"
-      },
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml"
-      }
+    // const response = await axios.get("http://api.scraperapi.com", {
+    //   params: {
+    //     api_key: process.env.SCRAPER_API_KEY,
+    //     url: url,
+    //     keep_headers: "true"
+    //   },
+    //   headers: {
+    //     "User-Agent":
+    //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36",
+    //     Accept: "text/html,application/xhtml+xml"
+    //   }
+    // });
+    const response = await axios.get(url, {
+      httpsAgent: proxyAgent
     });
 
     const $ = cheerio.load(response.data);
