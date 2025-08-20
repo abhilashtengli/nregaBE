@@ -40,6 +40,15 @@ scrapRouter.post(
     try {
       const { workCode, finYear } = req.body;
       const user = (req as RequestWithUser).user;
+
+      if (!user) {
+        res.status(404).json({
+          success: false,
+          message: "User not found",
+          code: "USER_NOT_FOUND"
+        });
+        return;
+      }
       const userPanchayatCode = await prisma.user.findUnique({
         where: {
           id: user?.id
