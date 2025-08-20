@@ -44,6 +44,7 @@ imageProxyRouter.get(
       //   }
       // });
       const response = await axios.get(url, {
+         responseType: "stream",
         httpsAgent: proxyAgent
       });
 
