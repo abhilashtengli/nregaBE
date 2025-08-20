@@ -79,207 +79,211 @@ interface AdministrativeSanctionData {
 // Scraping function for technical sanction
 
 // Main API endpoint
-blankNmrRouter.get("/get-blanknmr/:id", userAuth, async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
+blankNmrRouter.get(
+  "/get-blanknmr/:id",
+  userAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
 
-    // Validate ID parameter
-    if (!id) {
-      res.status(400).json({
-        success: false,
-        error: "Work Detail ID is required",
-        code: "MISSING_ID"
-      } as NMRResponse);
-      return;
-    }
-
-    // Fetch work details from database
-    const workDetail = await prisma.workDetail.findUnique({
-      where: { id: id },
-      select: {
-        id: true,
-        workCode: true,
-        panchayat: true,
-        block: true,
-        district: true,
-        financialYear: true,
-        workName: true
+      // Validate ID parameter
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          error: "Work Detail ID is required",
+          code: "MISSING_ID"
+        } as NMRResponse);
+        return;
       }
-    });
 
-    if (!workDetail) {
-      res.status(404).json({
-        success: false,
-        error: "Work Detail not found",
-        code: "WORK_DETAIL_NOT_FOUND"
-      } as NMRResponse);
-      return;
-    }
-    const workCodeParts = workDetail.workCode.split("/");
-    const panchayatCode = workCodeParts[0];
-    const panchayatData = findPanchayatByCode(panchayatCode);
+      // Fetch work details from database
+      const workDetail = await prisma.workDetail.findUnique({
+        where: { id: id },
+        select: {
+          id: true,
+          workCode: true,
+          panchayat: true,
+          block: true,
+          district: true,
+          financialYear: true,
+          workName: true
+        }
+      });
 
-    // Fetch work documents to get required links
-    const workDocument = await prisma.workDocuments.findFirst({
-      where: { workCode: workDetail.workCode },
-      select: {
-        id: true,
-        workCode: true,
-        technicalSanction: true,
-        administrativeSanction: true,
-        wageListFTO: true
+      if (!workDetail) {
+        res.status(404).json({
+          success: false,
+          error: "Work Detail not found",
+          code: "WORK_DETAIL_NOT_FOUND"
+        } as NMRResponse);
+        return;
       }
-    });
+      const workCodeParts = workDetail.workCode.split("/");
+      const panchayatCode = workCodeParts[0];
+      const panchayatData = findPanchayatByCode(panchayatCode);
 
-    if (!workDocument) {
-      res.status(404).json({
-        success: false,
-        error: "Work Document not found",
-        code: "WORK_DOCUMENT_NOT_FOUND"
-      } as NMRResponse);
-      return;
-    }
+      // Fetch work documents to get required links
+      const workDocument = await prisma.workDocuments.findFirst({
+        where: { workCode: workDetail.workCode },
+        select: {
+          id: true,
+          workCode: true,
+          technicalSanction: true,
+          administrativeSanction: true,
+          wageListFTO: true
+        }
+      });
 
-    // Initialize default values
-    let technicalSanctionData: TechnicalSanctionData = {
-      technicalSanctionNo: "",
-      technicalSanctionDate: ""
-    };
-
-    let administrativeSanctionData: AdministrativeSanctionData = {
-      financialSanctionNo: "",
-      financialSanctionDate: ""
-    };
-
-    let workerData: MustrollGroup[] = [];
-    let masterRollNo = "";
-    let fromDate = "";
-    let toDate = "";
-
-    // Scrape technical sanction data
-    if (workDocument.technicalSanction) {
-      const scrapedTechnicalData = await scrapeBlankNmrTechnicalSanction(
-        workDocument.technicalSanction,
-        workDetail.workCode
-      );
-      if (scrapedTechnicalData) {
-        technicalSanctionData = scrapedTechnicalData;
+      if (!workDocument) {
+        res.status(404).json({
+          success: false,
+          error: "Work Document not found",
+          code: "WORK_DOCUMENT_NOT_FOUND"
+        } as NMRResponse);
+        return;
       }
-    }
 
-    // Scrape administrative sanction data
-    if (workDocument.administrativeSanction) {
-      const scrapedAdministrativeData =
-        await scrapeBlankNmrAdministrativeSanction(
-          workDocument.administrativeSanction,
+      // Initialize default values
+      let technicalSanctionData: TechnicalSanctionData = {
+        technicalSanctionNo: "",
+        technicalSanctionDate: ""
+      };
+
+      let administrativeSanctionData: AdministrativeSanctionData = {
+        financialSanctionNo: "",
+        financialSanctionDate: ""
+      };
+
+      let workerData: MustrollGroup[] = [];
+      let masterRollNo = "";
+      let fromDate = "";
+      let toDate = "";
+
+      // Scrape technical sanction data
+      if (workDocument.technicalSanction) {
+        const scrapedTechnicalData = await scrapeBlankNmrTechnicalSanction(
+          workDocument.technicalSanction,
           workDetail.workCode
         );
-      if (scrapedAdministrativeData) {
-        administrativeSanctionData = scrapedAdministrativeData;
+        if (scrapedTechnicalData) {
+          technicalSanctionData = scrapedTechnicalData;
+        }
       }
-    }
 
-    // Scrape wage list FTO data
-    if (workDocument.wageListFTO) {
-      // Get unique mustroll numbers
-      const allMustroll = await getUniqueMustrollNumbers(
-        workDocument.wageListFTO
-      );
-
-      if (allMustroll.length > 0) {
-        masterRollNo = allMustroll[0]; // Use first mustroll as master roll no
-
-        // Get worker data for each mustroll number
-        for (const mustrollNo of allMustroll) {
-          const workers = await getWorkerDataByMustroll(
-            workDocument.wageListFTO,
-            mustrollNo
+      // Scrape administrative sanction data
+      if (workDocument.administrativeSanction) {
+        const scrapedAdministrativeData =
+          await scrapeBlankNmrAdministrativeSanction(
+            workDocument.administrativeSanction,
+            workDetail.workCode
           );
+        if (scrapedAdministrativeData) {
+          administrativeSanctionData = scrapedAdministrativeData;
+        }
+      }
 
-          if (workers.length > 0) {
-            if (!fromDate && !toDate && workers[0]) {
-              fromDate = workers[0].fromDate || "";
-              toDate = workers[0].toDate || "";
+      // Scrape wage list FTO data
+      if (workDocument.wageListFTO) {
+        // Get unique mustroll numbers
+        const allMustroll = await getUniqueMustrollNumbers(
+          workDocument.wageListFTO
+        );
+
+        if (allMustroll.length > 0) {
+          masterRollNo = allMustroll[0]; // Use first mustroll as master roll no
+
+          // Get worker data for each mustroll number
+          for (const mustrollNo of allMustroll) {
+            const workers = await getWorkerDataByMustroll(
+              workDocument.wageListFTO,
+              mustrollNo
+            );
+
+            if (workers.length > 0) {
+              if (!fromDate && !toDate && workers[0]) {
+                fromDate = workers[0].fromDate || "";
+                toDate = workers[0].toDate || "";
+              }
+
+              // Remove fromDate and toDate from individual worker objects
+              const workersWithoutDates = workers.map((worker) => ({
+                slNo: worker.slNo,
+                jobCardNo: worker.jobCardNo,
+                familyHeadName: worker.familyHeadName,
+                requestLetterFrom: worker.requestLetterFrom,
+                accountNo: worker.accountNo
+              }));
+              workerData.push({
+                mustrollNo,
+                workers: workersWithoutDates
+              });
             }
-
-            // Remove fromDate and toDate from individual worker objects
-            const workersWithoutDates = workers.map((worker) => ({
-              slNo: worker.slNo,
-              jobCardNo: worker.jobCardNo,
-              familyHeadName: worker.familyHeadName,
-              requestLetterFrom: worker.requestLetterFrom,
-              accountNo: worker.accountNo
-            }));
-            workerData.push({
-              mustrollNo,
-              workers: workersWithoutDates
-            });
           }
         }
       }
-    }
 
-    // If no worker data found
-    if (workerData.length === 0) {
-      res.status(404).json({
-        success: false,
-        error: "No worker data found in the scraped content",
-        code: "NO_WORKER_DATA_FOUND"
-      } as NMRResponse);
-      return;
-    }
-
-    // Prepare the response data with properly formatted dates
-    const nmrData: NMRData = {
-      district: panchayatData?.district_name_kn || "",
-      taluka: panchayatData?.block_name_kn || "",
-      gramPanchayat: panchayatData?.panchayat_name_kn || "",
-      financialYear: workDetail.financialYear || "",
-      workCode: workDetail.workCode,
-      workName: workDetail.workName || "",
-      fromDate: fromDate, // Already formatted above
-      toDate: toDate, // Already formatted above
-      technicalSanctionNo: technicalSanctionData.technicalSanctionNo,
-      technicalSanctionDate: technicalSanctionData.technicalSanctionDate,
-      financialSanctionNo: administrativeSanctionData.financialSanctionNo,
-      financialSanctionDate: administrativeSanctionData.financialSanctionDate,
-      masterRollNo: masterRollNo,
-      workerData: workerData
-    };
-
-    res.status(200).json({
-      success: true,
-      data: nmrData,
-      message: "NMR data retrieved successfully"
-    } as NMRResponse);
-  } catch (error: any) {
-    console.error("Error in get-nmr endpoint:", error);
-
-    if (axios.isAxiosError(error)) {
-      if (error.code === "ECONNABORTED") {
-        res.status(408).json({
-          success: false,
-          error: "Request timeout while fetching data",
-          code: "REQUEST_TIMEOUT"
-        } as NMRResponse);
-        return;
-      }
-      if (error.response?.status === 404) {
+      // If no worker data found
+      if (workerData.length === 0) {
         res.status(404).json({
           success: false,
-          error: "External URL not accessible",
-          code: "EXTERNAL_URL_NOT_FOUND"
+          error: "No worker data found in the scraped content",
+          code: "NO_WORKER_DATA_FOUND"
         } as NMRResponse);
         return;
       }
-    }
 
-    res.status(500).json({
-      success: false,
-      error: error.message || "Internal server error",
-      code: "FETCH_NMR_ERROR"
-    } as NMRResponse);
+      // Prepare the response data with properly formatted dates
+      const nmrData: NMRData = {
+        district: panchayatData?.district_name_kn || "",
+        taluka: panchayatData?.block_name_kn || "",
+        gramPanchayat: panchayatData?.panchayat_name_kn || "",
+        financialYear: workDetail.financialYear || "",
+        workCode: workDetail.workCode,
+        workName: workDetail.workName || "",
+        fromDate: fromDate, // Already formatted above
+        toDate: toDate, // Already formatted above
+        technicalSanctionNo: technicalSanctionData.technicalSanctionNo,
+        technicalSanctionDate: technicalSanctionData.technicalSanctionDate,
+        financialSanctionNo: administrativeSanctionData.financialSanctionNo,
+        financialSanctionDate: administrativeSanctionData.financialSanctionDate,
+        masterRollNo: masterRollNo,
+        workerData: workerData
+      };
+
+      res.status(200).json({
+        success: true,
+        data: nmrData,
+        message: "NMR data retrieved successfully"
+      } as NMRResponse);
+    } catch (error: any) {
+      console.error("Error in get-nmr endpoint:", error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.code === "ECONNABORTED") {
+          res.status(408).json({
+            success: false,
+            error: "Request timeout while fetching data",
+            code: "REQUEST_TIMEOUT"
+          } as NMRResponse);
+          return;
+        }
+        if (error.response?.status === 404) {
+          res.status(404).json({
+            success: false,
+            error: "External URL not accessible",
+            code: "EXTERNAL_URL_NOT_FOUND"
+          } as NMRResponse);
+          return;
+        }
+      }
+
+      res.status(500).json({
+        success: false,
+        error: error.message || "Internal server error",
+        code: "FETCH_NMR_ERROR"
+      } as NMRResponse);
+    }
   }
-});
+);
 
 export default blankNmrRouter;
