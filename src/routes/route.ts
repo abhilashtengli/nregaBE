@@ -355,6 +355,18 @@ scrapRouter.delete(
           error: "Work code is required"
         });
       }
+      const isDataPresent = await prisma.workDetail.findUnique({
+        where: {
+          id: id
+        }
+      });
+      if (!isDataPresent) {
+        return res.status(404).json({
+          code: "WORK_NOT_FOUND",
+          success: true,
+          message: "Work Data is already deleted"
+        });
+      }
 
       await deleteWork(id);
 
